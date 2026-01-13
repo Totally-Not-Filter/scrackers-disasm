@@ -35,14 +35,14 @@ FillRAM:	macro start,end
 ; ---------------------------------------------------------------------------
 ; start the Z80
 ; ---------------------------------------------------------------------------
-startZ80:       macro
+startZ80:	macro
 		move.w	#0,(z80_bus_request).l
 		endm
 
 ; ---------------------------------------------------------------------------
 ; stop the Z80
 ; ---------------------------------------------------------------------------
-stopZ80:        macro
+stopZ80:	macro
 		move.w	#$100,(z80_bus_request).l
 		endm
 
@@ -96,7 +96,7 @@ startBank macro {INTLABEL}
 __LABEL__ label *
 soundBankStart := __LABEL__
 soundBankName := "__LABEL__"
-    endm
+	endm
 
 DebugSoundbanks := 0
 
@@ -106,7 +106,7 @@ finishBank macro
 	elseif (DebugSoundbanks<>0)&&(MOMPASS=1)
 		message "soundBank \{soundBankName} has $\{$8000+soundBankStart-*} bytes free at end."
 	endif
-    endm
+	endm
 
 ; sign-extends a 32-bit integer to 64-bit
 ; all RAM addresses are run through this function to allow them to work in both 16-bit and 32-bit addressing modes
