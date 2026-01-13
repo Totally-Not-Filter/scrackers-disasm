@@ -5,7 +5,7 @@
 ; Full disassembly and documentation by Filter
 ; ---------------------------------------------------------------------------
 
-FixDriverBugs = fixBugs
+FixDriverBugs = FixBugs
 OptimiseDriver = 0
 
 ; ===========================================================================
@@ -3297,27 +3297,7 @@ ptr_mus86:	zmake68kPtrs Music86
 ptr_musend
 
 SoundIndex:
-	if ~~FixDriverBugs
-		; DANGER!
-		; These pointers along with the pointers inside of the SFX are
-		; all half a bank too long!
-ptr_sndA0:	zmake68kPtrs SoundA0+4000h
-ptr_sndA1:	zmake68kPtrs SoundA1+4000h
-ptr_sndA2:	zmake68kPtrs SoundA2+4000h
-ptr_sndA3:	zmake68kPtrs SoundA3+4000h
-ptr_sndA4:	zmake68kPtrs SoundA4+4000h
-ptr_sndA5:	zmake68kPtrs SoundA5+4000h
-ptr_sndA6:	zmake68kPtrs SoundA6+4000h
-ptr_sndA7:	zmake68kPtrs SoundA7+4000h
-ptr_sndA8:	zmake68kPtrs SoundA8+4000h
-ptr_sndA9:	zmake68kPtrs SoundA9+4000h
-ptr_sndAA:	zmake68kPtrs SoundAA+4000h
-ptr_sndAB:	zmake68kPtrs SoundAB+4000h
-ptr_sndAC:	zmake68kPtrs SoundAC+4000h
-ptr_sndAD:	zmake68kPtrs SoundAD+4000h
-ptr_sndAE:	zmake68kPtrs SoundAE+4000h
-ptr_sndAF:	zmake68kPtrs SoundAF+4000h
-	else
+	if FixDriverBugs
 ptr_sndA0:	zmake68kPtrs SoundA0
 ptr_sndA1:	zmake68kPtrs SoundA1
 ptr_sndA2:	zmake68kPtrs SoundA2
@@ -3334,21 +3314,41 @@ ptr_sndAC:	zmake68kPtrs SoundAC
 ptr_sndAD:	zmake68kPtrs SoundAD
 ptr_sndAE:	zmake68kPtrs SoundAE
 ptr_sndAF:	zmake68kPtrs SoundAF
+	else
+; DANGER!
+; These pointers along with the pointers inside of the SFX are
+; all half a bank too long!
+ptr_sndA0:	zmake68kPtrs SoundA0+4000h
+ptr_sndA1:	zmake68kPtrs SoundA1+4000h
+ptr_sndA2:	zmake68kPtrs SoundA2+4000h
+ptr_sndA3:	zmake68kPtrs SoundA3+4000h
+ptr_sndA4:	zmake68kPtrs SoundA4+4000h
+ptr_sndA5:	zmake68kPtrs SoundA5+4000h
+ptr_sndA6:	zmake68kPtrs SoundA6+4000h
+ptr_sndA7:	zmake68kPtrs SoundA7+4000h
+ptr_sndA8:	zmake68kPtrs SoundA8+4000h
+ptr_sndA9:	zmake68kPtrs SoundA9+4000h
+ptr_sndAA:	zmake68kPtrs SoundAA+4000h
+ptr_sndAB:	zmake68kPtrs SoundAB+4000h
+ptr_sndAC:	zmake68kPtrs SoundAC+4000h
+ptr_sndAD:	zmake68kPtrs SoundAD+4000h
+ptr_sndAE:	zmake68kPtrs SoundAE+4000h
+ptr_sndAF:	zmake68kPtrs SoundAF+4000h
 	endif
 ptr_sndend
 
 SpecSoundIndex:
-	if ~~FixDriverBugs
-		; DANGER!
-		; Once again, these pointers along with the pointers inside of the
-		; SFX are all half a bank too long!
-ptr_sndD0:	zmake68kPtrs SoundA0+4000h
-ptr_sndD1:	zmake68kPtrs SoundA1+4000h
-ptr_sndD2:	zmake68kPtrs SoundA3+4000h
-	else
+	if FixDriverBugs
 ptr_sndD0:	zmake68kPtrs SoundA0
 ptr_sndD1:	zmake68kPtrs SoundA1
 ptr_sndD2:	zmake68kPtrs SoundA3
+	else
+; DANGER!
+; Once again, these pointers along with the pointers inside of the
+; SFX are all half a bank too long!
+ptr_sndD0:	zmake68kPtrs SoundA0+4000h
+ptr_sndD1:	zmake68kPtrs SoundA1+4000h
+ptr_sndD2:	zmake68kPtrs SoundA3+4000h
 	endif
 ptr_specend
 

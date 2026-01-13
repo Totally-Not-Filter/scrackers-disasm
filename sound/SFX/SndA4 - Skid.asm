@@ -4,12 +4,12 @@ Snd04_Skid_Header:
 	smpsHeaderTempoSFX  $01
 	smpsHeaderChanSFX   $02
 
-	if ~~fixBugs
-	smpsHeaderSFXChannel cPSG2, Snd04_Skid_PSG2+$4000,	$00, $00
-	smpsHeaderSFXChannel cPSG3, Snd04_Skid_PSG3+$4000,	$00, $00
-	else
+	if FixBugs
 	smpsHeaderSFXChannel cPSG2, Snd04_Skid_PSG2,	$00, $00
 	smpsHeaderSFXChannel cPSG3, Snd04_Skid_PSG3,	$00, $00
+	else
+	smpsHeaderSFXChannel cPSG2, Snd04_Skid_PSG2+$4000,	$00, $00
+	smpsHeaderSFXChannel cPSG3, Snd04_Skid_PSG3+$4000,	$00, $00
 	endif
 
 ; PSG2 Data
@@ -19,10 +19,10 @@ Snd04_Skid_PSG2:
 
 Snd04_Skid_Loop01:
 	dc.b	nBb3, $01, nRst, $01
-	if ~~fixBugs
-	smpsLoop            $00, $0B, Snd04_Skid_Loop01+$4000
-	else
+	if FixBugs
 	smpsLoop            $00, $0B, Snd04_Skid_Loop01
+	else
+	smpsLoop            $00, $0B, Snd04_Skid_Loop01+$4000
 	endif
 	smpsStop
 
@@ -33,9 +33,9 @@ Snd04_Skid_PSG3:
 
 Snd04_Skid_Loop00:
 	dc.b	nAb3, $01, nRst, $01
-	if ~~fixBugs
-	smpsLoop            $00, $0B, Snd04_Skid_Loop00+$4000
-	else
+	if FixBugs
 	smpsLoop            $00, $0B, Snd04_Skid_Loop00
+	else
+	smpsLoop            $00, $0B, Snd04_Skid_Loop00+$4000
 	endif
 	smpsStop

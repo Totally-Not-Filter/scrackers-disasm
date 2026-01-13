@@ -1,17 +1,17 @@
 Snd00_Jump_Header:
 	smpsHeaderStartSong 3
-	if ~~fixBugs
-	smpsHeaderVoice     Snd00_Jump_Voices+$4000
-	else
+	if FixBugs
 	smpsHeaderVoice     Snd00_Jump_Voices
+	else
+	smpsHeaderVoice     Snd00_Jump_Voices+$4000
 	endif
 	smpsHeaderTempoSFX  $01
 	smpsHeaderChanSFX   $01
 
-	if ~~fixBugs
-	smpsHeaderSFXChannel cFM6, Snd00_Jump_FM6+$4000,	$EB, $09
-	else
+	if FixBugs
 	smpsHeaderSFXChannel cFM6, Snd00_Jump_FM6,	$EB, $09
+	else
+	smpsHeaderSFXChannel cFM6, Snd00_Jump_FM6+$4000,	$EB, $09
 	endif
 
 ; FM6 Data
@@ -42,4 +42,3 @@ Snd00_Jump_Voices:
 	smpsVcDecayLevel    $0F, $0F, $0F, $0F
 	smpsVcReleaseRate   $0F, $0F, $0F, $0F
 	smpsVcTotalLevel    $01, $33, $01, $55
-

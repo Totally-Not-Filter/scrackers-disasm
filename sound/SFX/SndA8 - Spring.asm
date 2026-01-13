@@ -1,17 +1,17 @@
 Snd08_Header:
 	smpsHeaderStartSong 3
-	if ~~fixBugs
-	smpsHeaderVoice     Snd08_Voices+$4000
-	else
+	if FixBugs
 	smpsHeaderVoice     Snd08_Voices
+	else
+	smpsHeaderVoice     Snd08_Voices+$4000
 	endif
 	smpsHeaderTempoSFX  $01
 	smpsHeaderChanSFX   $01
 
-	if ~~fixBugs
-	smpsHeaderSFXChannel cFM5, Snd08_FM5+$4000,	$00, $02
-	else
+	if FixBugs
 	smpsHeaderSFXChannel cFM5, Snd08_FM5,	$00, $02
+	else
+	smpsHeaderSFXChannel cFM5, Snd08_FM5+$4000,	$00, $02
 	endif
 
 ; FM5 Data
@@ -28,10 +28,10 @@ Snd08_Loop00:
 	dc.b	nC5, $02
 	smpsFMAlterVol      $01
 	dc.b	smpsNoAttack
-	if ~~fixBugs
-	smpsLoop            $00, $19, Snd08_Loop00+$4000
-	else
+	if FixBugs
 	smpsLoop            $00, $19, Snd08_Loop00
+	else
+	smpsLoop            $00, $19, Snd08_Loop00+$4000
 	endif
 	; This line is strange, as it doesn't exist in Sonic 3 & Knuckles.
 	smpsFMAlterVol      $E7
@@ -73,4 +73,3 @@ Snd08_Voices:
 	smpsVcDecayLevel    $0F, $01, $01, $02
 	smpsVcReleaseRate   $0F, $0F, $0F, $0F
 	smpsVcTotalLevel    $00, $11, $23, $19
-

@@ -1,19 +1,19 @@
 Snd05_Ring_Loss_Header:
 	smpsHeaderStartSong 3
-	if ~~fixBugs
-	smpsHeaderVoice     Snd05_Ring_Loss_Voices+$4000
-	else
+	if FixBugs
 	smpsHeaderVoice     Snd05_Ring_Loss_Voices
+	else
+	smpsHeaderVoice     Snd05_Ring_Loss_Voices+$4000
 	endif
 	smpsHeaderTempoSFX  $01
 	smpsHeaderChanSFX   $02
 
-	if ~~fixBugs
-	smpsHeaderSFXChannel cFM5, Snd05_Ring_Loss_FM5+$4000,	$00, $05
-	smpsHeaderSFXChannel cFM6, Snd05_Ring_Loss_FM6+$4000,	$00, $08
-	else
+	if FixBugs
 	smpsHeaderSFXChannel cFM5, Snd05_Ring_Loss_FM5,	$00, $05
 	smpsHeaderSFXChannel cFM6, Snd05_Ring_Loss_FM6,	$00, $08
+	else
+	smpsHeaderSFXChannel cFM5, Snd05_Ring_Loss_FM5+$4000,	$00, $05
+	smpsHeaderSFXChannel cFM6, Snd05_Ring_Loss_FM6+$4000,	$00, $08
 	endif
 
 ; FM5 Data
@@ -46,4 +46,3 @@ Snd05_Ring_Loss_Voices:
 	smpsVcDecayLevel    $00, $01, $00, $01
 	smpsVcReleaseRate   $0F, $0F, $0F, $0F
 	smpsVcTotalLevel    $00, $23, $00, $23
-

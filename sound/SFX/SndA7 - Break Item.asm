@@ -1,19 +1,19 @@
 Snd07_Header:
 	smpsHeaderStartSong 3
-	if ~~fixBugs
-	smpsHeaderVoice     Snd07_Voices+$4000
-	else
+	if FixBugs
 	smpsHeaderVoice     Snd07_Voices
+	else
+	smpsHeaderVoice     Snd07_Voices+$4000
 	endif
 	smpsHeaderTempoSFX  $01
 	smpsHeaderChanSFX   $02
 
-	if ~~fixBugs
-	smpsHeaderSFXChannel cFM5, Snd07_FM5+$4000,	$00, $00
-	smpsHeaderSFXChannel cFM6, Snd07_FM6+$4000,	$00, $0B
-	else
+	if FixBugs
 	smpsHeaderSFXChannel cFM5, Snd07_FM5,	$00, $00
 	smpsHeaderSFXChannel cFM6, Snd07_FM6,	$00, $0B
+	else
+	smpsHeaderSFXChannel cFM5, Snd07_FM5+$4000,	$00, $00
+	smpsHeaderSFXChannel cFM6, Snd07_FM6+$4000,	$00, $0B
 	endif
 
 ; FM5 Data
@@ -65,4 +65,3 @@ Snd07_Voices:
 	smpsVcDecayLevel    $02, $09, $09, $01
 	smpsVcReleaseRate   $0F, $0F, $0F, $0F
 	smpsVcTotalLevel    $00, $26, $00, $07
-
