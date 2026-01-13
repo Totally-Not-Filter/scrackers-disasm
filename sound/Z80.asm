@@ -250,14 +250,34 @@ WriteFMIorII:	rsttarget
 		ret	nz
 		add	a, (ix+zTrack.VoiceControl)
 		bit	2, (ix+zTrack.VoiceControl)
-	if ~~OptimiseDriver
-		jr	nz, WriteFMIIPart
-	else
+	if OptimiseDriver
 		jp	nz, WriteFMIIPart
+	else
+		jr	nz, WriteFMIIPart
 	endif
 ; End of function WriteFMIorII
 
-	if ~~OptimiseDriver
+	if OptimiseDriver
+; =============== S U B	R O U T	I N E =======================================
+
+		align 8
+WriteFMI:	rsttarget
+		ld	(zYM2612_A0), a
+		ld	a, c
+		ld	(zYM2612_D0), a
+		ret
+; End of function WriteFMI
+
+; =============== S U B	R O U T	I N E =======================================
+
+		align 8
+WriteFMII:	rsttarget
+		ld	(zYM2612_A1), a
+		ld	a, c
+		ld	(zYM2612_D1), a
+		ret
+; End of function WriteFMII
+	else
 ; =============== S U B	R O U T	I N E =======================================
 
 
@@ -282,31 +302,11 @@ WriteFMII:	rsttarget
 		ld	(zYM2612_D1), a
 		ret
 ; End of function WriteFMII
-	else
-; =============== S U B	R O U T	I N E =======================================
-
-		align 8
-WriteFMI:	rsttarget
-		ld	(zYM2612_A0), a
-		ld	a, c
-		ld	(zYM2612_D0), a
-		ret
-; End of function WriteFMI
-
-; =============== S U B	R O U T	I N E =======================================
-
-		align 8
-WriteFMII:	rsttarget
-		ld	(zYM2612_A1), a
-		ld	a, c
-		ld	(zYM2612_D1), a
-		ret
-; End of function WriteFMII
 	endif
 
 ; ---------------------------------------------------------------------------
 
-VInt:		rsttarget
+VInt:	rsttarget
 		di
 		push	af
 		push	iy
@@ -3122,10 +3122,10 @@ zPlayDigitalAudio:
 		di
 		ld	a, 2Bh
 		ld	c, 0
-	if ~~OptimiseDriver
-		call	WriteFMI
-	else
+	if OptimiseDriver
 		rst	WriteFMI
+	else
+		call	WriteFMI
 	endif
 
 loc_EED:
