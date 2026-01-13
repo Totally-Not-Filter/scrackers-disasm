@@ -152,4 +152,3 @@ Game_Over_Voices:
 	smpsVcDecayLevel    $00, $00, $00, $0F
 	smpsVcReleaseRate   $0F, $0F, $0F, $0F
 	smpsVcTotalLevel    $0B, $0A, $0D, $0C
-

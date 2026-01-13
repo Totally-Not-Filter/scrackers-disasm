@@ -278,4 +278,3 @@ Walkin_Voices:
 	smpsVcDecayLevel    $0F, $04, $00, $0F
 	smpsVcReleaseRate   $0F, $0F, $0F, $0F
 	smpsVcTotalLevel    $00, $0F, $18, $28
-

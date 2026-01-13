@@ -459,4 +459,3 @@ Moonrise_Voices:
 	smpsVcDecayLevel    $08, $09, $08, $0A
 	smpsVcReleaseRate   $0F, $0F, $0F, $0F
 	smpsVcTotalLevel    $00, $00, $00, $14
-

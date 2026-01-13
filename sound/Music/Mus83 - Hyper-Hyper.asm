@@ -624,4 +624,3 @@ Hyper_Hyper_Voices:
 	smpsVcDecayLevel    $01, $01, $01, $00
 	smpsVcReleaseRate   $0C, $0C, $0C, $0F
 	smpsVcTotalLevel    $00, $00, $03, $22
-
