@@ -163,10 +163,16 @@ bankswitch macro
 			rra
 			ld	(hl), a
 		endm
+	if OptimiseDriver
+		rept 3
+		ld	(hl), h
+		endm
+	else
 		xor	a
 		rept 3
 		ld	(hl), a
 		endm
+	endif
 	endm
 
 bankswitch2 macro addr68k

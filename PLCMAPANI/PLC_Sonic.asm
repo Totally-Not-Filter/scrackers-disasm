@@ -6,9 +6,9 @@
 ;
 ;	Each load cue consists of ten bytes:
 ;
-;		dc.w $QQQQ
-;		dc.l ($RR)<<24+VVVVVV/2
-;		dc.w $DDDD,$EEEE
+;	dc.w $QQQQ
+;	dc.l ($RR)<<24+VVVVVV/2
+;	dc.w $DDDD,$EEEE
 ;
 ;	$QQQQ = Number of tiles to load from Rom
 ;	$RR = Location to start reading the tiles

@@ -932,7 +932,7 @@ SetupVDPUsingTable:
 		lsl.w	#1,d0
 		lsl.w	#8,d0
 		move.w	d0,($FFFFD81A).w
-		move.w	($FFFFC9D2).w,d0
+		move.w	(word_C9D2).w,d0
 		lsl.w	#2,d0
 		lsl.w	#8,d0
 		move.w	d0,($FFFFD81C).w
@@ -2449,7 +2449,7 @@ loc_19B0:
 sub_19DA:
 		moveq	#0,d1
 		move.w	8(a0),d2
-		sub.w	($FFFFC9DE).w,d2
+		sub.w	(word_C9DE).w,d2
 		cmpi.w	#-$40,d2
 		bge.s	loc_19EC
 		moveq	#$40,d1
@@ -2462,7 +2462,7 @@ loc_19EC:
 loc_19F4:
 		addi.w	#$80,d2
 		move.w	obj.Ypos(a0),d3
-		sub.w	($FFFFC9EE).w,d3
+		sub.w	(word_C9EE).w,d3
 		cmpi.w	#-$40,d3
 		bge.s	loc_1A08
 		moveq	#$40,d1
@@ -2732,14 +2732,14 @@ sub_1BF6:
 		add.w	d2,d3
 		lsr.w	#7,d0
 		lsr.w	#7,d1
-		move.b	($FFFFC9E4).w,d2
+		move.b	(byte_C9E4).w,d2
 		lsl.w	d2,d1
 		add.w	d0,d1
-		movea.l	($FFFFC9FE).w,a0
+		movea.l	(lword_C9FE).w,a0
 		move.b	(a0,d1.w),d2
 		lsl.w	#7,d2
 		add.w	d3,d2
-		movea.l	($FFFFCA02).w,a0
+		movea.l	(lword_CA02).w,a0
 		lea	(a0,d2.w),a0
 		rts
 ; ===========================================================================
@@ -5467,38 +5467,7 @@ ARTNEM_MainMenusText:
 		binclude	"artnem/Main Menu Text.nem"
 		even
 
-		charset ' ', 0
-		charset '!', 1
-		charset '"', 2
-		charset	'#', "\x03\x04\x05"
-		charset '&', 6
-;		charset "'", 7
-		charset '(', "\x08\x09"
-		charset '*', $A
-		charset '+', $B
-		charset ',', $C
-		charset '-', $D
-		charset '.', "\x0E\x0F"
-		charset	'0', "\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19"
-		charset ':', $1A
-		charset ';', $1B
-		charset '<', $1C
-		charset '=', $1D
-		charset '>', $1E
-		charset '?', $1F
-		charset '@', $20
-		charset 'A', "\x21\x22\x23\x24\x25\x26\x27\x28\x29\x2A\x2B\x2C\x2D\x2E\x2F\x30\x31\x32\x33\x34\x35\x36\x37\x38\x39\x3A"
-		charset '[', $3B
-;		charset '\', $3C
-		charset ']', $3D
-		charset '^', $3E
-		charset '_', $3F
-		charset '`', $40
-		charset 'a', "\x41\x42\x43\x44\x45\x46\x47\x48\x49\x4A\x4B\x4C\x4D\x4E\x4F\x50\x51\x52\x53\x54\x55\x56\x57\x58\x59\x5A"
-		charset '{', $57
-		charset '|', $58
-		charset '}', $59
-		charset '~', $5A
+		charset	' ','~',0
 
 MAPUNC_TitleMenu_1:
 		binclude	"Uncompressed/MapuncTitleMenu01.bin" ; Uncompressed screen map for the title screen - banner

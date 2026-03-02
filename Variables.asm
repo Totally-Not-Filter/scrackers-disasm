@@ -12,10 +12,16 @@ unk_0B02:	ds.b $82
 unk_0B84:	ds.b $102
 unk_0C86:	ds.b $82
 v_lvldatabuffer:
+v_lvldata16x16:
 			ds.b $340*8	; blocks
+v_lvldata128x128:
 			ds.b $100*128	; chunks
+v_lvldatalayout:
 			ds.b $600	; layouts
 v_lvldatabuffer_end:
+
+unk_2A00:	= v_lvldata128x128+$2F8
+
 unk_AD08:	ds.b $1004
 			ds.b $AF4
 unk_C800:	ds.b $12
@@ -41,8 +47,13 @@ word_C946:	ds.w 1
 word_C9B8:	ds.w 1
 word_C9BA:	ds.w 1
 
+word_C9D2:	equ ramaddr($FFFFC9D2)
 v_vdp_increment:	equ ramaddr($FFFFC9D6)
-unk_2A00:	equ ramaddr($FFFF2A00)
+word_C9DE:	equ ramaddr($FFFFC9DE)
+byte_C9E4:	equ ramaddr($FFFFC9E4)
+word_C9EE:	equ ramaddr($FFFFC9EE)
+lword_C9FE:	equ ramaddr($FFFFC9FE)
+lword_CA02:	equ ramaddr($FFFFCA02)
 v_pal:	equ ramaddr($FFFFD3E4)
 v_dmaqueueindex:	equ ramaddr($FFFFD4F8)
 v_ngfx_buffer:	equ ramaddr($FFFFD59A)
