@@ -5345,7 +5345,7 @@ TitleLoad_Continue:
 		move.l	#$78000003,(vdp_control_port).l
 		move.l	#0,(vdp_data_port).l
 
-		charset '>', $1E
+		charset	' ','~',0
 		move.l	#(">")<<16+$D0,(vdp_data_port).l	; load '>' symbol and x position
 		charset
 
@@ -7265,38 +7265,7 @@ OptionSoundTest_Main:
 		addq.w	#4,(v_subgamemode).w
 		rts
 ; ---------------------------------------------------------------------------
-		charset ' ', 0
-		charset '!', 1
-		charset '"', 2
-		charset	'#', "\x03\x04\x05"
-		charset '&', 6
-;		charset "'", 7
-		charset '(', "\x08\x09"
-		charset '*', $A
-		charset '+', $B
-		charset ',', $C
-		charset '-', $D
-		charset '.', "\x0E\x0F"
-		charset	'0', "\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19"
-		charset ':', $1A
-		charset ';', $1B
-		charset '<', $1C
-		charset '=', $1D
-		charset '>', $1E
-		charset '?', $1F
-		charset '@', $20
-		charset 'A', "\x21\x22\x23\x24\x25\x26\x27\x28\x29\x2A\x2B\x2C\x2D\x2E\x2F\x30\x31\x32\x33\x34\x35\x36\x37\x38\x39\x3A"
-		charset '[', $3B
-;		charset '\', $3C
-		charset ']', $3D
-		charset '^', $3E
-		charset '_', $3F
-		charset '`', $40
-		charset 'a', "\x41\x42\x43\x44\x45\x46\x47\x48\x49\x4A\x4B\x4C\x4D\x4E\x4F\x50\x51\x52\x53\x54\x55\x56\x57\x58\x59\x5A"
-		charset '{', $57
-		charset '|', $58
-		charset '}', $59
-		charset '~', $5A
+		charset	' ','~',0
 
 OptionText:
 		dc.w "OPTION"
