@@ -64,43 +64,43 @@ zTrack ENDSTRUCT
 	phase $1C00
 
 	ds.b 4
-zMusicBank	ds.b 1
-zSoundBank	ds.b 1
-zFadeCounter	ds.b 1	; fade volume counter
+zMusicBank:	ds.b 1
+zSoundBank:	ds.b 1
+zFadeCounter:	ds.b 1	; fade volume counter
 	ds.b 2
 
-zTempVariablesStart
+zTempVariablesStart:
 
-zNextSound	ds.b 1
-zSoundQueueStart
-zSoundQueue0	ds.b 1
-zSoundQueue1	ds.b 1
-zSoundQueue2	ds.b 1
-zSoundQueueEnd
+zNextSound:	ds.b 1
+zSoundQueueStart:
+zSoundQueue0:	ds.b 1
+zSoundQueue1:	ds.b 1
+zSoundQueue2:	ds.b 1
+zSoundQueueEnd:
 
-zFadeOutTimeout	ds.b 1
-zFadeDelay	ds.b 1
-zFadeDelayTimeout	ds.b 1
-zPauseFlag	ds.b 1
-zHaltFlag	ds.b 1
-zFM3Settings	ds.b 1
-zTempoAccumulator	ds.b 1
-zCurrentTempo	ds.b 1
-zUnk_1C15	ds.b 1
+zFadeOutTimeout:	ds.b 1
+zFadeDelay:	ds.b 1
+zFadeDelayTimeout:	ds.b 1
+zPauseFlag:	ds.b 1
+zHaltFlag:	ds.b 1
+zFM3Settings:	ds.b 1
+zTempoAccumulator:	ds.b 1
+zCurrentTempo:	ds.b 1
+zUnk_1C15:	ds.b 1
 zCommunicationByte	ds.b 1
-zUnk_1C17	ds.b 1
-zUnk_1C18	ds.b 1
-zUpdateSound	ds.b 1
-zSpecSFXMode	ds.l 2
-zSFXMode	ds.l 2
-zMusicMode	ds.l 2
-zSFXSaveIndex	ds.b 1
-zSongPosition	ds.w 1
-zTrackInitPos	ds.w 1
-zVoiceTblPtr	ds.w 1
-zSFXVoiceTblPtr	ds.w 1
-zSFXTempoDivider	ds.b 1
-zDACIndex	ds.b 1
+zUnk_1C17:	ds.b 1
+zUnk_1C18:	ds.b 1
+zUpdateSound:	ds.b 1
+zSpecSFXMode:	ds.l 2
+zSFXMode:	ds.l 2
+zMusicMode:	ds.l 2
+zSFXSaveIndex:	ds.b 1
+zSongPosition:	ds.w 1
+zTrackInitPos:	ds.w 1
+zVoiceTblPtr:	ds.w 1
+zSFXVoiceTblPtr:	ds.w 1
+zSFXTempoDivider:	ds.b 1
+zDACIndex:	ds.b 1
 	ds.b 1
 	ds.b 1
 	ds.b 1
@@ -108,29 +108,29 @@ zDACIndex	ds.b 1
 ; Now starts song and SFX z80 RAM
 ; Max number of music channels: 6 FM + 3 PSG or 1 DAC + 5 FM + 3 PSG
 zTracksStart
-zSongDAC	zTrack
-zSongFM1	zTrack
-zSongFM2	zTrack
-zSongFM3	zTrack
-zSongFM4	zTrack
-zSongFM5	zTrack
-zSongFM6	zTrack
-zSongPSG1	zTrack
-zSongPSG2	zTrack
-zSongPSG3	zTrack
+zSongDAC:	zTrack
+zSongFM1:	zTrack
+zSongFM2:	zTrack
+zSongFM3:	zTrack
+zSongFM4:	zTrack
+zSongFM5:	zTrack
+zSongFM6:	zTrack
+zSongPSG1:	zTrack
+zSongPSG2:	zTrack
+zSongPSG3:	zTrack
 zTracksEnd
 ; This is RAM for backup of songs (when 1-up jingle is playing)
 ; and for SFX channels. Note these two overlap.
 ; Max number of SFX channels: 4 FM + 3 PSG
-zTracksSFXStart
-zSFX_FM3	zTrack
-zSFX_FM4	zTrack
-zSFX_FM5	zTrack
-zSFX_FM6	zTrack
-zSFX_PSG1	zTrack
-zSFX_PSG2	zTrack
-zSFX_PSG3	zTrack
-zTracksSFXEnd
+zTracksSFXStart:
+zSFX_FM3:	zTrack
+zSFX_FM4:	zTrack
+zSFX_FM5:	zTrack
+zSFX_FM6:	zTrack
+zSFX_PSG1:	zTrack
+zSFX_PSG2:	zTrack
+zSFX_PSG3:	zTrack
+zTracksSFXEnd:
 
 zTracksSpecSFXStart
 zSpecSFX_FM3	zTrack
@@ -222,7 +222,7 @@ zmake68kBank function addr,(((addr&3F8000h)/zROMWindow))
 
 loc_0:
 		di
-	if ~~OptimiseDriver
+	if OptimiseDriver=0
 		di
 	endif
 		im	1
@@ -359,7 +359,9 @@ VInt:	rsttarget
 		exx
 		pop	iy
 		pop	af
+	if OptimiseDriver=0
 		pop	af
+	endif
 		jp	loc_EED
 ; ---------------------------------------------------------------------------
 
@@ -409,7 +411,7 @@ loc_B9:
 		ld	de, 0				; set DAC length to nothing
 	endif
 		ld	hl, zSoundBank
-	if ~~FixDriverBugs
+	if FixDriverBugs=0
 		; DANGER!
 		; This is bugged, the DAC needs de to be cleared in order to
 		; not continue checking if there is a sample. This leads to
@@ -789,7 +791,7 @@ loc_2CB:
 
 ; =============== S U B	R O U T	I N E =======================================
 
-	if ~~OptimiseDriver
+	if OptimiseDriver=0
 TrackTimeout:
 		ld	a, (ix+zTrack.DurationTimeout)
 		dec	a
@@ -943,7 +945,7 @@ loc_382:
 		push	bc
 		jr	nc, loc_38E
 		add	a, (hl)
-	if ~~OptimiseDriver
+	if OptimiseDriver=0
 		and	7Fh
 	endif
 		ld	c, a
@@ -1303,8 +1305,13 @@ WriteInsReg:
 
 PlaySoundID:
 		ld	a, (zNextSound)
+	if OptimiseDriver
+		or	a
+		jp	p, StopAllSound			; 00-7F	- Stop All
+	else
 		bit	7, a
 		jp	z, StopAllSound			; 00-7F	- Stop All
+	endif
 	if FixDriverBugs
 		cp	bgm_Last			; is the ID music?
 		jp	c, zPlayMusic			; if so, play music
@@ -1514,7 +1521,7 @@ loc_652:
 		ld	h, (hl)
 		ld	l, a
 		ld	(zSFXVoiceTblPtr), hl
-	if ~~OptimiseDriver
+	if OptimiseDriver=0
 		xor	a
 		ld	(zUnk_1C15), a
 	endif
@@ -1859,7 +1866,7 @@ loc_849:
 		inc	ix
 		pop	bc
 		djnz	loc_849
-	if ~~OptimiseDriver
+	if OptimiseDriver=0
 		ld	b, 7
 	endif
 		xor	a
@@ -1901,7 +1908,7 @@ DisableSSGEG:
 ; ---------------------------------------------------------------------------
 
 SilenceAll:
-	if ~~OptimiseDriver
+	if OptimiseDriver=0
 		call	SilencePSG
 	endif
 		push	bc
@@ -1992,7 +1999,7 @@ loc_8D1:
 
 
 DoSoundQueue:
-	if ~~OptimiseDriver
+	if OptimiseDriver=0
 		ld	a, r
 		ld	(zUnk_1C17), a
 	endif
@@ -2154,7 +2161,7 @@ loc_A3E:
 		or	a
 		jp	p, SetDuration
 		dec	de
-	if ~~OptimiseDriver
+	if OptimiseDriver=0
 		ld	a, (ix+zTrack.SavedDuration)
 		ld	(ix+zTrack.DurationTimeout), a
 	endif
@@ -2345,7 +2352,7 @@ loc_B32:
 		pop	hl
 
 loc_B33:
-	if ~~OptimiseDriver
+	if OptimiseDriver=0
 		and	7Fh
 	endif
 		ld	c, a
@@ -2521,7 +2528,7 @@ cfF4_ModType:
 
 cfF2_StopTrk:
 		res	7, (ix+zTrack.PlaybackControl)
-	if ~~OptimiseDriver
+	if OptimiseDriver=0
 		ld	a, 1Fh
 		ld	(zUnk_1C15), a
 	endif
@@ -3045,8 +3052,13 @@ DoPSGVolEnv:
 		ld	a, (hl)
 	endif
 		pop	hl
+	if OptimiseDriver
+		or	a
+		jp	p, VolEnv_Next
+	else
 		bit	7, a
 		jr	z, VolEnv_Next
+	endif
 		cp	83h
 		jr	z, VolEnv_Off			; 83 - stop the	tone
 		cp	81h
@@ -3063,7 +3075,7 @@ DoPSGVolEnv:
 ; ---------------------------------------------------------------------------
 
 VolEnv_Off:
-	if ~~FixDriverBugs
+	if OptimiseDriver=0
 		set	4, (ix+zTrack.PlaybackControl)
 	endif
 		pop	hl

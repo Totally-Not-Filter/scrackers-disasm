@@ -9,10 +9,10 @@
 
 FixBugs = 0
 ;	| If 1, fixes some bugs (mainly sound driver related)
-zeroOffsetOptimization = 0
+ZeroOffsetOptimization = 0
 ;	| If 1, makes a handful of zero-offset instructions smaller
 ; Include SMPS2ASM, for expressing SMPS bytecode in a portable and human-readable form.
-FixMusicAndSFXDataBugs = 0
+FixMusicAndSFXDataBugs = FixBugs
 SonicDriverVer = 3 ; Tell SMPS2ASM that we are targetting Sonic 3's sound driver
 	include "sound/_smps2asm_inc.asm"
 	include "MacroSetup.asm"
