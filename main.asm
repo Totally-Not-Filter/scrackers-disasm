@@ -321,7 +321,7 @@ loc_36E:
 		lea	InitialVDPSetupArray(pc),a0	; load VDP setup values address to a0
 		jsr	(SetupVDPUsingTable).l
 		resetZ80				; reset the Z80
-		move	#$2000,sr			; set the stack register
+		move.w	#$2000,sr			; set the stack register
 
 MAINPROGLOOP:
 		jsr	(MAINPROG).w			; jump to the actual loop (really should be a jmp since there's no way for it to return)
@@ -2367,7 +2367,7 @@ loc_1934:
 
 loc_193E:
 		move.l	(sp)+,d7
-		ori	#8,sr
+		ori.w	#8,sr
 		rts
 
 loc_1946:
@@ -2587,8 +2587,8 @@ sub_1AC8:
 		lea	(unk_0600&$FFFFFF).l,a1
 
 loc_1AF0:
-		exg	d6,d7
-		exg	d4,d5
+		exg.l	d6,d7
+		exg.l	d4,d5
 		lea	(CollisionArrayNorm).l,a2
 		jmp	loc_1AFE(pc,d0.w)
 ; ===========================================================================
@@ -5227,7 +5227,7 @@ SegaToVDP:
 		move.l	(a0)+,d0			; load VDP settings to d0
 		move.w	(a0)+,d7			; load no of repeats to d7
 		lea	(vdp_data_port).l,a5		; load VDP address to a5
-		move	sr,-(sp)			; move sr to stack pointer
+		move.w	sr,-(sp)			; move sr to stack pointer
 		disable_ints				; set the stack register (Stopping VBlank)
 		move.l	d0,4(a5)			; set VDP settings to VDP
 
@@ -5966,7 +5966,7 @@ loc_82DE:
 		move.w	($FFFFFAF0).w,d1
 		btst	#0,($FFFFCDE1).w
 		beq.s	loc_8320
-		exg	d0,d1
+		exg.l	d0,d1
 
 loc_8320:
 		lea	($FFFFCA5E).w,a0
@@ -18132,7 +18132,7 @@ loc_F5D8:
 		movea.l	a0,a3
 		disable_ints
 		jsr	(sub_14E4).w
-		move	#$2000,sr
+		move.w	#$2000,sr
 		rts
 ; END OF FUNCTION CHUNK	FOR sub_F538
 ; ---------------------------------------------------------------------------
@@ -18154,9 +18154,7 @@ loc_F612:
 
 locret_F63A:
 		rts
-; END OF FUNCTION CHUNK	FOR sub_F4FE
 ; ---------------------------------------------------------------------------
-; START	OF FUNCTION CHUNK FOR sub_F538
 
 loc_F63C:
 		subq.w	#2,($FFFFFDC8).w
@@ -18175,9 +18173,7 @@ loc_F652:
 		move.w	($FFFFD816).w,d3
 		jsr	(sub_86E).w
 		rts
-; END OF FUNCTION CHUNK	FOR sub_F538
 ; ---------------------------------------------------------------------------
-; START	OF FUNCTION CHUNK FOR sub_F4FE
 
 loc_F668:
 		addq.w	#1,($FFFFFDCA).w
@@ -18205,9 +18201,7 @@ loc_F668:
 
 locret_F6B6:
 		rts
-; END OF FUNCTION CHUNK	FOR sub_F4FE
 ; ---------------------------------------------------------------------------
-; START	OF FUNCTION CHUNK FOR sub_F538
 
 loc_F6B8:
 		subq.w	#1,($FFFFFDCA).w
@@ -18245,9 +18239,7 @@ loc_F6CA:
 		addi.w	#$280,d3
 		bsr.w	sub_F904
 		rts
-; END OF FUNCTION CHUNK	FOR sub_F538
 ; ---------------------------------------------------------------------------
-; START	OF FUNCTION CHUNK FOR sub_F4FE
 
 loc_F720:
 		addq.w	#1,($FFFFFDCC).w
@@ -18309,9 +18301,7 @@ loc_F720:
 
 locret_F7E6:
 		rts
-; END OF FUNCTION CHUNK	FOR sub_F4FE
 ; ---------------------------------------------------------------------------
-; START	OF FUNCTION CHUNK FOR sub_F538
 
 loc_F7E8:
 		subq.w	#1,($FFFFFDCC).w
@@ -18361,9 +18351,7 @@ loc_F7F8:
 		addq.w	#2,d3
 		jsr	(sub_86E).w
 		rts
-; END OF FUNCTION CHUNK	FOR sub_F538
 ; ---------------------------------------------------------------------------
-; START	OF FUNCTION CHUNK FOR sub_F4FE
 
 loc_F884:
 		addq.w	#3,($FFFFFDCE).w
@@ -18382,9 +18370,7 @@ loc_F884:
 
 locret_F8B0:
 		rts
-; END OF FUNCTION CHUNK	FOR sub_F4FE
 ; ---------------------------------------------------------------------------
-; START	OF FUNCTION CHUNK FOR sub_F538
 
 loc_F8B2:
 		subq.w	#3,($FFFFFDCE).w
