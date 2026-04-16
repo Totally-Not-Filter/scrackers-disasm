@@ -50,8 +50,8 @@ Checksum:	dc.w 0
 		dc.b "J               "
 ROM_Start:	dc.l RomStart
 ROM_Finish:	dc.l (EndofROM*2)-1
-		dc.l v_startofram&$FFFFFF
-		dc.l $FFFFFF
+		dc.l v_start&$FFFFFF
+		dc.l (v_end-1)&$FFFFFF
 		dc.l $20202020
 		dc.l $20202020
 		dc.l $20202020
@@ -137,7 +137,6 @@ EntryPoint:
 		bra.s	GameProgram
 
 ; ===========================================================================
-; ---------------------------------------------------------------------------
 SetupValues:	dc.w $8000				; VDP register Start
 		dc.w bytesToLcnt($10000)		; Repeat times for clearing 68k ram
 		dc.w $100				; VDP register Number increase (Used for Z80 functioning too)
@@ -217,7 +216,6 @@ Z80StartupCodeEnd:
 		dc.l $40000010
 PSGInitValues:	dc.b $9F,$BF,$DF,$FF			; PSG Values
 PSGInitValues_End
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Game Start
@@ -401,7 +399,7 @@ DMAToCRAM:
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 DMAValues:
-		dc.w $9340			; DMA Transfer Size (Lower and Upper bytes, in order: XX00, 00XX)
+		dc.w $9300+(v_pal_end-v_pal)/2	; DMA Transfer Size (Lower and Upper bytes, in order: XX00, 00XX)
 		dc.w $9400
 		dc.l (v_pal&$FFFFFF)/2			; DMA Transfer Source (7FE9F2 x 2 = FFD3E4)
 DMAValues_End
@@ -874,11 +872,11 @@ MapScreen:
 		dbf	d5,.cell			; repeat til columns are dumped
 		add.l	d6,d0				; increase VRAM location for next set of columns
 		dbf	d2,.line			; repeat til all rows are dumped
-		cmp.w	d0,d0				; ?? Probably left in by accident
+		cmp.w	d0,d0				; essentially a "nop"
 		rts
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
-		ori	#1,ccr
+		ori.b	#1,ccr
 		rts
 ; ---------------------------------------------------------------------------
 ; ===========================================================================
@@ -906,7 +904,7 @@ SetupVDPUsingTable:
 		bra.s	.loop				; keep going...
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
-		ori	#1,ccr				; (???)
+		ori.b	#1,ccr				; (???)
 		rts
 ; ---------------------------------------------------------------------------
 ; ===========================================================================
@@ -915,7 +913,7 @@ SetupVDPUsingTable:
 ; ---------------------------------------------------------------------------
 
 .finish:
-		lea	4(a1),a1
+		lea	4(a1),a1				; this could be improved by using "addq.w	#4,a1"
 		move.w	(a1)+,d0
 		lsl.w	#2,d0
 		lsl.w	#8,d0
@@ -936,7 +934,7 @@ SetupVDPUsingTable:
 		lsl.w	#2,d0
 		lsl.w	#8,d0
 		move.w	d0,($FFFFD81C).w
-		cmp.w	d0,d0			; ?
+		cmp.w	d0,d0				; essentially a "nop"
 		rts
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -1058,10 +1056,11 @@ sub_A06:
 		rts
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
-byte_A4A:	dc.b $00,$01,$01,$01
-		dc.b $02,$03,$03,$03
-		dc.b $02,$03,$03,$03
-		dc.b $02,$03,$03,$03
+byte_A4A:
+		dc.b 0,1,1,1
+		dc.b 2,3,3,3
+		dc.b 2,3,3,3
+		dc.b 2,3,3,3
 ; ---------------------------------------------------------------------------
 ; ===========================================================================
 
@@ -1247,12 +1246,12 @@ loc_C4C:
 		rts
 
 loc_C5C:
-		ori	#1,ccr
+		ori.b	#1,ccr
 		rts
 
 loc_C62:
 		startZ80
-		ori	#1,ccr
+		ori.b	#1,ccr
 		rts
 ; ===========================================================================
 
@@ -1393,7 +1392,7 @@ sub_DAA:
 ; ---------------------------------------------------------------------------
 
 ;LoadPLC:
-		lea	($FFFFD79A).w,a1
+		lea	(v_plc_buffer).w,a1
 
 loc_EF8:
 		tst.l	(a1)
@@ -1416,7 +1415,7 @@ locret_F0C:
 
 ;NewPLC:
 		bsr.s	ClearPLC
-		lea	($FFFFD79A).w,a1
+		lea	(v_plc_buffer).w,a1
 		move.w	(a0)+,d0
 		bmi.s	locret_F20
 
@@ -1430,8 +1429,8 @@ locret_F20:
 ; ===========================================================================
 
 ClearPLC:
-		lea	($FFFFD79A).w,a1
-		moveq	#bytesToXcnt($60,6),d0
+		lea	(v_plc_buffer).w,a1
+		moveq	#bytesToXcnt(v_plc_buffer_end-v_plc_buffer,6),d0
 
 .loop:
 		clr.l	(a1)+
@@ -1441,11 +1440,11 @@ ClearPLC:
 ; ===========================================================================
 
 ;RunPLC:
-		tst.l	($FFFFD79A).w
+		tst.l	(v_plc_buffer).w
 		beq.s	locret_F84
-		tst.w	($FFFFD812).w
+		tst.w	(v_plc_patternsleft).w
 		bne.s	locret_F84
-		movea.l	($FFFFD79A).w,a0
+		movea.l	(v_plc_buffer).w,a0
 		lea	NemPCD_WriteRowToVDP(pc),a3
 		lea	(v_ngfx_buffer).w,a1
 		move.w	(a0)+,d2
@@ -1454,42 +1453,42 @@ ClearPLC:
 
 loc_F52:
 		andi.w	#$7FFF,d2
-		move.w	d2,($FFFFD812).w
+		move.w	d2,(v_plc_patternsleft).w
 		bsr.w	NemDec_BuildCodeTable
 		move.b	(a0)+,d5
 		asl.w	#8,d5
 		move.b	(a0)+,d5
 		moveq	#$10,d6
 		moveq	#0,d0
-		move.l	a0,($FFFFD79A).w
-		move.l	a3,($FFFFD80E).w
-		move.l	d0,($FFFFD7FA).w
-		move.l	d0,($FFFFD7FE).w
-		move.l	d0,($FFFFD802).w
-		move.l	d5,($FFFFD806).w
-		move.l	d6,($FFFFD80A).w
+		move.l	a0,(v_plc_buffer).w
+		move.l	a3,(v_plc_shiftvalue).w
+		move.l	d0,(v_plc_ptrnemcode).w
+		move.l	d0,(v_plc_repeatcount).w
+		move.l	d0,(v_plc_paletteindex).w
+		move.l	d5,(v_plc_previousrow).w
+		move.l	d6,(v_plc_dataword).w
 
 locret_F84:
 		rts
 ; ===========================================================================
 
 ;ProcessDPLC:
-		tst.w	($FFFFD812).w
+		tst.w	(v_plc_patternsleft).w
 		beq.w	locret_101E
-		move.w	#6,($FFFFD814).w
+		move.w	#6,(v_plc_framepatternsleft).w
 		moveq	#0,d0
-		move.w	($FFFFD79E).w,d0
-		addi.w	#$C0,($FFFFD79E).w
+		move.w	(v_plc_buffer+4).w,d0
+		addi.w	#$C0,(v_plc_buffer+4).w
 		bra.s	loc_FBA
 ; ===========================================================================
 
 ;ProcessDPLC2:
-		tst.w	($FFFFD812).w
+		tst.w	(v_plc_patternsleft).w
 		beq.s	locret_101E
-		move.w	#3,($FFFFD814).w
+		move.w	#3,(v_plc_framepatternsleft).w
 		moveq	#0,d0
-		move.w	($FFFFD79E).w,d0
-		addi.w	#$60,($FFFFD79E).w
+		move.w	(v_plc_buffer+4).w,d0
+		addi.w	#$60,(v_plc_buffer+4).w
 
 loc_FBA:
 		lea	(vdp_control_port).l,a4
@@ -1499,37 +1498,37 @@ loc_FBA:
 		swap	d0
 		move.l	d0,(a4)
 		subq.w	#4,a4
-		movea.l	($FFFFD79A).w,a0
-		move.l	($FFFFD7FA).w,d0
-		move.l	($FFFFD7FE).w,d1
-		move.l	($FFFFD802).w,d2
-		move.l	($FFFFD806).w,d5
-		move.l	($FFFFD80A).w,d6
-		movea.l	($FFFFD80E).w,a3
+		movea.l	(v_plc_buffer).w,a0
+		move.l	(v_plc_ptrnemcode).w,d0
+		move.l	(v_plc_repeatcount).w,d1
+		move.l	(v_plc_paletteindex).w,d2
+		move.l	(v_plc_previousrow).w,d5
+		move.l	(v_plc_dataword).w,d6
+		movea.l	(v_plc_shiftvalue).w,a3
 		lea	(v_ngfx_buffer).w,a1
 
 loc_FEE:
 		movea.w	#8,a5
 		bsr.w	NemPCD_NewRow
-		subq.w	#1,($FFFFD812).w
+		subq.w	#1,(v_plc_patternsleft).w
 		beq.s	ProcessDPLC_Pop
-		subq.w	#1,($FFFFD814).w
+		subq.w	#1,(v_plc_framepatternsleft).w
 		bne.s	loc_FEE
-		move.l	a0,($FFFFD79A).w
-		move.l	d0,($FFFFD7FA).w
-		move.l	d1,($FFFFD7FE).w
-		move.l	d2,($FFFFD802).w
-		move.l	d5,($FFFFD806).w
-		move.l	d6,($FFFFD80A).w
-		move.l	a3,($FFFFD80E).w
+		move.l	a0,(v_plc_buffer).w
+		move.l	d0,(v_plc_ptrnemcode).w
+		move.l	d1,(v_plc_repeatcount).w
+		move.l	d2,(v_plc_paletteindex).w
+		move.l	d5,(v_plc_previousrow).w
+		move.l	d6,(v_plc_dataword).w
+		move.l	a3,(v_plc_shiftvalue).w
 
 locret_101E:
 		rts
 ; ===========================================================================
 
 ProcessDPLC_Pop:
-		lea	($FFFFD79A).w,a0
-		moveq	#bytesToLcnt($58),d0
+		lea	(v_plc_buffer).w,a0
+		moveq	#bytesToLcnt(v_plc_buffer_end-v_plc_buffer-6),d0
 
 loc_1026:
 		move.l	6(a0),(a0)+
@@ -16853,7 +16852,7 @@ loc_EB78:
 		addq.b	#2,$27(a6)
 		bsr.s	loc_EB34
 		move.w	(sp)+,d0
-		ori	#1,ccr
+		ori.b	#1,ccr
 		rts
 
 ; =============== S U B	R O U T	I N E =======================================
