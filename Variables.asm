@@ -49,6 +49,9 @@ word_C9BA:	ds.w 1
 
 word_C9D2:	equ ramaddr($FFFFC9D2)
 v_vdp_increment:	equ ramaddr($FFFFC9D6)
+word_C9D8:	equ	ramaddr($FFFFC9D8)
+v_window_x:	equ	ramaddr($FFFFC9DA)
+v_window_y:	equ	ramaddr($FFFFC9DC)
 word_C9DE:	equ ramaddr($FFFFC9DE)
 byte_C9E4:	equ ramaddr($FFFFC9E4)
 word_C9EE:	equ ramaddr($FFFFC9EE)

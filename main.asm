@@ -4973,7 +4973,7 @@ Sega_AltAnimation:
 
 loc_6C48:
 		move.w	#$9003,(vdp_control_port).l
-		move.w	#$9003,($FFFFC9D8).w
+		move.w	#$9003,(word_C9D8).w
 		lea	(vdp_data_port).l,a3
 		movea.w	($FFFFD816).w,a6
 		lea	$BE(a6),a6
@@ -5703,7 +5703,7 @@ loc_80B2:
 		dbf	d1,loc_80B2
 		move.w	d0,($FFFFD830).w
 		move.w	d0,($FFFFD832).w
-		lea	($FFFFC9DE).w,a0
+		lea	(word_C9DE).w,a0
 		moveq	#bytesToLcnt($40),d1
 
 loc_80C6:
@@ -5934,7 +5934,7 @@ loc_82BA:
 
 loc_82C4:
 		move.w	d0,($FFFFD830).w
-		move.w	d0,($FFFFC9DE).w
+		move.w	d0,(word_C9DE).w
 		move.w	($FFFFD832).w,d0
 		bpl.s	loc_82D4
 		moveq	#0,d0
@@ -6610,7 +6610,7 @@ loc_88D2:
 		bne.s	loc_8968
 		clr.w	($FFFFD830).w
 		clr.w	($FFFFD832).w
-		clr.w	($FFFFC9DE).w
+		clr.w	(word_C9DE).w
 		clr.w	($FFFFC9EE).w
 		clr.w	($FFFFCA1E).w
 		clr.w	($FFFFCA2E).w
@@ -6768,7 +6768,7 @@ loc_8B1C:
 		jsr	(DMA_WriteData).w
 		lea	(unk_0A00&$FFFFFF).l,a3
 		lea	(unk_0B02&$FFFFFF).l,a4
-		lea	($FFFFC9DE).w,a5
+		lea	(word_C9DE).w,a5
 		jsr	(sub_14E4).w
 		lea	(unk_0B84&$FFFFFF).l,a3
 		lea	(unk_0C86&$FFFFFF).l,a4
@@ -7543,7 +7543,7 @@ loc_9670:
 
 loc_967C:
 		disable_ints
-		lea	($FFFFC9DE).w,a1
+		lea	(word_C9DE).w,a1
 		move.w	#$104,$1E(a1)
 		lea	PAL_SpeedSliderZone(pc),a0
 		lea	($FFFFD424).w,a2
@@ -7554,7 +7554,7 @@ loc_967C:
 		movea.l	a1,a0
 		lea	SSZ_ArtLocs(pc),a2
 		bsr.w	sub_9D30
-		lea	($FFFFC9DE).w,a0
+		lea	(word_C9DE).w,a0
 		move.l	#v_lvldatabuffer&$FFFFFF,$28(a0)
 		lea	SSZ_MapFGLocs(pc),a2
 		bsr.w	DecEniMapLocs
@@ -7588,7 +7588,7 @@ loc_9720:
 
 loc_972A:
 		movea.w	($FFFFD862).w,a0
-		lea	($FFFFC9DE).w,a1
+		lea	(word_C9DE).w,a1
 		lea	(unk_0A00&$FFFFFF).l,a3
 		lea	(unk_0B02&$FFFFFF).l,a4
 		bsr.w	sub_9EF8
@@ -7667,7 +7667,7 @@ locret_97E6:
 ; ---------------------------------------------------------------------------
 		lea	($FFFFCA5E).w,a2
 		clr.w	($FFFFFBC8).w
-		move.w	($FFFFC9DE).w,d3
+		move.w	(word_C9DE).w,d3
 		neg.w	d3
 		addq.w	#3,($FFFFFBC4).w
 		move.w	($FFFFFBC4).w,d2
@@ -7747,7 +7747,7 @@ loc_988C:
 
 loc_9898:
 		disable_ints
-		lea	($FFFFC9DE).w,a1
+		lea	(word_C9DE).w,a1
 		lea	PAL_TechnoTowerZoneUnused(pc),a0
 		lea	($FFFFD424).w,a2
 		bsr.w	sub_9E6E
@@ -7757,7 +7757,7 @@ loc_9898:
 		movea.l	a1,a0
 		lea	TTZ_ArtLocs(pc),a2
 		bsr.w	sub_9D30
-		lea	($FFFFC9DE).w,a0
+		lea	(word_C9DE).w,a0
 		move.l	#v_lvldatabuffer&$FFFFFF,$28(a0)
 		lea	TTZ_MapFGLocs(pc),a2
 		bsr.w	DecEniMapLocs
@@ -7787,7 +7787,7 @@ loc_991E:
 
 loc_9928:
 		movea.w	($FFFFD862).w,a0
-		lea	($FFFFC9DE).w,a1
+		lea	(word_C9DE).w,a1
 		lea	(unk_0A00&$FFFFFF).l,a3
 		lea	(unk_0B02&$FFFFFF).l,a4
 		bsr.w	sub_9EF8
@@ -7972,7 +7972,7 @@ dword_99F0:	dc.l $FFFFFBC4
 loc_9B80:
 		move.w	#$114,($FFFFC9FC).w
 		lea	($FFFFCA5E).w,a3
-		move.w	($FFFFC9DE).w,d3
+		move.w	(word_C9DE).w,d3
 		neg.w	d3
 		move.w	($FFFFCA1E).w,d4
 		neg.w	d4
@@ -8525,7 +8525,7 @@ sub_9F7C:
 
 
 sub_9F82:
-		lea	($FFFFC9DE).w,a1
+		lea	(word_C9DE).w,a1
 		moveq	#0,d0
 		move.b	$1F(a1),d0
 		jmp	loc_9F90(pc,d0.w)
@@ -11984,7 +11984,7 @@ loc_BE9C:
 		bmi.s	loc_BEE0
 		move.w	#$80,obj.Unk4(a0)
 		move.w	#2,obj.Pointer(a0) ; Load Sonic Object Pointer?
-		move.w	($FFFFC9DE).w,d0
+		move.w	(word_C9DE).w,d0
 		addi.w	#$B8,d0
 		move.w	d0,obj.Xpos(a0)
 		move.w	($FFFFC9EE).w,d0
@@ -12020,7 +12020,7 @@ loc_BF1E:
 		bmi.s	loc_BF62
 		move.w	#$80,obj.Unk4(a0)
 		move.w	#$402,obj.Pointer(a0) ; Load Tails Object Pointer?
-		move.w	($FFFFC9DE).w,d0
+		move.w	(word_C9DE).w,d0
 		addi.w	#$88,d0
 		move.w	d0,obj.Xpos(a0)
 		move.w	($FFFFC9EE).w,d0
@@ -17607,7 +17607,7 @@ locret_F1C8:
 
 
 sub_F1CA:
-		lea	($FFFFC9DE).w,a0
+		lea	(word_C9DE).w,a0
 		_move.w	0(a0),d0
 		move.w	$10(a0),d1
 		addi.w	#$A0,d0
@@ -17873,41 +17873,41 @@ loc_F3B6:
 
 loc_F3C6:
 		move.w	#$9100,(vdp_control_port).l
-		move.w	#$9100,($FFFFC9DA).w
+		move.w	#$9100,(v_window_x).w
 		move.w	#$9200,(vdp_control_port).l
-		move.w	#$9200,($FFFFC9DC).w
+		move.w	#$9200,(v_window_y).w
 		rts
 ; ---------------------------------------------------------------------------
 
 loc_F3E4:
-		move.w	#$9193,(vdp_control_port).l
-		move.w	#$9193,($FFFFC9DA).w
-		move.w	#$929C,(vdp_control_port).l
-		move.w	#$929C,($FFFFC9DC).w
+		move.w	#$9100+%10010011,(vdp_control_port).l
+		move.w	#$9100+%10010011,(v_window_x).w
+		move.w	#$9200+%10011100,(vdp_control_port).l
+		move.w	#$9200+%10011100,(v_window_y).w
 		rts
 ; ---------------------------------------------------------------------------
 
 loc_F402:
-		move.w	#$9192,(vdp_control_port).l
-		move.w	#$9192,($FFFFC9DA).w
-		move.w	#$9299,(vdp_control_port).l
-		move.w	#$9299,($FFFFC9DC).w
+		move.w	#$9100+%10010010,(vdp_control_port).l
+		move.w	#$9100+%10010010,(v_window_x).w
+		move.w	#$9200+%10011001,(vdp_control_port).l
+		move.w	#$9200+%10011001,(v_window_y).w
 		rts
 ; ---------------------------------------------------------------------------
 
 loc_F420:
-		move.w	#$9191,(vdp_control_port).l
-		move.w	#$9191,($FFFFC9DA).w
-		move.w	#$9296,(vdp_control_port).l
-		move.w	#$9296,($FFFFC9DC).w
+		move.w	#$9100+%10010001,(vdp_control_port).l
+		move.w	#$9100+%10010001,(v_window_x).w
+		move.w	#$9200+%10010110,(vdp_control_port).l
+		move.w	#$9200+%10010110,(v_window_y).w
 		rts
 ; ---------------------------------------------------------------------------
 
 loc_F43E:
-		move.w	#$9190,(vdp_control_port).l
-		move.w	#$9190,($FFFFC9DA).w
-		move.w	#$9293,(vdp_control_port).l
-		move.w	#$9293,($FFFFC9DC).w
+		move.w	#$9100+%10010000,(vdp_control_port).l
+		move.w	#$9100+%10010000,(v_window_x).w
+		move.w	#$9200+%10010011,(vdp_control_port).l
+		move.w	#$9200+%10010011,(v_window_y).w
 		rts
 
 ; =============== S U B	R O U T	I N E =======================================
@@ -18117,7 +18117,7 @@ loc_F5C2:
 ; ---------------------------------------------------------------------------
 
 loc_F5D8:
-		lea	($FFFFC9DE).w,a1
+		lea	(word_C9DE).w,a1
 		lea	(unk_0A00&$FFFFFF).l,a3
 		lea	(unk_0B02&$FFFFFF).l,a4
 		movea.l	a1,a5
