@@ -71,7 +71,7 @@ Unk20:		ds.w 1				; unknown (2 bytes)
 			ds.b 8
 Angle:		ds.b 1
 			ds.b 1
-Inertia:	ds.b 1
+Inertia:	ds.w 1
 	endstruct
 
 ; Background music
