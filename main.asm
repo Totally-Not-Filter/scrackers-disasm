@@ -614,34 +614,34 @@ sub_626:
 		rts
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
-;
+; Palette fading out routine
 ; ---------------------------------------------------------------------------
 
 PaletteFadeOut:
-		move.b	($FFFFD4E4).w,d1
+		move.b	(byte_D4E4).w,d1
 		bne.s	loc_6E0
-		move.b	d0,($FFFFD4E4).w
-		move.b	d0,($FFFFD4E6).w
-		move.b	#8,($FFFFD4E5).w
+		move.b	d0,(byte_D4E4).w
+		move.b	d0,(byte_D4E6).w
+		move.b	#8,(byte_D4E5).w
 
 loc_6E0:
-		subq.b	#1,($FFFFD4E6).w
+		subq.b	#1,(byte_D4E6).w
 		beq.s	loc_6E8
 		rts
 
 loc_6E8:
-		move.b	($FFFFD4E4).w,($FFFFD4E6).w
+		move.b	(byte_D4E4).w,(byte_D4E6).w
 		bsr.s	sub_6FE
-		subq.b	#1,($FFFFD4E5).w
+		subq.b	#1,(byte_D4E5).w
 		bne.s	locret_6FC
-		move.b	#0,($FFFFD4E4).w
+		move.b	#0,(byte_D4E4).w
 
 locret_6FC:
 		rts
 
 sub_6FE:
 		lea	(v_pal).w,a0
-		move.w	#$40,d3
+		move.w	#(v_pal_end-v_pal)/2,d3
 		subq.w	#1,d3
 
 .loop:
@@ -672,35 +672,35 @@ locret_734:
 		rts
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
-; Unused subroutine
+; Unused Palette fading routine
 ; ---------------------------------------------------------------------------
-		move.b	($FFFFD4E7).w,d1
+		move.b	(byte_D4E7).w,d1
 		bne.s	loc_750
-		move.b	d0,($FFFFD4E7).w
-		move.b	d0,($FFFFD4E8).w
-		move.b	#8,($FFFFD4E9).w
-		move.w	#$E,($FFFFD4EA).w
+		move.b	d0,(byte_D4E7).w
+		move.b	d0,(byte_D4E8).w
+		move.b	#8,(byte_D4E9).w
+		move.w	#$E,(word_D4EA).w
 
 loc_750:
-		subq.b	#1,($FFFFD4E8).w
+		subq.b	#1,(byte_D4E8).w
 		beq.s	loc_758
 		rts
 
 loc_758:
-		move.b	($FFFFD4E7).w,($FFFFD4E8).w
+		move.b	(byte_D4E7).w,(byte_D4E8).w
 		bsr.s	sub_76E
-		subq.b	#1,($FFFFD4E9).w
+		subq.b	#1,(byte_D4E9).w
 		bne.s	locret_76C
-		move.b	#0,($FFFFD4E7).w
+		move.b	#0,(byte_D4E7).w
 
 locret_76C:
 		rts
 
 sub_76E:
 		lea	(v_pal).w,a0
-		lea	($FFFFD464).w,a1
-		move.w	($FFFFD4EA).w,d2
-		move.w	#$40-1,d7
+		lea	(v_unk_pal).w,a1
+		move.w	(word_D4EA).w,d2
+		move.w	#bytesToWcnt(v_pal_end-v_pal),d7
 
 loc_77E:
 		move.w	(a1)+,d0
@@ -731,35 +731,35 @@ loc_79E:
 loc_7B0:
 		adda.l	#2,a0
 		dbf	d7,loc_77E
-		subq.w	#2,($FFFFD4EA).w
+		subq.w	#2,(word_D4EA).w
 		rts
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Unused subroutine
 ; ---------------------------------------------------------------------------
-		move.b	($FFFFD4EC).w,d2
+		move.b	(byte_D4EC).w,d2
 		bne.s	loc_7DC
-		move.b	d0,($FFFFD4EC).w
-		move.b	d0,($FFFFD4ED).w
+		move.b	d0,(byte_D4EC).w
+		move.b	d0,(byte_D4ED).w
 		subq.b	#1,d1
-		move.b	d1,($FFFFD4EE).w
-		move.l	a1,($FFFFD4F0).w
-		move.l	a2,($FFFFD4F4).w
+		move.b	d1,(byte_D4EE).w
+		move.l	a1,(lword_D4F0).w
+		move.l	a2,(lword_D4F4).w
 
 loc_7DC:
-		subq.b	#1,($FFFFD4ED).w
+		subq.b	#1,(byte_D4ED).w
 		bne.s	locret_7EC
-		move.b	($FFFFD4EC).w,($FFFFD4ED).w
+		move.b	(byte_D4EC).w,(byte_D4ED).w
 		bsr.w	sub_7EE
 
 locret_7EC:
 		rts
 
 sub_7EE:
-		movea.l	($FFFFD4F0).w,a1
-		movea.l	($FFFFD4F4).w,a2
+		movea.l	(lword_D4F0).w,a1
+		movea.l	(lword_D4F4).w,a2
 		moveq	#0,d6
-		move.b	($FFFFD4EE).w,d6
+		move.b	(byte_D4EE).w,d6
 		moveq	#0,d7
 
 loc_7FE:
@@ -818,7 +818,7 @@ loc_85C:
 		dbf	d6,loc_7FE
 		tst.w	d7
 		bne.s	locret_86C
-		clr.b	($FFFFD4EC).w
+		clr.b	(byte_D4EC).w
 
 locret_86C:
 		rts
@@ -830,7 +830,7 @@ locret_86C:
 sub_86E:
 		lea	(vdp_data_port).l,a1
 		moveq	#0,d6
-		move.w	($FFFFD820).w,d6
+		move.w	(word_D820).w,d6
 		swap	d6
 		subq.w	#1,d0
 		subq.w	#1,d1
@@ -858,7 +858,7 @@ loc_894:
 MapScreen:
 		lea	(vdp_data_port).l,a0		; load VDP data port to a0
 		moveq	#0,d6				; clear d6
-		move.w	($FFFFD820).w,d6		; load number of tiles to increase to for each set of columns to d6
+		move.w	(word_D820).w,d6		; load number of tiles to increase to for each set of columns to d6
 		swap	d6				; swap words (Sets it to left for long-word amount)
 
 .line:
@@ -917,23 +917,23 @@ SetupVDPUsingTable:
 		move.w	(a1)+,d0
 		lsl.w	#2,d0
 		lsl.w	#8,d0
-		move.w	d0,($FFFFD816).w
+		move.w	d0,(word_D816).w
 		move.w	(a1)+,d0
 		lsl.w	#2,d0
 		lsl.w	#8,d0
-		move.w	d0,($FFFFD81E).w
+		move.w	d0,(word_D81E).w
 		move.w	(a1)+,d0
 		lsl.w	#5,d0
 		lsl.w	#8,d0
-		move.w	d0,($FFFFD818).w
+		move.w	d0,(word_D818).w
 		move.w	(a1),d0
 		lsl.w	#1,d0
 		lsl.w	#8,d0
-		move.w	d0,($FFFFD81A).w
+		move.w	d0,(word_D81A).w
 		move.w	(word_C9D2).w,d0
 		lsl.w	#2,d0
 		lsl.w	#8,d0
-		move.w	d0,($FFFFD81C).w
+		move.w	d0,(word_D81C).w
 		cmp.w	d0,d0				; essentially a "nop"
 		rts
 ; ===========================================================================
@@ -1926,7 +1926,7 @@ locret_15CE:
 
 sub_15D0:
 		moveq	#0,d0
-		lea	($FFFFD84C).w,a0
+		lea	(word_D84C).w,a0
 		move.l	d0,(a0)+
 		move.l	d0,(a0)+
 		move.l	d0,(a0)+
@@ -1941,7 +1941,7 @@ loc_15EE:
 		dbf	d1,loc_15EE
 		lea	(unk_AD08&$FFFFFF).l,a0
 		moveq	#bytesToXcnt($180,6),d7
-		move.w	a0,($FFFFD84C).w
+		move.w	a0,(word_D84C).w
 
 loc_1600:
 		lea	$40(a0),a1
@@ -1949,19 +1949,19 @@ loc_1600:
 		movea.l	a1,a0
 		dbf	d7,loc_1600
 		clr.w	-$40(a0)
-		lea	($FFFFD164).w,a0
-		moveq	#bytesToXcnt($280,8),d1
+		lea	(v_spritetablebuffer).w,a0
+		moveq	#bytesToXcnt(v_spritetablebuffer_end-v_spritetablebuffer,8),d1
 
 loc_1616:
 		move.l	d0,(a0)+
 		move.l	d0,(a0)+
 		dbf	d1,loc_1616
-		move.l	d0,($FFFFD9F2).w
-		move.l	d0,($FFFFD9F6).w
-		move.w	#3,($FFFFD83C).w
-		move.w	#$F,($FFFFD840).w
-		move.w	#$1F,($FFFFD844).w
-		move.w	#$3F,($FFFFD848).w
+		move.l	d0,(lword_D9F2).w
+		move.l	d0,(lword_D9F6).w
+		move.w	#3,(word_D83C).w
+		move.w	#$F,(word_D840).w
+		move.w	#$1F,(word_D844).w
+		move.w	#$3F,(word_D848).w
 		rts
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -1971,11 +1971,11 @@ loc_1616:
 ; We think this subroutine is responsible for building object sprites
 
 BuildSprites:
-		lea	($FFFFD164).w,a6
+		lea	(v_spritetablebuffer).w,a6
 		moveq	#0,d6
 		lea	(v_pal).w,a5
 		moveq	#80-1,d5	; sprite limit
-		lea	($FFFFD9F2).w,a4
+		lea	(lword_D9F2).w,a4
 
 loc_1650:
 		move.l	(a4)+,d0
@@ -1985,7 +1985,7 @@ loc_1650:
 		tst.b	d0
 		bne.s	loc_1650
 		move.b	d6,-5(a6)
-		lea	($FFFFD850).w,a4
+		lea	(unk_D850).w,a4
 
 loc_1664:
 		move.w	(a4)+,d0
@@ -2348,11 +2348,11 @@ locret_1916:
 
 ProcessObject:
 		move.l	d7,-(sp)
-		lea	($FFFFD83C).w,a0
+		lea	(word_D83C).w,a0
 		move.w	-4(a0,d0.w),d7
-		lea	($FFFFD84C).w,a0
+		lea	(word_D84C).w,a0
 		adda.w	d0,a0
-		tst.w	($FFFFD84C).w
+		tst.w	(word_D84C).w
 		beq.s	loc_193E
 		tst.l	d0
 		bpl.s	loc_1934
@@ -2370,10 +2370,10 @@ loc_193E:
 		rts
 
 loc_1946:
-		move.w	($FFFFD84C).w,(a0)
+		move.w	(word_D84C).w,(a0)
 		move.w	a0,d7
 		movea.w	(a0),a0
-		move.w	(a0),($FFFFD84C).w
+		move.w	(a0),(word_D84C).w
 		clr.w	(a0)
 		move.w	d7,2(a0)
 		move.w	#$8000,4(a0)
@@ -2406,8 +2406,8 @@ DeleteObject:
 loc_198E:
 		movea.w	2(a6),a1
 		move.w	(a6),(a1)
-		move.w	($FFFFD84C).w,(a6)
-		move.w	a6,($FFFFD84C).w
+		move.w	(word_D84C).w,(a6)
+		move.w	a6,(word_D84C).w
 		movea.l	a1,a6
 		movea.l	(sp)+,a1
 		rts
@@ -4107,16 +4107,16 @@ SegaScreen_VDPSettings:
 ; ===========================================================================
 
 SegaContin:
-		move.w	#$80,($FFFFD820).w
+		move.w	#$80,(word_D820).w
 		moveq	#$3F,d0
 		moveq	#$3F,d1
 		moveq	#0,d2
-		move.w	($FFFFD816).w,d3
+		move.w	(word_D816).w,d3
 		jsr	(sub_86E).w
 		moveq	#$3F,d0
 		moveq	#$3F,d1
 		moveq	#0,d2
-		move.w	($FFFFD818).w,d3
+		move.w	(word_D818).w,d3
 		jsr	(sub_86E).w
 		lea	PAL_Segalogo(pc),a0		; load Sega Palette address to a0
 		lea	(v_pal).w,a1
@@ -4128,7 +4128,7 @@ SegaContin:
 		bsr.w	Sega_MapTiles
 		move.l	#$F01,d0
 		moveq	#1,d1
-		lea	($FFFFD164).w,a0
+		lea	(v_spritetablebuffer).w,a0
 		moveq	#bytesToXcnt($38,8),d7
 
 loc_64AA:
@@ -4214,16 +4214,16 @@ SegaPaletteStart:
 		moveq	#$3F,d0
 		moveq	#$3F,d1
 		moveq	#0,d2
-		move.w	($FFFFD816).w,d3
+		move.w	(word_D816).w,d3
 		jsr	(sub_86E).w
 		moveq	#$3F,d0
 		moveq	#$3F,d1
 		moveq	#0,d2
-		move.w	($FFFFD818).w,d3
+		move.w	(word_D818).w,d3
 		jsr	(sub_86E).w
 		move.w	#0,($FFFFFAC4).w		; clear colour number
-		move.w	($FFFFD3E8).w,($FFFFFAC6).w	; save first colour to storage
-		move.w	#cWhite,($FFFFD3E8).w		; save white to colour palette
+		move.w	(v_pal+4).w,($FFFFFAC6).w	; save first colour to storage
+		move.w	#cWhite,(v_pal+4).w		; save white to colour palette
 		addq.w	#4,(v_subgamemode).w		; increase sub mode
 		rts
 ; ===========================================================================
@@ -4237,7 +4237,7 @@ SegaPaletteCycle:
 		move.w	#$14,(v_subgamemode).w
 
 loc_6594:
-		lea	($FFFFD3E8).w,a0		; load palette address to a0
+		lea	(v_pal+4).w,a0		; load palette address to a0
 		move.w	($FFFFFAC4).w,d0		; load current colour number to d0
 		add.w	d0,d0				; double it
 		adda.w	d0,a0				; add to colour palette location
@@ -4292,7 +4292,7 @@ SegaScrn_CheckRegion:
 		move.b	(region_version).l,d0		; load Z80 version number
 		rol.b	#2,d0				; roll left 2 bits
 		andi.w	#2,d0				; get only the original 1st bit that was in version number
-		move.w	SegaTM_Palette(pc,d0.w),($FFFFD402).w	; color a specific part of the palette depending on if you have a domestic or overseas model
+		move.w	SegaTM_Palette(pc,d0.w),(v_pal+$1E).w	; color a specific part of the palette depending on if you have a domestic or overseas model
 		rts
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -4308,7 +4308,7 @@ loc_662A:
 
 loc_6632:
 		movea.l	a5,a6
-		adda.w	($FFFFD816).w,a6
+		adda.w	(word_D816).w,a6
 		subq.w	#6,a6
 		jsr	(sub_6F26).l
 		disable_ints
@@ -4327,7 +4327,7 @@ loc_664E:
 		move.w	d0,(a3)
 		dbf	d5,loc_664E
 		movea.l	a5,a6
-		adda.w	($FFFFD818).w,a6
+		adda.w	(word_D818).w,a6
 		subq.w	#6,a6
 		jsr	(sub_6F26).l
 		move.l	d0,4(a3)
@@ -4352,7 +4352,7 @@ loc_667A:
 
 loc_669A:
 		movea.l	a4,a6
-		adda.w	($FFFFD816).w,a6
+		adda.w	(word_D816).w,a6
 		subq.w	#8,a6
 
 loc_66A2:
@@ -4423,7 +4423,7 @@ loc_6728:
 		move.w	#$80F,d2
 		lea	(vdp_data_port).l,a3
 		movea.l	a4,a6
-		adda.w	($FFFFD816).w,a6
+		adda.w	(word_D816).w,a6
 
 loc_6738:
 		jsr	(sub_6F26).l
@@ -4750,12 +4750,12 @@ loc_69FC:
 
 loc_6A02:
 		move.w	#8,($FFFFFAC6).w
-		lea	($FFFFD164).w,a1
+		lea	(v_spritetablebuffer).w,a1
 		clr.l	(a1)+
-		move.w	#$FFA0,($FFFFCA5E).w
-		move.w	#$FFA0,($FFFFCA60).w
-		move.w	#$18,($FFFFCDDE).w
-		move.w	#$14,($FFFFCDE0).w
+		move.w	#$FFA0,(word_CA5E).w
+		move.w	#$FFA0,(word_CA60).w
+		move.w	#$18,(word_CDDE).w
+		move.w	#$14,(word_CDE0).w
 		lea	(0).w,a4	; position of tilemap
 		move.w	#$80,d4
 		moveq	#3,d6
@@ -4783,12 +4783,12 @@ loc_6A4E:
 
 loc_6A54:
 		move.w	#4,($FFFFFAC6).w
-		lea	($FFFFD164).w,a1
+		lea	(v_spritetablebuffer).w,a1
 		clr.l	(a1)+
-		move.w	#$FFA0,($FFFFCA5E).w
-		move.w	#$FFA0,($FFFFCA60).w
-		move.w	#$18,($FFFFCDDE).w
-		move.w	#$14,($FFFFCDE0).w
+		move.w	#$FFA0,(word_CA5E).w
+		move.w	#$FFA0,(word_CA60).w
+		move.w	#$18,(word_CDDE).w
+		move.w	#$14,(word_CDE0).w
 		lea	($20).w,a4	; position of tilemap
 		move.w	#$80,d4
 		moveq	#3,d6
@@ -4820,12 +4820,12 @@ loc_6AAC:
 
 loc_6AB6:
 		move.w	#4,($FFFFFAC6).w
-		lea	($FFFFD164).w,a1
+		lea	(v_spritetablebuffer).w,a1
 		clr.l	(a1)+
-		move.w	d0,($FFFFCA5E).w
-		move.w	d0,($FFFFCA60).w
-		move.w	#$118,($FFFFCDDE).w
-		move.w	#$114,($FFFFCDE0).w
+		move.w	d0,(word_CA5E).w
+		move.w	d0,(word_CA60).w
+		move.w	#$118,(word_CDDE).w
+		move.w	#$114,(word_CDE0).w
 		lea	($1430).w,a4	; position of tilemap
 		move.w	#$80,d4
 		moveq	#3,d6
@@ -4857,11 +4857,11 @@ loc_6B04:
 
 loc_6B0C:
 		move.w	#4,($FFFFFAC6).w
-		move.w	#$A0,($FFFFCA5E).w
-		move.w	#$A0,($FFFFCA60).w
-		move.w	#$118,($FFFFCDDE).w
-		move.w	#$114,($FFFFCDE0).w
-		lea	($FFFFD164).w,a0
+		move.w	#$A0,(word_CA5E).w
+		move.w	#$A0,(word_CA60).w
+		move.w	#$118,(word_CDDE).w
+		move.w	#$114,(word_CDE0).w
+		lea	(v_spritetablebuffer).w,a0
 		move.l	#$C80F01,(a0)+
 		move.w	d7,(a0)+
 		move.w	d0,(a0)+
@@ -4885,36 +4885,36 @@ loc_6B0C:
 
 loc_6B70:
 		move.l	#$4000EF,d7
-		lea	($FFFFD184).w,a0
+		lea	(v_spritetablebuffer+$20).w,a0
 		bra.s	loc_6B9E
 ; ---------------------------------------------------------------------------
 
 loc_6B7C:
 		move.l	#$500105,d7
-		lea	($FFFFD18C).w,a0
+		lea	(v_spritetablebuffer+$28).w,a0
 		bra.s	loc_6B9E
 ; ---------------------------------------------------------------------------
 
 loc_6B88:
 		move.l	#$60011B,d7
-		lea	($FFFFD194).w,a0
+		lea	(v_spritetablebuffer+$30).w,a0
 		bra.s	loc_6B9E
 ; ---------------------------------------------------------------------------
 
 loc_6B94:
 		move.l	#$700135,d7
-		lea	($FFFFD19C).w,a0
+		lea	(v_spritetablebuffer+$38).w,a0
 
 loc_6B9E:
 		move.w	#4,($FFFFFAC6).w
-		move.w	#$A0,($FFFFCA5E).w
-		move.w	#$A0,($FFFFCA60).w
-		move.w	#$118,($FFFFCDDE).w
-		move.w	#$114,($FFFFCDE0).w
+		move.w	#$A0,(word_CA5E).w
+		move.w	#$A0,(word_CA60).w
+		move.w	#$118,(word_CDDE).w
+		move.w	#$114,(word_CDE0).w
 		move.w	#$D8,(a0)+
 		addq.l	#2,a0
 		move.l	d7,(a0)
-		lea	($FFFFD164).w,a0
+		lea	(v_spritetablebuffer).w,a0
 		clr.w	(a0)
 		addq.l	#8,a0
 		clr.w	(a0)
@@ -4926,7 +4926,7 @@ loc_6B9E:
 ; ---------------------------------------------------------------------------
 
 loc_6BD8:
-		lea	($FFFFD164).w,a0
+		lea	(v_spritetablebuffer).w,a0
 		move.l	$20(a0),d0
 		move.b	3(a0),d0
 		move.l	d0,(a0)+
@@ -4975,7 +4975,7 @@ loc_6C48:
 		move.w	#$9003,(vdp_control_port).l
 		move.w	#$9003,(word_C9D8).w
 		lea	(vdp_data_port).l,a3
-		movea.w	($FFFFD816).w,a6
+		movea.w	(word_D816).w,a6
 		lea	$BE(a6),a6
 		move.l	#$A0F1A0F1,d2
 		disable_ints
@@ -4993,23 +4993,23 @@ loc_6C70:
 		enable_ints
 		addq.w	#4,($FFFFFAC4).w
 		move.w	#$20,($FFFFFAC6).w
-		move.w	#$F8,($FFFFCA5E).w
-		move.w	#$18,($FFFFCDDE).w
-		move.w	#$F8,($FFFFCA60).w
-		move.w	#$18,($FFFFCDE0).w
+		move.w	#$F8,(word_CA5E).w
+		move.w	#$18,(word_CDDE).w
+		move.w	#$F8,(word_CA60).w
+		move.w	#$18,(word_CDE0).w
 		lea	(unk_0200&$FFFFFF).l,a0
-		movea.w	($FFFFD816).w,a6
+		movea.w	(word_D816).w,a6
 		bsr.w	sub_6CF0
 		lea	(unk_0400&$FFFFFF).l,a0
-		movea.w	($FFFFD818).w,a6
+		movea.w	(word_D818).w,a6
 		lea	$2C(a6),a6
 		bsr.w	sub_6CF0
 		lea	(unk_0600&$FFFFFF).l,a0
-		movea.w	($FFFFD816).w,a6
+		movea.w	(word_D816).w,a6
 		lea	$58(a6),a6
 		bsr.w	sub_6CF0
 		lea	(unk_0800&$FFFFFF).l,a0
-		movea.w	($FFFFD818).w,a6
+		movea.w	(word_D818).w,a6
 		lea	$8C(a6),a6
 
 ; =============== S U B	R O U T	I N E =======================================
@@ -5025,8 +5025,8 @@ sub_6CF0:
 loc_6CFC:
 		move.w	#$8164,(vdp_control_port).l
 		move.w	#$8164,(word_C9BA).w
-		subi.w	#$10,($FFFFCA5E).w
-		subi.w	#$10,($FFFFCA60).w
+		subi.w	#$10,(word_CA5E).w
+		subi.w	#$10,(word_CA60).w
 		subq.w	#1,($FFFFFAC6).w
 		bne.s	locret_6D20
 		addq.w	#4,($FFFFFAC4).w
@@ -5038,7 +5038,7 @@ locret_6D20:
 loc_6D22:
 		lea	(vdp_data_port).l,a3
 		moveq	#0,d2
-		movea.w	($FFFFD816).w,a6
+		movea.w	(word_D816).w,a6
 		lea	$BE(a6),a6
 		disable_ints
 		moveq	#$20-1,d7
@@ -5053,8 +5053,8 @@ loc_6D38:
 		adda.w	#$100,a6
 		dbf	d7,loc_6D38
 		enable_ints
-		subi.w	#$10,($FFFFCA5E).w
-		subi.w	#$10,($FFFFCA60).w
+		subi.w	#$10,(word_CA5E).w
+		subi.w	#$10,(word_CA60).w
 		addq.w	#4,($FFFFFAC4).w
 		move.w	#$20,($FFFFFAC6).w
 		rts
@@ -5066,16 +5066,16 @@ loc_6D6E:
 		moveq	#$3F,d0
 		moveq	#$3F,d1
 		moveq	#0,d2
-		move.w	($FFFFD816).w,d3
+		move.w	(word_D816).w,d3
 		jsr	(sub_86E).w
 		moveq	#$3F,d0
 		moveq	#$3F,d1
 		moveq	#0,d2
-		move.w	($FFFFD818).w,d3
+		move.w	(word_D818).w,d3
 		jsr	(sub_86E).w
 		enable_ints
 		lea	(dword_6DBC).l,a0
-		lea	($FFFFD164).w,a1
+		lea	(v_spritetablebuffer).w,a1
 	rept 8
 		move.l	(a0)+,(a1)+
 	endr
@@ -5094,10 +5094,10 @@ dword_6DBC:	dc.l $D80F01
 ; ---------------------------------------------------------------------------
 
 loc_6DDC:
-		addq.w	#8,($FFFFD16A).w
-		addq.w	#8,($FFFFD172).w
-		addq.w	#8,($FFFFD17A).w
-		addq.w	#8,($FFFFD182).w
+		addq.w	#8,(v_spritetablebuffer+6).w
+		addq.w	#8,(v_spritetablebuffer+$E).w
+		addq.w	#8,(v_spritetablebuffer+$16).w
+		addq.w	#8,(v_spritetablebuffer+$1E).w
 		subq.w	#1,($FFFFFAC6).w
 		bne.s	locret_6DFC
 		addq.w	#4,($FFFFFAC4).w
@@ -5117,7 +5117,7 @@ loc_6DFE:
 		andi.w	#$1C,d0
 		lea	(byte_6E46).l,a0
 		adda.w	d0,a0
-		lea	($FFFFD16A).w,a1
+		lea	(v_spritetablebuffer+6).w,a1
 		move.b	(a0)+,d0
 		ext.w	d0
 		add.w	d0,(a1)
@@ -5151,7 +5151,7 @@ byte_6E46:
 ; ---------------------------------------------------------------------------
 
 loc_6E66:
-		lea	($FFFFD184).w,a0
+		lea	(v_spritetablebuffer+$20).w,a0
 		move.l	-$20(a0),d0
 		move.b	3(a0),d0
 		move.l	d0,(a0)+
@@ -5177,21 +5177,21 @@ loc_6E66:
 loc_6EB4:
 		movem.l	d0-a6,-(sp)
 		jsr	(ReadCtrlInput).w
-		move.l	#$FFFFD164,d0
-		move.w	($FFFFD81A).w,d1
+		move.l	#v_spritetablebuffer,d0
+		move.w	(word_D81A).w,d1
 		move.w	#$140,d2
 		jsr	(DMA_WriteData).w
 		jsr	(DMAToCRAM).w
-		move.w	($FFFFD81C).w,d0
+		move.w	(word_D81C).w,d0
 		lsl.l	#2,d0
 		lsr.w	#2,d0
 		ori.w	#$4000,d0
 		swap	d0
 		andi.w	#3,d0
 		move.l	d0,(vdp_control_port).l
-		move.l	($FFFFCA5E).w,(vdp_data_port).l
+		move.l	(word_CA5E).w,(vdp_data_port).l
 		move.l	#$40000010,(vdp_control_port).l
-		move.l	($FFFFCDDE).w,(vdp_data_port).l
+		move.l	(word_CDDE).w,(vdp_data_port).l
 		move.w	($FFFFFFC4).w,d0
 		add.w	d0,d0
 		add.w	d0,d0
@@ -5199,7 +5199,7 @@ loc_6EB4:
 		addq.w	#1,d0
 		move.w	d0,($FFFFFFC4).w
 		ori.b	#$80,(v_lagger).w
-		addq.w	#1,($FFFFF000).w
+		addq.w	#1,(word_F000).w
 		movem.l	(sp)+,d0-a6
 		rte
 
@@ -5288,7 +5288,7 @@ TitleScreen_VDPSettings:
 ; ---------------------------------------------------------------------------
 
 TitleLoad_Continue:
-		move.w	($FFFFD81C).w,d0
+		move.w	(word_D81C).w,d0
 		lsl.l	#2,d0
 		lsr.w	#2,d0
 		ori.w	#$4000,d0
@@ -5322,17 +5322,17 @@ TitleLoad_Continue:
 		moveq	#8-1,d1				; set X loop
 		moveq	#4-1,d2				; set Y loop
 		move.w	#0,d3				; set to use palette line 0 (and to map behind object plane)
-		move.w	#$100,($FFFFD820).w
+		move.w	#$100,(word_D820).w
 		jsr	(MapScreen).w			; map it on screen correctly
-		move.w	#$80,($FFFFD820).w
+		move.w	#$80,(word_D820).w
 		move.l	#$4BBC0003,d0
 		lea	MAPUNC_TitleMenu_3(pc),a1	; load uncompressed title mappings to a1 (Title Screen "1ST	ROM 19940401")
 		moveq	#8-1,d1				; set X loop
 		moveq	#2-1,d2				; set Y loop
 		move.w	#0,d3				; set to use palette line 0 (and to map behind object plane)
-		move.w	#$100,($FFFFD820).w
+		move.w	#$100,(word_D820).w
 		jsr	(MapScreen).w			; map it on screen correctly
-		move.w	#$80,($FFFFD820).w
+		move.w	#$80,(word_D820).w
 		lea	PAL_MainMenus(pc),a0
 		lea	(v_pal).w,a1
 		moveq	#bytesToLcnt($40),d0
@@ -5349,7 +5349,7 @@ TitleLoad_Continue:
 		charset
 
 		clr.w	(v_titleselect).w
-		clr.w	($FFFFD832).w
+		clr.w	(word_D832).w
 		enable_ints				; set the stack register
 		addq.w	#4,(v_subgamemode).w		; increase sub mode
 		rts
@@ -5380,14 +5380,14 @@ loc_74FC:
 		move.w	d0,(v_titleselect).w
 		lsl.w	#4,d0
 		addi.w	#$120,d0	; position on screen
-		move.w	d0,($FFFFD832).w
+		move.w	d0,(word_D832).w
 		tst.b	(unk_C93D).w
 		bmi.s	TitleStartMenu
 		rts
 ; ---------------------------------------------------------------------------
 
 TitleStartMenu:
-		clr.w	($FFFFD83A).w	; reset time of day for all levels
+		clr.w	(word_D83A).w	; reset time of day for all levels
 		clr.w	(v_subgamemode).w
 		move.w	(v_titleselect).w,d0
 		beq.s	TitleScrn_PlayLevel
@@ -5395,18 +5395,18 @@ TitleStartMenu:
 		bne.s	TitleScrn_ToOption
 
 TitleScrn_PlayLevel:
-		move.w	#1,($FFFFD834).w
-		move.w	#1,($FFFFD836).w
+		move.w	#1,(word_D834).w
+		move.w	#1,(word_D836).w
 		move.w	#id_Level,(v_gamemode).w
-		move.b	#0,($FFFFD89C).w
+		move.b	#0,(byte_D89C).w
 		tst.w	d0
 		bne.s	loc_754A
-		move.b	#$FF,($FFFFD8AC).w
+		move.b	#$FF,(byte_D8AC).w
 		rts
 ; ---------------------------------------------------------------------------
 
 loc_754A:
-		move.b	#$10,($FFFFD8AC).w
+		move.b	#$10,(byte_D8AC).w
 		rts
 ; ---------------------------------------------------------------------------
 
@@ -5418,8 +5418,8 @@ TitleScrn_ToOption:
 ; ---------------------------------------------------------------------------
 
 TitleScrn_ToLevSel:
-		move.b	#0,($FFFFD89C).w
-		move.b	#$FF,($FFFFD8AC).w
+		move.b	#0,(byte_D89C).w
+		move.b	#$FF,(byte_D8AC).w
 		move.w	#id_LevelSelect,(v_gamemode).w
 		rts
 ; ---------------------------------------------------------------------------
@@ -5427,7 +5427,7 @@ TitleScrn_ToLevSel:
 loc_7576:
 		movem.l	d0-a6,-(sp)
 		move.l	#$78000003,(vdp_control_port).l
-		move.w	($FFFFD832).w,(vdp_data_port).l
+		move.w	(word_D832).w,(vdp_data_port).l
 		jsr	(ReadCtrlInput).w
 		move.b	(unk_C93C).w,d0
 		bsr.s	sub_75BC
@@ -5506,10 +5506,10 @@ Fields:
 		move.w	(word_C9BA).w,(vdp_control_port).l
 		jsr	(Field_LoadArt).l
 		jsr	(sub_15D0).w
-		move.w	#5,($FFFFD83C).w
-		move.w	#7,($FFFFD840).w
-		move.w	#$3F,($FFFFD844).w
-		move.w	#$3F,($FFFFD848).w
+		move.w	#5,(word_D83C).w
+		move.w	#7,(word_D840).w
+		move.w	#$3F,(word_D844).w
+		move.w	#$3F,(word_D848).w
 		jsr	(Load_Field_Players).l ; Load Field Player Objects
 		jsr	(sub_D1E0).l
 		jsr	(sub_FA44).l
@@ -5560,7 +5560,7 @@ Field_ReadController:
 		jsr	(ReadCtrlInput).w
 		lea	(unk_C938).w,a3
 		moveq	#0,d1
-		move.b	($FFFFD89C).w,d1
+		move.b	(byte_D89C).w,d1
 		moveq	#7,d0
 		and.b	3(a3,d1.w),d0
 		sne	d2
@@ -5578,12 +5578,12 @@ Field_ReadController:
 		move.b	d0,(a4,d1.w)
 		addq.b	#1,-1(a4)
 		move.b	d2,-2(a4)
-		lea	($FFFFD89C).w,a4
+		lea	(byte_D89C).w,a4
 		bsr.w	sub_7FB0
 		move.b	($FFFFFAFE).w,d0
 		lea	(unk_C938).w,a3
 		moveq	#0,d1
-		move.b	($FFFFD8AC).w,d1
+		move.b	(byte_D8AC).w,d1
 		bmi.s	loc_7FA8
 		moveq	#7,d0
 		and.b	3(a3,d1.w),d0
@@ -5597,7 +5597,7 @@ Field_ReadController:
 		or.b	d1,d0
 
 loc_7FA8:
-		lea	($FFFFD8AC).w,a4
+		lea	(byte_D8AC).w,a4
 		bra.w	sub_7FB0
 ; End of function Field_ReadController
 
@@ -5647,20 +5647,20 @@ byte_8000:
 
 Vint_Fields:
 		movem.l	d0-a6,-(sp)
-		move.l	#$FFFFCA5E,d0
-		move.w	($FFFFD81C).w,d1
+		move.l	#word_CA5E,d0
+		move.w	(word_D81C).w,d1
 		move.w	#$1C0,d2
 		jsr	(DMA_WriteData).w
 		move.l	#$40000010,(vdp_control_port).l
-		move.l	($FFFFCDDE).w,(vdp_data_port).l
+		move.l	(word_CDDE).w,(vdp_data_port).l
 		jsr	(DMAToCRAM).w
 		jsr	(sub_C9DE).l
-		move.l	#$FFFFD164,d0
-		move.w	($FFFFD81A).w,d1
+		move.l	#v_spritetablebuffer,d0
+		move.w	(word_D81A).w,d1
 		move.w	#$140,d2
 		jsr	(DMA_WriteData).w
 		ori.b	#$80,(v_lagger).w
-		addq.w	#1,($FFFFF000).w
+		addq.w	#1,(word_F000).w
 		movem.l	(sp)+,d0-a6
 		rte
 
@@ -5668,7 +5668,7 @@ Vint_Fields:
 
 
 Field_PauseGame:
-		tst.b	($FFFFD89F).w
+		tst.b	(byte_D89F).w
 		bpl.w	locret_8194
 		move.b	(unk_C93C).w,d0
 		andi.b	#$70,d0
@@ -5691,37 +5691,37 @@ loc_808A:
 		tst.b	(v_lagger).w
 		bpl.s	.wait
 		jsr	(Field_ReadController).l
-		move.b	($FFFFD89E).w,d0
+		move.b	(byte_D89E).w,d0
 		andi.b	#btnABC,d0
 		beq.w	loc_814C
 		moveq	#0,d0
-		lea	($FFFFF9C0).w,a0
+		lea	(word_F9C0).w,a0
 		move.w	#bytesToLcnt($600),d1
 
 loc_80B2:
 		move.l	d0,(a0)+
 		dbf	d1,loc_80B2
-		move.w	d0,($FFFFD830).w
-		move.w	d0,($FFFFD832).w
+		move.w	d0,(word_D830).w
+		move.w	d0,(word_D832).w
 		lea	(word_C9DE).w,a0
 		moveq	#bytesToLcnt($40),d1
 
 loc_80C6:
 		move.l	d0,(a0)+
 		dbf	d1,loc_80C6
-		lea	($FFFFCA1E).w,a0
+		lea	(word_CA1E).w,a0
 		moveq	#bytesToLcnt($40),d1
 
 loc_80D2:
 		move.l	d0,(a0)+
 		dbf	d1,loc_80D2
-		lea	($FFFFCA5E).w,a0
+		lea	(word_CA5E).w,a0
 		move.w	#bytesToLcnt($380),d1
 
 loc_80E0:
 		move.l	d0,(a0)+
 		dbf	d1,loc_80E0
-		move.l	d0,($FFFFCDDE).w
+		move.l	d0,(word_CDDE).w
 		lea	(vdp_data_port).l,a0
 		move.w	#$8F02,(vdp_control_port).l
 		move.w	#$8F02,(v_vdp_increment).w
@@ -5736,12 +5736,12 @@ loc_810E:
 		move.l	d0,(a0)
 		dbf	d1,loc_810E
 		move.l	#$40000010,(vdp_control_port).l
-		move.l	($FFFFCDDE).w,(vdp_data_port).l
+		move.l	(word_CDDE).w,(vdp_data_port).l
 		clr.w	(v_subgamemode).w
-		addq.w	#1,($FFFFD836).w
-		tst.w	($FFFFD834).w
+		addq.w	#1,(word_D836).w
+		tst.w	(word_D834).w
 		beq.s	.gotolevel
-		addq.w	#1,($FFFFD83A).w
+		addq.w	#1,(word_D83A).w
 
 .gotolevel:
 		move.w	#id_Level,(v_gamemode).w
@@ -5750,16 +5750,16 @@ loc_810E:
 ; ---------------------------------------------------------------------------
 
 loc_814C:
-		move.w	($FFFFD8A4).w,d0
-		move.w	($FFFFD8A6).w,d1
+		move.w	(word_D8A4).w,d0
+		move.w	(word_D8A6).w,d1
 		add.w	d0,d0
 		add.w	d0,d0
 		add.w	d1,d1
 		add.w	d1,d1
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		add.w	d0,obj.Xpos(a0)
 		add.w	d1,obj.Ypos(a0)
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		add.w	d0,obj.Xpos(a0)
 		add.w	d1,obj.Ypos(a0)
 		jsr	(sub_CCCA).l
@@ -5790,7 +5790,7 @@ sub_8196:
 		move.w	#$70,obj.Xpos(a0)               ; Set starting X position
 		move.w	#$70,obj.Ypos(a0)               ; Set starting Y position
 		move.w	#$8000,obj.Unk20(a0)
-		move.w	a0,($FFFFD862).w
+		move.w	a0,(word_D862).w
 
 Load_Tails:
 loc_81CC:
@@ -5802,7 +5802,7 @@ loc_81CC:
 		move.w	#$B0,obj.Xpos(a0)               ; Set starting X position
 		move.w	#$70,obj.Ypos(a0)               ; Set starting Y position
 		move.w	#$8000,obj.Unk20(a0)
-		move.w	a0,($FFFFD864).w
+		move.w	a0,(word_D864).w
 
 locret_81F6:
 		rts
@@ -5813,7 +5813,7 @@ locret_81F6:
 
 
 sub_81F8:
-		lea	($FFFFD850).w,a6
+		lea	(unk_D850).w,a6
 
 loc_81FC:
 		_move.w	obj.ID(a6),d0
@@ -5825,13 +5825,13 @@ loc_8204:
 		movea.w	d0,a6
 		tst.b	6(a6)
 		bne.s	loc_8214
-		lea	($FFFFD89C).w,a5
+		lea	(byte_D89C).w,a5
 		bsr.s	sub_821C
 		bra.s	loc_81FC
 ; ---------------------------------------------------------------------------
 
 loc_8214:
-		lea	($FFFFD8AC).w,a5
+		lea	(byte_D8AC).w,a5
 		bsr.s	sub_821C
 		bra.s	loc_81FC
 ; End of function sub_81F8
@@ -5845,7 +5845,7 @@ sub_821C:
 		pea	loc_82A6(pc)
 		tst.b	(a5)
 		bpl.s	loc_8236
-		move.b	($FFFFD89E).w,d0
+		move.b	(byte_D89E).w,d0
 		andi.b	#btnABC,d0
 		bne.w	loc_828C
 
@@ -5923,7 +5923,7 @@ nullsub_1:
 
 
 sub_82B2:		; Field_PauseGame+116
-		move.w	($FFFFD830).w,d0
+		move.w	(word_D830).w,d0
 		bpl.s	loc_82BA
 		moveq	#0,d0
 
@@ -5933,9 +5933,9 @@ loc_82BA:
 		move.w	#$BF,d0
 
 loc_82C4:
-		move.w	d0,($FFFFD830).w
+		move.w	d0,(word_D830).w
 		move.w	d0,(word_C9DE).w
-		move.w	($FFFFD832).w,d0
+		move.w	(word_D832).w,d0
 		bpl.s	loc_82D4
 		moveq	#0,d0
 
@@ -5945,30 +5945,30 @@ loc_82D4:
 		move.w	#$11F,d0
 
 loc_82DE:
-		move.w	d0,($FFFFD832).w
-		move.w	d0,($FFFFC9EE).w
+		move.w	d0,(word_D832).w
+		move.w	d0,(word_C9EE).w
 		move.w	d0,d1
 		lsr.w	#1,d1
 		swap	d0
 		move.w	d1,d0
-		move.l	d0,($FFFFCDDE).w
-		tst.w	($FFFFD834).w
+		move.l	d0,(word_CDDE).w
+		tst.w	(word_D834).w
 		bne.w	loc_837C
 		subq.w	#3,($FFFFFAEE).w
 		subq.w	#5,($FFFFFAF0).w
-		move.w	($FFFFD830).w,d0
+		move.w	(word_D830).w,d0
 		neg.w	d0
 		move.w	d0,d1
 		swap	d0
 		swap	d1
 		move.w	($FFFFFAEE).w,d0
 		move.w	($FFFFFAF0).w,d1
-		btst	#0,($FFFFCDE1).w
+		btst	#0,(byte_CDE1).w
 		beq.s	loc_8320
 		exg.l	d0,d1
 
 loc_8320:
-		lea	($FFFFCA5E).w,a0
+		lea	(word_CA5E).w,a0
 		move.w	#bytesToXcnt($380,8),d2
 
 loc_8328:
@@ -5982,8 +5982,8 @@ loc_8328:
 		move.w	($FFFFFAEC).w,d0
 		andi.w	#3,d0
 		lsl.w	#3,d0
-		move.l	PALCY_RainbowField(pc,d0.w),($FFFFD43C).w
-		move.l	PALCY_RainbowField+4(pc,d0.w),($FFFFD440).w
+		move.l	PALCY_RainbowField(pc,d0.w),(v_pal+$58).w
+		move.l	PALCY_RainbowField+4(pc,d0.w),(v_pal+$5C).w
 
 loc_8356:
 		addq.w	#1,($FFFFFAEA).w
@@ -6009,13 +6009,13 @@ PALCY_RainbowField:
 ; ---------------------------------------------------------------------------
 
 loc_837C:
-		move.w	($FFFFD830).w,d0
+		move.w	(word_D830).w,d0
 		neg.w	d0
 		move.w	d0,d1
 		lsr.w	#1,d1
 		swap	d0
 		move.w	d1,d0
-		lea	($FFFFCA5E).w,a0
+		lea	(word_CA5E).w,a0
 		move.w	#bytesToLcnt($380),d1
 
 .loop:
@@ -6037,10 +6037,10 @@ loc_837C:
 
 loc_83C8:
 		move.w	d0,($FFFFFAF2).w
-		move.l	PALCY_ElectricField_1(pc,d0.w),($FFFFD44A).w
-		move.l	PALCY_ElectricField_1+4(pc,d0.w),($FFFFD44E).w
-		move.l	PALCY_ElectricField_1+8(pc,d0.w),($FFFFD452).w
-		move.l	PALCY_ElectricField_1+$C(pc,d0.w),($FFFFD456).w
+		move.l	PALCY_ElectricField_1(pc,d0.w),(v_pal+$66).w
+		move.l	PALCY_ElectricField_1+4(pc,d0.w),(v_pal+$6A).w
+		move.l	PALCY_ElectricField_1+8(pc,d0.w),(v_pal+$6E).w
+		move.l	PALCY_ElectricField_1+$C(pc,d0.w),(v_pal+$72).w
 
 loc_83E4:
 		addq.w	#1,($FFFFFAF0).w
@@ -6244,11 +6244,11 @@ PALCY_ElectricField_1:
 loc_856A:
 		dc.l $FFFFFAEC
 	if FixBugs
-		dc.l $FFFFD43C
+		dc.l v_pal+$58
 	else
 		; Bug: this uses palette entry 2 instead of 3 like intended
 		; perhaps intentional though, considering it can flash very fast.
-		dc.l $FFFFD41C
+		dc.l v_pal+$38
 	endif
 PALCY_ElectricField_2:
 		dc.w $EE0
@@ -6304,11 +6304,11 @@ PALCY_ElectricField_2:
 loc_85D6:
 		dc.l $FFFFFAEE
 	if FixBugs
-		dc.l $FFFFD43E
+		dc.l v_pal+$5A
 	else
 		; Bug: this uses palette entry 2 instead of 3 like intended
 		; perhaps intentional though, considering it can flash very fast.
-		dc.l $FFFFD41E
+		dc.l v_pal+$3A
 	endif
 		dc.w $8E0,$32
 		dc.w $6C0,5
@@ -6353,17 +6353,17 @@ locret_8630:
 
 
 Field_LoadArt:
-		tst.w	($FFFFD834).w
+		tst.w	(word_D834).w
 		bne.w	loc_866E
 		lea	(PAL_RainbowField).l,a0
 		bsr.w	sub_86A0
 		lea	(ARTCRA_RainbowField8x8).l,a0
 		bsr.w	sub_86BA
 		lea	(MAPUNC_RainbowFieldFG).l,a0
-		movea.w	($FFFFD816).w,a1
+		movea.w	(word_D816).w,a1
 		bsr.w	sub_86EA
 		lea	(MAPUNC_RainbowFieldBG).l,a0
-		movea.w	($FFFFD818).w,a1
+		movea.w	(word_D818).w,a1
 		bsr.w	sub_86EA
 		rts
 ; ---------------------------------------------------------------------------
@@ -6374,10 +6374,10 @@ loc_866E:
 		lea	(ARTCRA_ElectricField8x8).l,a0
 		bsr.w	sub_86BA
 		lea	(MAPUNC_ElectricFieldFG).l,a0
-		movea.w	($FFFFD816).w,a1
+		movea.w	(word_D816).w,a1
 		bsr.w	sub_86EA
 		lea	(MAPUNC_ElectricFieldBG).l,a0
-		movea.w	($FFFFD818).w,a1
+		movea.w	(word_D818).w,a1
 		bsr.w	sub_86EA
 		rts
 ; End of function Field_LoadArt
@@ -6387,7 +6387,7 @@ loc_866E:
 
 
 sub_86A0:
-		lea	($FFFFD424).w,a1
+		lea	(v_pal+$40).w,a1
 		movem.l	(a0)+,d0-d7
 		movem.l	d0-d7,(a1)
 		lea	$20(a1),a1
@@ -6467,14 +6467,14 @@ loc_8714:
 sub_8736:
 		tst.b	6(a6)
 		bne.s	loc_8748
-		lea	($FFFFD87C).w,a4
+		lea	(lword_D87C).w,a4
 		moveq	#1,d2
 		move.w	(v_sonic).w,d0
 		bra.s	loc_8752
 ; ---------------------------------------------------------------------------
 
 loc_8748:
-		lea	($FFFFD888).w,a4
+		lea	(lword_D888).w,a4
 		moveq	#8,d2
 		move.w	(v_tails).w,d0
 
@@ -6514,7 +6514,7 @@ loc_87A4:
 		adda.w	(a1,d0.w),a3
 		adda.w	2(a1,d0.w),a2
 		move.l	a2,(a4)
-		or.b	d2,($FFFFD87A).w
+		or.b	d2,(byte_D87A).w
 		move.l	a3,obj.Map(a6)
 		rts
 ; End of function sub_8736
@@ -6570,9 +6570,9 @@ Levels:
 		lea	Level_VDPSettings(pc),a0
 		jsr	(SetupVDPUsingTable).w
 		move.b	#bgm_Electoria,d0
-		tst.w	($FFFFD834).w
+		tst.w	(word_D834).w
 		beq.s	loc_88C2
-		move.w	($FFFFD83A).w,d0
+		move.w	(word_D83A).w,d0
 		andi.w	#3,d0
 		addi.w	#bgm_Walkin,d0
 
@@ -6590,15 +6590,15 @@ loc_88D2:
 		bsr.w	sub_FA44
 		andi.w	#$81BC,(word_C9BA).w
 		move.w	(word_C9BA).w,(vdp_control_port).l
-		clr.l	($FFFFD82C).w
+		clr.l	(word_D82C).w
 		jsr	(sub_9514).l
 		bsr.w	sub_8BFE
 		jsr	(sub_F116).l
 		jsr	(sub_15D0).w
-		move.w	#5,($FFFFD83C).w
-		move.w	#7,($FFFFD840).w
-		move.w	#$3F,($FFFFD844).w
-		move.w	#$3F,($FFFFD848).w
+		move.w	#5,(word_D83C).w
+		move.w	#7,(word_D840).w
+		move.w	#$3F,(word_D844).w
+		move.w	#$3F,(word_D848).w
 		jsr	(Load_Level_Players).l
 		jsr	(sub_D1E0).l
 		jsr	(sub_EFD4).l
@@ -6606,14 +6606,14 @@ loc_88D2:
 		enable_ints
 		jsr	(sub_8CCE).l
 		jsr	(sub_ED26).l
-		tst.w	($FFFFD834).w
+		tst.w	(word_D834).w
 		bne.s	loc_8968
-		clr.w	($FFFFD830).w
-		clr.w	($FFFFD832).w
+		clr.w	(word_D830).w
+		clr.w	(word_D832).w
 		clr.w	(word_C9DE).w
-		clr.w	($FFFFC9EE).w
-		clr.w	($FFFFCA1E).w
-		clr.w	($FFFFCA2E).w
+		clr.w	(word_C9EE).w
+		clr.w	(word_CA1E).w
+		clr.w	(word_CA2E).w
 
 loc_8968:
 		bsr.w	sub_F58C
@@ -6672,7 +6672,7 @@ Level_ReadController:
 		jsr	(ReadCtrlInput).w
 		lea	(unk_C938).w,a3
 		moveq	#0,d1
-		move.b	($FFFFD89C).w,d1
+		move.b	(byte_D89C).w,d1
 		moveq	#7,d0
 		and.b	3(a3,d1.w),d0
 		sne	d2
@@ -6690,12 +6690,12 @@ Level_ReadController:
 		move.b	d0,(a4,d1.w)
 		addq.b	#1,-1(a4)
 		move.b	d2,-2(a4)
-		lea	($FFFFD89C).w,a4
+		lea	(byte_D89C).w,a4
 		bsr.w	sub_8ABC
 		move.b	($FFFFFAFE).w,d0
 		lea	(unk_C938).w,a3
 		moveq	#0,d1
-		move.b	($FFFFD8AC).w,d1
+		move.b	(byte_D8AC).w,d1
 		bmi.s	loc_8AB4
 		moveq	#7,d0
 		and.b	3(a3,d1.w),d0
@@ -6709,7 +6709,7 @@ Level_ReadController:
 		or.b	d1,d0
 
 loc_8AB4:
-		lea	($FFFFD8AC).w,a4
+		lea	(byte_D8AC).w,a4
 		bra.w	sub_8ABC
 ; End of function Level_ReadController
 
@@ -6762,8 +6762,8 @@ loc_8B1C:
 		jsr	(VDPSetup_02).w
 		jsr	(DMAToCRAM).w
 		jsr	(sub_C9DE).l
-		move.l	#$FFFFD164,d0
-		move.w	($FFFFD81A).w,d1
+		move.l	#v_spritetablebuffer,d0
+		move.w	(word_D81A).w,d1
 		move.w	#$140,d2
 		jsr	(DMA_WriteData).w
 		lea	(unk_0A00&$FFFFFF).l,a3
@@ -6772,10 +6772,10 @@ loc_8B1C:
 		jsr	(sub_14E4).w
 		lea	(unk_0B84&$FFFFFF).l,a3
 		lea	(unk_0C86&$FFFFFF).l,a4
-		lea	($FFFFCA1E).w,a5
+		lea	(word_CA1E).w,a5
 		jsr	(sub_14E4).w
 		ori.b	#$80,(v_lagger).w
-		addq.w	#1,($FFFFF000).w
+		addq.w	#1,(word_F000).w
 		movem.l	(sp)+,d0-a6
 		rte
 
@@ -6783,7 +6783,7 @@ loc_8B1C:
 
 
 Level_PauseGame:
-		tst.b	($FFFFD89F).w
+		tst.b	(byte_D89F).w
 		bpl.w	locret_8BFC
 		move.b	(unk_C93C).w,d0
 		andi.b	#$70,d0
@@ -6806,16 +6806,16 @@ loc_8BA4:
 		tst.b	(v_lagger).w
 		bpl.s	.wait
 		jsr	(Level_ReadController).l
-		move.w	($FFFFD8A4).w,d0
-		move.w	($FFFFD8A6).w,d1
+		move.w	(word_D8A4).w,d0
+		move.w	(word_D8A6).w,d1
 		add.w	d0,d0
 		add.w	d0,d0
 		add.w	d1,d1
 		add.w	d1,d1
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		add.w	d0,obj.Xpos(a0)
 		add.w	d1,obj.Ypos(a0)
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		add.w	d0,obj.Xpos(a0)
 		add.w	d1,obj.Ypos(a0)
 		jsr	(sub_CCCA).l
@@ -6836,7 +6836,7 @@ locret_8BFC:
 
 sub_8BFE:
 		moveq	#0,d0
-		move.w	($FFFFD834).w,d0
+		move.w	(word_D834).w,d0
 		andi.w	#1,d0
 		lsl.l	#2,d0
 		movea.l	ObjPos_Pointers(pc,d0.w),a0
@@ -6861,7 +6861,7 @@ ObjPos_Pointers:
 
 
 Level_LoadObjectArt:
-		tst.w	($FFFFD834).w
+		tst.w	(word_D834).w
 		beq.s	.exit
 		disable_ints
 		lea	(ARTNEM_Springs).l,a0
@@ -6920,7 +6920,7 @@ word_8CBA:
 
 sub_8CCE:
 		moveq	#0,d1
-		move.w	($FFFFD834).w,d1
+		move.w	(word_D834).w,d1
 		andi.w	#1,d1
 		lsl.l	#1,d1
 		jmp	loc_8CDE(pc,d1.w)
@@ -6940,12 +6940,12 @@ locret_8CE2:
 
 loc_8CE4:
 		moveq	#0,d0
-		move.w	($FFFFD83A).w,d0
+		move.w	(word_D83A).w,d0
 		andi.w	#3,d0
 		lsl.l	#6,d0
 		lea	(PAL_TechnoTowerZone).l,a1
 		adda.l	d0,a1
-		lea	($FFFFD424).w,a0
+		lea	(v_pal+$40).w,a0
 		move.b	#bytesToWcnt($40),d7
 
 .load:
@@ -7005,10 +7005,10 @@ LevelSelect_Init:
 		move.l	#$1E00A8,(vdp_data_port).l
 		move.l	#$A00F00,(vdp_data_port).l
 		move.l	#$600110,(vdp_data_port).l
-		move.w	#0,($FFFFD834).w
-		move.w	#0,($FFFFD836).w
+		move.w	#0,(word_D834).w
+		move.w	#0,(word_D836).w
 		move.l	#cWhite,(v_pal).w
-		move.l	#cWhite,($FFFFD404).w
+		move.l	#cWhite,(v_pal+$20).w
 		jsr	(DMAToCRAM).w
 		enable_ints
 		addq.w	#4,(v_subgamemode).w
@@ -7022,7 +7022,7 @@ LevelSelect_Main:
 		tst.b	(v_lagger).w
 		bpl.s	.wait
 		move.w	(word_C944).w,d0
-		add.w	($FFFFD834).w,d0
+		add.w	(word_D834).w,d0
 		bpl.s	loc_8ED8
 		moveq	#0,d0
 
@@ -7032,11 +7032,11 @@ loc_8ED8:
 		moveq	#9,d0
 
 loc_8EE0:
-		move.w	d0,($FFFFD834).w
+		move.w	d0,(word_D834).w
 		move.w	d0,d1
 		lsl.w	#5,d1
 		subi.w	#$90,d1
-		move.w	d1,($FFFFD830).w
+		move.w	d1,(word_D830).w
 		lea	MAPUNC_SelectMenu_2(pc),a1
 		lsl.w	#4,d0
 		adda.w	d0,a1
@@ -7045,17 +7045,17 @@ loc_8EE0:
 		moveq	#0,d2
 		move.w	#0,d3
 		jsr	(MapScreen).w
-		move.w	($FFFFD834).w,d1
+		move.w	(word_D834).w,d1
 		cmpi.w	#7,d1
 		bcc.s	loc_8F3A
-		move.w	#$100,($FFFFD820).w
+		move.w	#$100,(word_D820).w
 		move.l	#$66100003,d0
 		lea	MAPUNC_SelectMenu_3(pc),a1
 		moveq	#$F,d1
 		moveq	#5,d2
 		move.w	#0,d3
 		jsr	(MapScreen).w
-		move.w	#$80,($FFFFD820).w
+		move.w	#$80,(word_D820).w
 		bra.w	loc_8FCA
 ; ---------------------------------------------------------------------------
 
@@ -7112,12 +7112,12 @@ word_8FB6:	dc.w 5
 ; ---------------------------------------------------------------------------
 
 loc_8FCA:
-		move.w	($FFFFD834).w,d1
+		move.w	(word_D834).w,d1
 		add.w	d1,d1
 		move.w	word_8FB6(pc,d1.w),d1
 		move.w	(word_C946).w,d0
 		neg.w	d0
-		add.w	($FFFFD836).w,d0
+		add.w	(word_D836).w,d0
 		bpl.s	loc_8FE2
 		moveq	#0,d0
 
@@ -7127,11 +7127,11 @@ loc_8FE2:
 		move.w	d1,d0
 
 loc_8FE8:
-		move.w	d0,($FFFFD836).w
+		move.w	d0,(word_D836).w
 		lsl.w	#4,d0
 		neg.w	d0
 		addi.w	#$130,d0
-		move.w	d0,($FFFFD832).w
+		move.w	d0,(word_D832).w
 		tst.b	(unk_C93D).w
 		bmi.s	LevelSelect_PlaySpecial
 		rts
@@ -7139,24 +7139,24 @@ loc_8FE8:
 
 LevelSelect_PlaySpecial:
 		clr.l	(v_subgamemode).w
-		cmpi.w	#9,($FFFFD834).w
+		cmpi.w	#9,(word_D834).w
 		bne.s	LevelSelect_PlayField
 		move.w	#id_Null,(v_gamemode).w
 		rts
 ; ---------------------------------------------------------------------------
 
 LevelSelect_PlayField:
-		tst.w	($FFFFD836).w
+		tst.w	(word_D836).w
 		bne.s	LevelSelect_PlayLevel
 		move.w	#id_Field,(v_gamemode).w
 		rts
 ; ---------------------------------------------------------------------------
 
 LevelSelect_PlayLevel:
-		move.w	($FFFFD836).w,d0
+		move.w	(word_D836).w,d0
 		andi.w	#3,d0
-		move.w	d0,($FFFFD83A).w
-		move.w	#1,($FFFFD836).w
+		move.w	d0,(word_D83A).w
+		move.w	#1,(word_D836).w
 		move.w	#id_Level,(v_gamemode).w
 		rts
 ; ---------------------------------------------------------------------------
@@ -7164,11 +7164,11 @@ LevelSelect_PlayLevel:
 loc_903C:
 		movem.l	d0-a6,-(sp)
 		move.l	#$7C000003,(vdp_control_port).l
-		move.w	($FFFFD830).w,d0
+		move.w	(word_D830).w,d0
 		neg.w	d0
 		move.w	d0,(vdp_data_port).l
 		move.l	#$78000003,(vdp_control_port).l
-		move.w	($FFFFD832).w,(vdp_data_port).l
+		move.w	(word_D832).w,(vdp_data_port).l
 		jsr	(ReadCtrlInput).w
 		move.b	(unk_C93C).w,d0
 		bsr.s	sub_9098
@@ -7285,7 +7285,7 @@ OptionSoundTest_Exit:
 		add.b	d0,($FFFFD82B).w
 		disable_ints
 		move.w	(v_menu_soundid).w,d0
-		move.w	($FFFFD816).w,d1
+		move.w	(word_D816).w,d1
 		addi.w	#$820,d1	; position on screen
 		jsr	(sub_5090).l
 		enable_ints
@@ -7313,7 +7313,7 @@ loc_94A8:
 loc_94B4:
 		movem.l	d0-a6,-(sp)
 		move.l	#$78000003,(vdp_control_port).l
-		move.w	($FFFFD832).w,(vdp_data_port).l
+		move.w	(word_D832).w,(vdp_data_port).l
 		jsr	(ReadCtrlInput).w
 		move.b	(unk_C93C).w,d0
 		bsr.s	sub_94F6
@@ -7352,9 +7352,9 @@ sub_94F6:
 
 
 sub_9514:
-		move.w	($FFFFD834).w,d0
+		move.w	(word_D834).w,d0
 		lsl.w	#3,d0
-		add.w	($FFFFD836).w,d0
+		add.w	(word_D836).w,d0
 		add.w	d0,d0
 		add.w	d0,d0
 		jmp	loc_9528(pc,d0.w)
@@ -7529,7 +7529,7 @@ loc_9528:
 ; ---------------------------------------------------------------------------
 
 loc_9668:
-		move.w	($FFFFD82C).w,d0
+		move.w	(word_D82C).w,d0
 		jmp	loc_9670(pc,d0.w)
 ; ---------------------------------------------------------------------------
 
@@ -7546,10 +7546,10 @@ loc_967C:
 		lea	(word_C9DE).w,a1
 		move.w	#$104,$1E(a1)
 		lea	PAL_SpeedSliderZone(pc),a0
-		lea	($FFFFD424).w,a2
+		lea	(v_pal+$40).w,a2
 		bsr.w	sub_9E6E
 		lea	SSZ_FG_StartLocCam(pc),a0
-		lea	($FFFFD816).w,a2
+		lea	(word_D816).w,a2
 		bsr.w	sub_9E84
 		movea.l	a1,a0
 		lea	SSZ_ArtLocs(pc),a2
@@ -7558,12 +7558,12 @@ loc_967C:
 		move.l	#v_lvldatabuffer&$FFFFFF,$28(a0)
 		lea	SSZ_MapFGLocs(pc),a2
 		bsr.w	DecEniMapLocs
-		move.l	a1,($FFFFCA46).w
+		move.l	a1,(lword_CA46).w
 		bsr.w	sub_9DA2
 		lea	SSZ_BG_StartLocCam(pc),a0
-		lea	($FFFFCA1E).w,a1
+		lea	(word_CA1E).w,a1
 		move.w	#$104,$1E(a1)
-		lea	($FFFFD818).w,a2
+		lea	(word_D818).w,a2
 		bsr.w	sub_9E84
 		movea.l	a1,a0
 		lea	SSZ_MapBGLocs(pc),a2
@@ -7578,24 +7578,24 @@ loc_967C:
 		clr.w	(unk_0C86&$FFFFFF).l
 		bsr.w	sub_9DC6
 		enable_ints
-		addq.w	#4,($FFFFD82C).w
+		addq.w	#4,(word_D82C).w
 		rts
 ; ---------------------------------------------------------------------------
 
 loc_9720:
 		jsr	(sub_F538).l
-		addq.w	#4,($FFFFD82C).w
+		addq.w	#4,(word_D82C).w
 
 loc_972A:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		lea	(word_C9DE).w,a1
 		lea	(unk_0A00&$FFFFFF).l,a3
 		lea	(unk_0B02&$FFFFFF).l,a4
 		bsr.w	sub_9EF8
 		bsr.w	sub_9F3A
 		bsr.w	sub_9DFE
-		movea.w	($FFFFD862).w,a0
-		lea	($FFFFCA1E).w,a1
+		movea.w	(word_D862).w,a0
+		lea	(word_CA1E).w,a1
 		lea	(unk_0B84&$FFFFFF).l,a3
 		lea	(unk_0C86&$FFFFFF).l,a4
 		bsr.s	sub_97B4
@@ -7604,7 +7604,7 @@ loc_972A:
 ; ---------------------------------------------------------------------------
 		_move.w	0(a1),d0
 		move.w	d0,2(a1)
-		move.w	($FFFFD830).w,d1
+		move.w	(word_D830).w,d1
 		sub.w	d0,d1
 		blt.s	loc_9782
 		cmpi.w	#$10,d1
@@ -7665,7 +7665,7 @@ locret_97E6:
 ; End of function sub_97B4
 
 ; ---------------------------------------------------------------------------
-		lea	($FFFFCA5E).w,a2
+		lea	(word_CA5E).w,a2
 		clr.w	($FFFFFBC8).w
 		move.w	(word_C9DE).w,d3
 		neg.w	d3
@@ -7690,8 +7690,8 @@ loc_980E:
 		addi.l	#$1000,($FFFFFBC8).w
 		sub.w	($FFFFFBC8).w,d2
 		dbf	d7,loc_980E
-		move.l	#$FFFFCA5E,d0
-		move.w	($FFFFD81C).w,d1
+		move.l	#word_CA5E,d0
+		move.w	(word_D81C).w,d1
 		move.w	#$1C0,d2
 		jsr	(sub_568).w
 		rts
@@ -7709,8 +7709,8 @@ loc_9846:
 		addi.l	#$1000,($FFFFFBC8).w
 		sub.w	($FFFFFBC8).w,d2
 		dbf	d7,loc_9846
-		move.l	#$FFFFCA5E,d0
-		move.w	($FFFFD81C).w,d1
+		move.l	#word_CA5E,d0
+		move.w	(word_D81C).w,d1
 		move.w	#$1C0,d2
 		jsr	(sub_568).w
 		rts
@@ -7733,7 +7733,7 @@ locret_9882:
 ; ---------------------------------------------------------------------------
 
 loc_9884:
-		move.w	($FFFFD82C).w,d0
+		move.w	(word_D82C).w,d0
 		jmp	loc_988C(pc,d0.w)
 ; ---------------------------------------------------------------------------
 
@@ -7749,10 +7749,10 @@ loc_9898:
 		disable_ints
 		lea	(word_C9DE).w,a1
 		lea	PAL_TechnoTowerZoneUnused(pc),a0
-		lea	($FFFFD424).w,a2
+		lea	(v_pal+$40).w,a2
 		bsr.w	sub_9E6E
 		lea	TTZ_FG_StartLocCam(pc),a0
-		lea	($FFFFD816).w,a2
+		lea	(word_D816).w,a2
 		bsr.w	sub_9E84
 		movea.l	a1,a0
 		lea	TTZ_ArtLocs(pc),a2
@@ -7761,12 +7761,12 @@ loc_9898:
 		move.l	#v_lvldatabuffer&$FFFFFF,$28(a0)
 		lea	TTZ_MapFGLocs(pc),a2
 		bsr.w	DecEniMapLocs
-		move.l	a1,($FFFFCA46).w
+		move.l	a1,(lword_CA46).w
 		bsr.w	sub_9DA2
 		lea	TTZ_BG_StartLocCam(pc),a0
-		lea	($FFFFCA1E).w,a1
+		lea	(word_CA1E).w,a1
 		move.w	#$104,$1E(a1)
-		lea	($FFFFD818).w,a2
+		lea	(word_D818).w,a2
 		bsr.w	sub_9E84
 		movea.l	a1,a0
 		lea	TTZ_MapBGLocs(pc),a2
@@ -7777,24 +7777,24 @@ loc_9898:
 		lea	(unk_0C86&$FFFFFF).l,a4
 		bsr.w	sub_9DC6
 		enable_ints
-		addq.w	#4,($FFFFD82C).w
+		addq.w	#4,(word_D82C).w
 		rts
 ; ---------------------------------------------------------------------------
 
 loc_991E:
 		jsr	(sub_F538).l
-		addq.w	#4,($FFFFD82C).w
+		addq.w	#4,(word_D82C).w
 
 loc_9928:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		lea	(word_C9DE).w,a1
 		lea	(unk_0A00&$FFFFFF).l,a3
 		lea	(unk_0B02&$FFFFFF).l,a4
 		bsr.w	sub_9EF8
 		bsr.w	sub_9F3A
 		bsr.w	sub_9DFE
-		movea.w	($FFFFD862).w,a0
-		lea	($FFFFCA1E).w,a1
+		movea.w	(word_D862).w,a0
+		lea	(word_CA1E).w,a1
 		lea	(unk_0B84&$FFFFFF).l,a3
 		lea	(unk_0C86&$FFFFFF).l,a4
 		bsr.s	sub_996A
@@ -7809,7 +7809,7 @@ sub_996A:
 		moveq	#0,d1
 		_move.w	0(a1),d0
 		move.w	d0,2(a1)
-		move.w	($FFFFD830).w,d1
+		move.w	(word_D830).w,d1
 		mulu.w	#$13,d1
 		divu.w	#$1B,d1
 		_move.w	d1,0(a1)
@@ -7829,8 +7829,8 @@ locret_9998:
 
 ; ---------------------------------------------------------------------------
 		moveq	#0,d0
-		move.w	($FFFFC9EE).w,d0
-		move.w	($FFFFC9F0).w,d1
+		move.w	(word_C9EE).w,d0
+		move.w	(word_C9F0).w,d1
 		move.w	d0,d2
 		sub.w	d1,d0
 		beq.s	loc_99CC
@@ -7849,7 +7849,7 @@ locret_9998:
 		add.l	d0,($FFFFFBD0).w
 
 loc_99CC:
-		lea	($FFFFCDDE).w,a2
+		lea	(word_CDDE).w,a2
 		_move.w	0(a1),d1
 		addi.w	#$F,d1
 		lsr.w	#2,d1
@@ -7963,23 +7963,23 @@ dword_99F0:	dc.l $FFFFFBC4
 		dc.l $FFFFFBC4
 		dc.l $FFFFFBC4
 ; ---------------------------------------------------------------------------
-		cmpi.w	#$D60,($FFFFC9EE).w
+		cmpi.w	#$D60,(word_C9EE).w
 		bcc.s	loc_9B80
-		move.w	#$10C,($FFFFC9FC).w
+		move.w	#$10C,(word_C9FC).w
 		bra.s	locret_9BDE
 ; ---------------------------------------------------------------------------
 
 loc_9B80:
-		move.w	#$114,($FFFFC9FC).w
-		lea	($FFFFCA5E).w,a3
+		move.w	#$114,(word_C9FC).w
+		lea	(word_CA5E).w,a3
 		move.w	(word_C9DE).w,d3
 		neg.w	d3
-		move.w	($FFFFCA1E).w,d4
+		move.w	(word_CA1E).w,d4
 		neg.w	d4
 		moveq	#$1C-1,d7
-		move.w	($FFFFCA1C).w,d2
+		move.w	(word_CA1C).w,d2
 		addq.w	#1,d2
-		move.w	d2,($FFFFCA1C).w
+		move.w	d2,(word_CA1C).w
 
 loc_9BA2:
 		moveq	#6,d6
@@ -7999,8 +7999,8 @@ loc_9BA4:
 		move.w	d0,(a3)+
 		move.w	d4,(a3)+
 		dbf	d7,loc_9BA2
-		move.l	#$FFFFCA5E,d0
-		move.w	($FFFFD81C).w,d1
+		move.l	#word_CA5E,d0
+		move.w	(word_D81C).w,d1
 		move.w	#$1C0,d2
 		jsr	(sub_568).w
 
@@ -8442,7 +8442,7 @@ loc_9EEC:
 sub_9EF8:
 		_move.w	0(a1),d0
 		move.w	d0,2(a1)
-		move.w	($FFFFD830).w,d1
+		move.w	(word_D830).w,d1
 		sub.w	d0,d1
 		blt.s	loc_9F14
 		cmpi.w	#$10,d1
@@ -8480,7 +8480,7 @@ locret_9F38:
 sub_9F3A:
 		move.w	$10(a1),d0
 		move.w	d0,$12(a1)
-		move.w	($FFFFD832).w,d1
+		move.w	(word_D832).w,d1
 		sub.w	d0,d1
 		blt.s	loc_9F56
 		cmpi.w	#$10,d1
@@ -8553,12 +8553,12 @@ loc_9FAC:
 		move.b	$1E(a1),d0
 		beq.s	locret_9FF8
 		move.w	#$8B00,(vdp_control_port).l
-		move.w	#$8B00,($FFFFC9CE).w
+		move.w	#$8B00,(word_C9CE).w
 		moveq	#0,d0
 		move.l	#$40000010,(vdp_control_port).l
 		move.l	d0,(vdp_data_port).l
 		moveq	#0,d1
-		move.w	($FFFFD81C).w,d1
+		move.w	(word_D81C).w,d1
 		lsl.l	#2,d1
 		lsr.w	#2,d1
 		ori.w	#$4000,d1
@@ -8576,15 +8576,15 @@ loc_9FFA:
 		move.b	$1E(a1),d0
 		beq.s	loc_A014
 		move.w	#$8B00,(vdp_control_port).l
-		move.w	#$8B00,($FFFFC9CE).w
+		move.w	#$8B00,(word_C9CE).w
 		move.b	#0,$1E(a1)
 
 loc_A014:
 		move.l	#$40000010,(vdp_control_port).l
 		move.w	$10(a1),(vdp_data_port).l
-		move.w	($FFFFCA2E).w,(vdp_data_port).l
+		move.w	(word_CA2E).w,(vdp_data_port).l
 		moveq	#0,d0
-		move.w	($FFFFD81C).w,d0
+		move.w	(word_D81C).w,d0
 		lsl.l	#2,d0
 		lsr.w	#2,d0
 		ori.w	#$4000,d0
@@ -8594,7 +8594,7 @@ loc_A014:
 		_move.w	0(a1),d0
 		neg.w	d0
 		move.w	d0,(vdp_data_port).l
-		move.w	($FFFFCA1E).w,d1
+		move.w	(word_CA1E).w,d1
 		neg.w	d1
 		move.w	d1,(vdp_data_port).l
 		rts
@@ -8604,13 +8604,13 @@ loc_A062:
 		move.b	$1E(a1),d0
 		beq.s	loc_A07C
 		move.w	#$8B03,(vdp_control_port).l
-		move.w	#$8B03,($FFFFC9CE).w
+		move.w	#$8B03,(word_C9CE).w
 		move.b	#0,$1E(a1)
 
 loc_A07C:
 		move.l	#$40000010,(vdp_control_port).l
 		move.w	$10(a1),(vdp_data_port).l
-		move.w	($FFFFCA2E).w,(vdp_data_port).l
+		move.w	(word_CA2E).w,(vdp_data_port).l
 		rts
 ; ---------------------------------------------------------------------------
 
@@ -8618,16 +8618,16 @@ loc_A098:
 		move.b	$1E(a1),d0
 		beq.s	loc_A0B2
 		move.w	#$8B04,(vdp_control_port).l
-		move.w	#$8B04,($FFFFC9CE).w
+		move.w	#$8B04,(word_C9CE).w
 		move.b	#0,$1E(a1)
 
 loc_A0B2:
-		lea	($FFFFCDDE).w,a3
+		lea	(word_CDDE).w,a3
 		lea	(vdp_data_port).l,a4
 		move.l	#$40000010,(vdp_control_port).l
 		bsr.w	sub_A14E
 		moveq	#0,d0
-		move.w	($FFFFD81C).w,d0
+		move.w	(word_D81C).w,d0
 		lsl.l	#2,d0
 		lsr.w	#2,d0
 		ori.w	#$4000,d0
@@ -8637,7 +8637,7 @@ loc_A0B2:
 		_move.w	0(a1),d0
 		neg.w	d0
 		move.w	d0,(vdp_data_port).l
-		move.w	($FFFFCA1E).w,d1
+		move.w	(word_CA1E).w,d1
 		neg.w	d1
 		move.w	d1,(vdp_data_port).l
 		rts
@@ -8647,11 +8647,11 @@ loc_A0FE:
 		move.b	$1E(a1),d0
 		beq.s	loc_A118
 		move.w	#$8B07,(vdp_control_port).l
-		move.w	#$8B07,($FFFFC9CE).w
+		move.w	#$8B07,(word_C9CE).w
 		move.b	#0,$1E(a1)
 
 loc_A118:
-		lea	($FFFFCDDE).w,a3
+		lea	(word_CDDE).w,a3
 		lea	(vdp_data_port).l,a4
 		move.l	#$40000010,(vdp_control_port).l
 		bsr.w	sub_A14E
@@ -8712,7 +8712,7 @@ sub_A14E:
 ; ---------------------------------------------------------------------------
 
 sub_A178:
-		lea	($FFFFD850).w,a6
+		lea	(unk_D850).w,a6
 
 loc_A17C:
 		_move.w	0(a6),d0
@@ -8748,16 +8748,16 @@ loc_A192:
 loc_A1AA:
 		move.w	(v_sonic).w,d0
 		movea.l	CharacterTable(pc,d0.w),a0
-		lea	($FFFFD89C).w,a5
-		movea.w	($FFFFD864).w,a4
+		lea	(byte_D89C).w,a5
+		movea.w	(word_D864).w,a4
 		jmp	(a0)
 ; ---------------------------------------------------------------------------
 
 loc_A1BC:
 		move.w	(v_tails).w,d0
 		movea.l	CharacterTable(pc,d0.w),a0
-		lea	($FFFFD8AC).w,a5
-		movea.w	($FFFFD862).w,a4
+		lea	(byte_D8AC).w,a5
+		movea.w	(word_D862).w,a4
 		jmp	(a0)
 ; ---------------------------------------------------------------------------
 CharacterTable:
@@ -8854,7 +8854,7 @@ loc_A296:
 		beq.w	loc_A4B4
 		tst.b	(a5)
 		bpl.s	loc_A2CC
-		move.b	($FFFFD89E).w,d0
+		move.b	(byte_D89E).w,d0
 		andi.b	#btnABC,d0
 		beq.s	loc_A2CC
 		clr.w	obj.Inertia(a6)
@@ -9793,7 +9793,7 @@ loc_AB5C:
 		beq.w	loc_AD66
 		tst.b	(a5)
 		bpl.s	loc_AB92
-		move.b	($FFFFD89E).w,d0
+		move.b	(byte_D89E).w,d0
 		andi.b	#btnABC,d0
 		beq.s	loc_AB92
 		clr.w	obj.Inertia(a6)
@@ -11200,14 +11200,14 @@ loc_B7DA:
 		move.l	a1,obj.Map(a6)
 		tst.b	6(a5)
 		bne.s	loc_B80E
-		move.l	a2,($FFFFD888).w
-		ori.b	#8,($FFFFD87A).w
+		move.l	a2,(lword_D888).w
+		ori.b	#8,(byte_D87A).w
 		rts
 ; ---------------------------------------------------------------------------
 
 loc_B80E:
-		move.l	a2,($FFFFD88C).w
-		ori.b	#$10,($FFFFD87A).w
+		move.l	a2,(lword_D88C).w
+		ori.b	#$10,(byte_D87A).w
 		rts
 ; ---------------------------------------------------------------------------
 
@@ -11696,14 +11696,14 @@ loc_BBF0:
 		move.l	a1,obj.Map(a6)
 		tst.b	6(a5)
 		bne.s	loc_BC24
-		move.l	a2,($FFFFD888).w
-		ori.b	#8,($FFFFD87A).w
+		move.l	a2,(lword_D888).w
+		ori.b	#8,(byte_D87A).w
 		rts
 ; ---------------------------------------------------------------------------
 
 loc_BC24:
-		move.l	a2,($FFFFD88C).w
-		ori.b	#$10,($FFFFD87A).w
+		move.l	a2,(lword_D88C).w
+		ori.b	#$10,(byte_D87A).w
 		rts
 ; ---------------------------------------------------------------------------
 
@@ -11954,14 +11954,14 @@ loc_BE2E:
 		move.l	a1,obj.Map(a6)
 		tst.b	6(a5)
 		bne.s	loc_BE66
-		move.l	a2,($FFFFD894).w
-		ori.b	#$40,($FFFFD87A).w
+		move.l	a2,(lword_D894).w
+		ori.b	#$40,(byte_D87A).w
 		rts
 ; ---------------------------------------------------------------------------
 
 loc_BE66:
-		move.l	a2,($FFFFD898).w
-		ori.b	#$80,($FFFFD87A).w
+		move.l	a2,(lword_D898).w
+		ori.b	#$80,(byte_D87A).w
 		rts
 
 ; =============== S U B	R O U T	I N E =======================================
@@ -11976,7 +11976,7 @@ sub_BE72:
 		move.w	#$80,obj.Unk4(a0)
 		move.w	#$800,obj.Pointer(a0) ; Load Sonic Hands Object Pointer?
 		move.w	#0,obj.Unk20(a0)
-		move.w	a0,($FFFFD862).w
+		move.w	a0,(word_D862).w
 
 loc_BE9C:
 		moveq	#4,d0
@@ -11987,12 +11987,12 @@ loc_BE9C:
 		move.w	(word_C9DE).w,d0
 		addi.w	#$B8,d0
 		move.w	d0,obj.Xpos(a0)
-		move.w	($FFFFC9EE).w,d0
+		move.w	(word_C9EE).w,d0
 		addi.w	#$70,d0
 		move.w	d0,obj.Ypos(a0)
 		move.w	#0,obj.Unk20(a0)
-		movea.w	($FFFFD862).w,a6
-		move.w	a0,($FFFFD862).w
+		movea.w	(word_D862).w,a6
+		move.w	a0,(word_D862).w
 		move.w	a0,$24(a6)
 		move.w	#$10,$32(a0)
 
@@ -12003,7 +12003,7 @@ loc_BEE0:
 		move.w	#$80,obj.Unk4(a0)
 		move.w	#$1000,obj.Pointer(a0) ; Load Unknown Object Pointer?
 		move.w	#0,obj.Unk20(a0)
-		move.w	($FFFFD862).w,$24(a0)
+		move.w	(word_D862).w,$24(a0)
 
 loc_BF00:
 		moveq	#4,d0
@@ -12012,7 +12012,7 @@ loc_BF00:
 		move.w	#$80,obj.Unk4(a0)
 		move.w	#$C00,obj.Pointer(a0) ; Load Tails Hands Object Pointer?
 		move.w	#$21,obj.Unk20(a0)
-		move.w	a0,($FFFFD864).w
+		move.w	a0,(word_D864).w
 
 loc_BF1E:
 		moveq	#4,d0
@@ -12023,12 +12023,12 @@ loc_BF1E:
 		move.w	(word_C9DE).w,d0
 		addi.w	#$88,d0
 		move.w	d0,obj.Xpos(a0)
-		move.w	($FFFFC9EE).w,d0
+		move.w	(word_C9EE).w,d0
 		addi.w	#$70,d0
 		move.w	d0,obj.Ypos(a0)
 		move.w	#$21,obj.Unk20(a0)
-		movea.w	($FFFFD864).w,a6
-		move.w	a0,($FFFFD864).w
+		movea.w	(word_D864).w,a6
+		move.w	a0,(word_D864).w
 		move.w	a0,$24(a6)
 		move.w	#$10,$32(a0)
 
@@ -12039,7 +12039,7 @@ loc_BF62:
 		move.w	#$80,obj.Unk4(a0)
 		move.w	#$1400,obj.Pointer(a0) ; Load Tails Tail Object Pointer?
 		move.w	#$21,obj.Unk20(a0)
-		move.w	($FFFFD864).w,$24(a0)
+		move.w	(word_D864).w,$24(a0)
 
 locret_BF82:
 		rts
@@ -13057,7 +13057,7 @@ loc_C76C:
 		move.w	($FFFFFAE0).w,d0
 		cmpi.w	#$10,d0
 		bcc.s	loc_C7BC
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		move.w	8(a6),d0
 		sub.w	8(a0),d0
 		smi	d0
@@ -13071,14 +13071,14 @@ loc_C7BC:
 		bsr.w	sub_C8CA
 		tst.b	6(a6)
 		bne.s	loc_C7D6
-		lea	($FFFFD87C).w,a4
+		lea	(lword_D87C).w,a4
 		moveq	#1,d2
 		move.w	(v_sonic).w,d0
 		bra.s	loc_C7E0
 ; ---------------------------------------------------------------------------
 
 loc_C7D6:
-		lea	($FFFFD880).w,a4
+		lea	(lword_D880).w,a4
 		moveq	#2,d2
 		move.w	(v_tails).w,d0
 
@@ -13118,7 +13118,7 @@ loc_C832:
 		adda.w	(a1,d0.w),a3
 		adda.w	2(a1,d0.w),a2
 		move.l	a2,(a4)
-		or.b	d2,($FFFFD87A).w
+		or.b	d2,(byte_D87A).w
 		move.l	a3,obj.Map(a6)
 		rts
 ; ---------------------------------------------------------------------------
@@ -13164,62 +13164,62 @@ sub_C8CA:
 		bne.w	locret_C9DC
 		disable_ints
 		move.w	6(a6),d0
-		move.w	($FFFFD81E).w,d1
+		move.w	(word_D81E).w,d1
 		addi.w	#$C00,d1
 		jsr	(sub_5090).l
 		move.w	$24(a6),d0
-		move.w	($FFFFD81E).w,d1
+		move.w	(word_D81E).w,d1
 		addi.w	#$C08,d1
 		jsr	(sub_5090).l
 		move.w	$26(a6),d0
-		move.w	($FFFFD81E).w,d1
+		move.w	(word_D81E).w,d1
 		addi.w	#$C88,d1
 		jsr	(sub_5090).l
 		move.w	$28(a6),d0
-		move.w	($FFFFD81E).w,d1
+		move.w	(word_D81E).w,d1
 		addi.w	#$D08,d1
 		jsr	(sub_5090).l
 		moveq	#0,d0
 		move.w	obj.Angle(a6),d0
-		move.w	($FFFFD81E).w,d1
+		move.w	(word_D81E).w,d1
 		addi.w	#$C12,d1
 		jsr	(sub_5090).l
 		move.w	obj.Inertia(a6),d0
-		move.w	($FFFFD81E).w,d1
+		move.w	(word_D81E).w,d1
 		addi.w	#$C92,d1
 		jsr	(sub_5090).l
 		move.w	$2E(a6),d0
-		move.w	($FFFFD81E).w,d1
+		move.w	(word_D81E).w,d1
 		addi.w	#$D12,d1
 		jsr	(sub_5090).l
 		move.w	($FFFFFAC0).w,d0
-		move.w	($FFFFD81E).w,d1
+		move.w	(word_D81E).w,d1
 		addi.w	#$C9C,d1
 		jsr	(sub_5090).l
 		move.w	($FFFFFAC2).w,d0
-		move.w	($FFFFD81E).w,d1
+		move.w	(word_D81E).w,d1
 		addi.w	#$CA6,d1
 		jsr	(sub_5090).l
 		movea.l	($FFFFFAC6).w,a0
 		move.w	(a0),d0
-		move.w	($FFFFD81E).w,d1
+		move.w	(word_D81E).w,d1
 		addi.w	#$D1C,d1
 		jsr	(sub_5090).l
 		movea.l	($FFFFFACA).w,a0
 		move.w	(a0),d0
-		move.w	($FFFFD81E).w,d1
+		move.w	(word_D81E).w,d1
 		addi.w	#$D26,d1
 		jsr	(sub_5090).l
 		move.w	8(a6),d0
-		move.w	($FFFFD81E).w,d1
+		move.w	(word_D81E).w,d1
 		addi.w	#$C1C,d1
 		jsr	(sub_5090).l
 		move.w	obj.Ypos(a6),d0
-		move.w	($FFFFD81E).w,d1
+		move.w	(word_D81E).w,d1
 		addi.w	#$C26,d1
 		jsr	(sub_5090).l
 		move.w	$30(a6),d0
-		move.w	($FFFFD81E).w,d1
+		move.w	(word_D81E).w,d1
 		addi.w	#$C30,d1
 		jsr	(sub_5090).l
 		enable_ints
@@ -13239,9 +13239,9 @@ sub_C9DE:
 		move.w	#$8154,(a6)	; enable DMA
 
 loc_C9FA:
-		move.b	($FFFFD87A).w,d3
-		clr.b	($FFFFD87A).w
-		lea	($FFFFD87C).w,a1
+		move.b	(byte_D87A).w,d3
+		clr.b	(byte_D87A).w
+		lea	(lword_D87C).w,a1
 
 loc_CA06:
 		lea	loc_CA2C(pc),a2
@@ -13577,8 +13577,8 @@ locret_CCC8:
 
 
 sub_CCCA:
-		movea.w	($FFFFD862).w,a0
-		movea.w	($FFFFD864).w,a1
+		movea.w	(word_D862).w,a0
+		movea.w	(word_D864).w,a1
 		move.w	8(a0),d0
 		ext.l	d0
 		move.w	8(a1),d1
@@ -13586,7 +13586,7 @@ sub_CCCA:
 		add.l	d1,d0
 		lsr.l	#1,d0
 		subi.w	#$A0,d0
-		move.w	d0,($FFFFD830).w
+		move.w	d0,(word_D830).w
 		move.w	obj.Ypos(a0),d0
 		ext.l	d0
 		move.w	obj.Ypos(a1),d1
@@ -13594,7 +13594,7 @@ sub_CCCA:
 		add.l	d1,d0
 		lsr.l	#1,d0
 		subi.w	#$70,d0
-		move.w	d0,($FFFFD832).w
+		move.w	d0,(word_D832).w
 		lea	loc_CFD0(pc),a2
 		moveq	#0,d0
 		move.w	d0,$2E(a0)
@@ -13641,7 +13641,7 @@ loc_CD80:
 		addq.w	#1,d3
 		lsl.w	#3,d3
 		move.b	$2B(a0),d2
-		move.b	($FFFFD89E).w,d4
+		move.b	(byte_D89E).w,d4
 		andi.b	#btnDir,d4
 		bne.w	loc_CE32
 		btst	#0,$25(a0)
@@ -13709,16 +13709,16 @@ loc_CE32:
 
 loc_CE36:
 		move.b	$2B(a1),d2
-		tst.b	($FFFFD8AC).w
+		tst.b	(byte_D8AC).w
 		bmi.s	loc_CE4E
-		move.b	($FFFFD8AE).w,d4
+		move.b	(byte_D8AE).w,d4
 		andi.b	#$F,d4
 		bne.w	loc_CEEE
 		bra.s	loc_CE5A
 ; ---------------------------------------------------------------------------
 
 loc_CE4E:
-		move.b	($FFFFD89E).w,d4
+		move.b	(byte_D89E).w,d4
 		andi.b	#btnABC,d4
 		bne.w	loc_CEEE
 
@@ -13787,9 +13787,9 @@ loc_CEEE:
 		move.w	d3,$2E(a1)
 
 loc_CEF2:
-		movea.w	($FFFFD854).w,a0
-		movea.w	($FFFFD862).w,a1
-		movea.w	($FFFFD864).w,a2
+		movea.w	(word_D854).w,a0
+		movea.w	(word_D862).w,a1
+		movea.w	(word_D864).w,a2
 		move.l	8(a2),d1
 		move.l	8(a1),d3
 		sub.l	d1,d3
@@ -13798,7 +13798,7 @@ loc_CEF2:
 		move.l	obj.Ypos(a1),d4
 		sub.l	d2,d4
 		asr.l	#3,d4
-		btst	#0,($FFFFF001).w
+		btst	#0,(word_F000+1).w
 		beq.s	loc_CF2A
 		move.l	d3,d5
 		move.l	d4,d6
@@ -13818,7 +13818,7 @@ loc_CF2A:
 		move.w	d5,$24(a0)
 
 loc_CF46:
-		lea	($FFFFD854).w,a0
+		lea	(word_D854).w,a0
 
 loc_CF4A:
 		move.w	(a0),d0
@@ -13829,7 +13829,7 @@ loc_CF4A:
 		add.l	d3,d1
 		add.l	d4,d2
 		move.w	(a3,d5.w),d0
-		btst	#0,($FFFFF001).w
+		btst	#0,(word_F000+1).w
 		bne.s	loc_CF74
 		tst.w	$20(a1)
 		bpl.s	loc_CF7E
@@ -14448,7 +14448,7 @@ TethCodingValue:
 
 
 sub_D20A:
-		lea	($FFFFD858).w,a6
+		lea	(word_D858).w,a6
 
 loc_D20E:
 		_move.w	obj.ID(a6),d0
@@ -14514,7 +14514,7 @@ Spring_Right_Red:
 		move.w	#0,obj.Angle(a6)
 
 loc_D2D6:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_D31C
@@ -14537,7 +14537,7 @@ loc_D308:
 		jsr	(loc_CB1C).l
 
 loc_D31C:
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_D362
@@ -14591,7 +14591,7 @@ Spring_Left_Red:
 		move.w	#0,obj.Angle(a6)
 
 loc_D3C2:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_D40A
@@ -14615,7 +14615,7 @@ loc_D3F4:
 		jsr	(loc_CB1C).l
 
 loc_D40A:
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_D452
@@ -14670,7 +14670,7 @@ Spring_Up_Red:
 		move.w	#0,obj.Angle(a6)
 
 loc_D4B2:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_D4FA
@@ -14694,7 +14694,7 @@ loc_D4E4:
 		jsr	(loc_CB1C).l
 
 loc_D4FA:
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_D542
@@ -14749,7 +14749,7 @@ Spring_Down_Red:
 		move.w	#0,obj.Angle(a6)
 
 loc_D5A2:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_D5E8
@@ -14772,7 +14772,7 @@ loc_D5D4:
 		jsr	(loc_CB1C).l
 
 loc_D5E8:
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_D62E
@@ -14825,7 +14825,7 @@ Spring_Diagonal_Up_Right_Red:
 		move.w	#0,obj.Angle(a6)
 
 loc_D68E:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_D6E6
@@ -14853,7 +14853,7 @@ loc_D6CC:
 		jsr	(loc_CB1C).l
 
 loc_D6E6:
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_D73E
@@ -14912,7 +14912,7 @@ Spring_Diagonal_Up_Left_Red:
 		move.w	#0,obj.Angle(a6)
 
 loc_D79E:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_D7F8
@@ -14941,7 +14941,7 @@ loc_D7DC:
 		jsr	(loc_CB1C).l
 
 loc_D7F8:
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_D852
@@ -15001,7 +15001,7 @@ Spring_Diagonal_Down_Right_Red:
 		move.w	#0,obj.Angle(a6)
 
 loc_D8B2:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_D908
@@ -15028,7 +15028,7 @@ loc_D8F0:
 		jsr	(loc_CB1C).l
 
 loc_D908:
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_D95E
@@ -15086,7 +15086,7 @@ Spring_Diagonal_Down_Left_Red:
 		move.w	#0,obj.Angle(a6)
 
 loc_D9BE:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_DA16
@@ -15114,7 +15114,7 @@ loc_D9FC:
 		jsr	(loc_CB1C).l
 
 loc_DA16:
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_DA6E
@@ -15173,7 +15173,7 @@ Spring_Right_Yellow:
 		move.w	#0,obj.Angle(a6)
 
 loc_DACE:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_DB14
@@ -15196,7 +15196,7 @@ loc_DB00:
 		jsr	(loc_CB1C).l
 
 loc_DB14:
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_DB5A
@@ -15251,7 +15251,7 @@ Spring_Left_Yellow:
 		move.w	#0,obj.Angle(a6)
 
 loc_DBBA:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_DC02
@@ -15275,7 +15275,7 @@ loc_DBEC:
 		jsr	(loc_CB1C).l
 
 loc_DC02:
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_DC4A
@@ -15330,7 +15330,7 @@ Spring_Up_Yellow:
 		move.w	#0,obj.Angle(a6)
 
 loc_DCAA:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_DCF2
@@ -15354,7 +15354,7 @@ loc_DCDC:
 		jsr	(loc_CB1C).l
 
 loc_DCF2:
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_DD3A
@@ -15409,7 +15409,7 @@ Spring_Down_Yellow:
 		move.w	#0,obj.Angle(a6)
 
 loc_DD9A:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_DDE0
@@ -15432,7 +15432,7 @@ loc_DDCC:
 		jsr	(loc_CB1C).l
 
 loc_DDE0:
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_DE26
@@ -15486,7 +15486,7 @@ Spring_Diagonal_Up_Right_Yellow:
 		move.w	#0,obj.Angle(a6)
 
 loc_DE86:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_DEDE
@@ -15514,7 +15514,7 @@ loc_DEC4:
 		jsr	(loc_CB1C).l
 
 loc_DEDE:
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_DF36
@@ -15573,7 +15573,7 @@ Spring_Diagonal_Up_Left_Yellow:
 		move.w	#0,obj.Angle(a6)
 
 loc_DF96:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_DFF0
@@ -15602,7 +15602,7 @@ loc_DFD4:
 		jsr	(loc_CB1C).l
 
 loc_DFF0:
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_E04A
@@ -15662,7 +15662,7 @@ Spring_Diagonal_Down_Right_Yellow:
 		move.w	#0,obj.Angle(a6)
 
 loc_E0AA:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_E100
@@ -15689,7 +15689,7 @@ loc_E0E8:
 		jsr	(loc_CB1C).l
 
 loc_E100:
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_E156
@@ -15747,7 +15747,7 @@ Spring_Diagonal_Down_Left_Yellow:
 		move.w	#0,obj.Angle(a6)
 
 loc_E1B6:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_E20E
@@ -15775,7 +15775,7 @@ loc_E1F4:
 		jsr	(loc_CB1C).l
 
 loc_E20E:
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_E266
@@ -15872,7 +15872,7 @@ loc_E2E6:
 		addi.l	#$1800,d0
 		move.l	d0,$1C(a6)
 		add.l	d0,obj.Ypos(a6)
-		move.w	($FFFFF000).l,d0
+		move.w	(word_F000).l,d0
 		andi.w	#$C,d0
 		add.w	d0,d0
 		lea	Scattering_Rings_Mappings(pc,d0.w),a0
@@ -15945,13 +15945,13 @@ loc_E37C:
 ; ---------------------------------------------------------------------------
 
 loc_E38A:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		jsr	(sub_EAA0).l
 		bcc.s	loc_E398
 		bsr.s	sub_E3A8
 
 loc_E398:
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		jsr	(sub_EAA0).l
 		bcc.s	locret_E3A6
 		bsr.s	sub_E3A8
@@ -16086,13 +16086,13 @@ loc_E480:
 ; ---------------------------------------------------------------------------
 
 loc_E48E:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		jsr	(sub_EAA0).l
 		bcc.s	loc_E49C
 		bsr.s	sub_E4AC
 
 loc_E49C:
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		jsr	(sub_EAA0).l
 		bcc.s	locret_E4AA
 		bsr.s	sub_E4AC
@@ -16172,7 +16172,7 @@ Spikes_Up:
 		move.b	#$10,$23(a6)
 
 loc_E526:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_E560
@@ -16193,7 +16193,7 @@ loc_E558:
 		jsr	(loc_CB90).l
 
 loc_E560:
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_E59A
@@ -16233,7 +16233,7 @@ Spikes_Down:
 		move.b	#$10,$23(a6)
 
 loc_E5CE:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_E608
@@ -16254,7 +16254,7 @@ loc_E600:
 		jsr	(loc_CB90).l
 
 loc_E608:
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_E642
@@ -16294,7 +16294,7 @@ Spikes_Right:
 		move.b	#$10,$23(a6)
 
 loc_E676:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_E6B0
@@ -16315,7 +16315,7 @@ loc_E6A8:
 		jsr	(loc_CB90).l
 
 loc_E6B0:
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_E6EA
@@ -16355,7 +16355,7 @@ Spikes_Left:
 		move.b	#$10,$23(a6)
 
 loc_E71E:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_E758
@@ -16376,7 +16376,7 @@ loc_E750:
 		jsr	(loc_CB90).l
 
 loc_E758:
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_E792
@@ -16416,7 +16416,7 @@ Spring_Diagonal_Up_Right:
 		move.b	#$C,$23(a6)
 
 loc_E7C6:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_E800
@@ -16437,7 +16437,7 @@ loc_E7F8:
 		jsr	(loc_CB90).l
 
 loc_E800:
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_E83A
@@ -16477,7 +16477,7 @@ Spring_Diagonal_Up_Left:
 		move.b	#$C,$23(a6)
 
 loc_E86E:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_E8A8
@@ -16498,7 +16498,7 @@ loc_E8A0:
 		jsr	(loc_CB90).l
 
 loc_E8A8:
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_E8E2
@@ -16538,7 +16538,7 @@ Spring_Diagonal_Down_Right:
 		move.b	#$C,$23(a6)
 
 loc_E916:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_E950
@@ -16559,7 +16559,7 @@ loc_E948:
 		jsr	(loc_CB90).l
 
 loc_E950:
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_E98A
@@ -16599,7 +16599,7 @@ Spring_Diagonal_Down_Left:
 		move.b	#$C,$23(a6)
 
 loc_E9BE:
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_E9F8
@@ -16620,7 +16620,7 @@ loc_E9F0:
 		jsr	(loc_CB90).l
 
 loc_E9F8:
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		move.w	#$F,d0
 		jsr	(loc_CAD4).l
 		beq.s	loc_EA32
@@ -16889,7 +16889,7 @@ Obj10:
 
 
 Level_UpdateHUD:
-		lea	($FFFFD85C).w,a6
+		lea	(word_D85C).w,a6
 
 loc_EBB2:
 		_move.w	0(a6),d0
@@ -16922,12 +16922,12 @@ loc_EBC8:
 ; ---------------------------------------------------------------------------
 
 loc_EBE0:
-		tst.w	($FFFFD834).w
+		tst.w	(word_D834).w
 		beq.s	SomethingCheckTime
-		movea.w	($FFFFD862).w,a0
+		movea.w	(word_D862).w,a0
 		cmpi.w	#$8F,obj.Ypos(a0)
 		bcs.s	Goto_GameOver
-		movea.w	($FFFFD864).w,a0
+		movea.w	(word_D864).w,a0
 		cmpi.w	#$8F,obj.Ypos(a0)
 		bcc.s	SomethingCheckTime
 
@@ -16942,7 +16942,7 @@ SomethingCheckTime:
 		addq.w	#1,d7
 		cmpi.w	#$2D00,d7
 		bhi.s	GameOver
-		tst.w	($FFFFD834).w
+		tst.w	(word_D834).w
 		bne.s	loc_EC62
 		cmpi.w	#$F00,d7
 		bls.s	loc_EC62
@@ -16960,11 +16960,11 @@ GameOver:
 		bpl.s	.wait
 		dbf	d0,.loop
 		clr.w	(v_subgamemode).w
-		move.w	($FFFFD834).w,d0
+		move.w	(word_D834).w,d0
 		addq.w	#1,d0
 		andi.w	#1,d0
-		move.w	d0,($FFFFD834).w
-		clr.w	($FFFFD836).w
+		move.w	d0,(word_D834).w
+		clr.w	(word_D836).w
 		move.w	#id_Field,(v_gamemode).w	; change game mode to Field
 		movea.l	(RomStart).w,sp			; set the stack pointer
 		jmp	(MAINPROG).w			; jump to the main game loop
@@ -16980,32 +16980,32 @@ loc_EC62:
 		swap	d0
 		move.b	d0,d6
 		add.b	d6,d6
-		move.w	d6,($FFFFDA26).w
+		move.w	d6,(word_DA26).w
 		swap	d0
 		ext.l	d0
 		divu.w	#6,d0
 		move.b	d0,d6
 		add.b	d6,d6
-		move.w	d6,($FFFFDA0E).w
+		move.w	d6,(word_DA0E).w
 		swap	d0
 		move.b	d0,d6
 		add.b	d6,d6
-		move.w	d6,($FFFFDA1E).w
+		move.w	d6,(word_DA1E).w
 		move.w	d7,d0
 		andi.w	#$3F,d0
 		move.b	unk_ECE6(pc,d0.w),d0
 		move.b	d0,d6
 		lsr.b	#4,d6
 		add.b	d6,d6
-		move.w	d6,($FFFFDA36).w
+		move.w	d6,(word_DA36).w
 		move.b	d0,d6
 		andi.b	#$F,d6
 		add.b	d6,d6
-		move.w	d6,($FFFFDA3E).w
+		move.w	d6,(word_DA3E).w
 		move.w	$24(a6),d0
 		cmpi.w	#$2580,d0
 		bcc.s	loc_ECCE
-		tst.w	($FFFFD834).w
+		tst.w	(word_D834).w
 		bne.s	locret_ECE4
 		cmpi.w	#$780,d0
 		bcs.s	locret_ECE4
@@ -17014,9 +17014,9 @@ loc_ECCE:
 		andi.w	#$F,d0
 		bne.s	locret_ECE4
 		move.w	#$2000,d0
-		eor.w	d0,($FFFFD9F6).w
-		eor.w	d0,($FFFFD9FE).w
-		eor.w	d0,($FFFFDA06).w
+		eor.w	d0,(lword_D9F6).w
+		eor.w	d0,(word_D9FE).w
+		eor.w	d0,(word_DA06).w
 
 locret_ECE4:
 		rts
@@ -17090,7 +17090,7 @@ unk_ECE6:
 ; =============== S U B	R O U T	I N E =======================================
 
 sub_ED26:
-		move.w	($FFFFD834).w,d0
+		move.w	(word_D834).w,d0
 		lsl.l	#1,d0
 		jmp	loc_ED30(pc,d0.w)
 ; End of function sub_ED26
@@ -17112,7 +17112,7 @@ loc_ED36:
 		jsr	(ProcessObject).w
 		bmi.w	loc_ED5E
 		moveq	#0,d7
-		move.w	($FFFFD83A).w,d7
+		move.w	(word_D83A).w,d7
 		andi.w	#3,d7
 		addq.w	#1,d7
 		lsl.l	#2,d7
@@ -17380,7 +17380,7 @@ sub_EFD4:
 		move.w	#0,4(a0)
 		move.l	#0,$24(a0)
 		lea	loc_F00E(pc),a1
-		lea	($FFFFD9F2).w,a2
+		lea	(lword_D9F2).w,a2
 		move.w	#bytesToWcnt($D0),d0
 
 loc_EFF8:
@@ -17391,9 +17391,9 @@ loc_EFF8:
 ; when unpaused and the leve is SSZ, this routine below makes sure of it so
 ; it's intentional, but not sure "why".
 ; ---------------------------------------------------------------------------
-		tst.w	($FFFFD834).w			; is World/Zone ID SSZ?
+		tst.w	(word_D834).w			; is World/Zone ID SSZ?
 		bne.s	loc_F00A			; if not, branch
-		move.b	#0,($FFFFDA85).w		; remove the left Black bar block
+		move.b	#0,(byte_DA85).w		; remove the left Black bar block
 
 loc_F00A:
 		bra.w	loc_F0DE
@@ -17528,8 +17528,8 @@ loc_F106:
 
 sub_F116:
 		bsr.w	sub_F238
-		move.w	d2,($FFFFD8E8).w
-		move.w	d3,($FFFFD8EA).w
+		move.w	d2,(word_D8E8).w
+		move.w	d3,(word_D8EA).w
 		bsr.w	sub_F1CA
 		bsr.w	sub_F136
 		rts
@@ -17550,8 +17550,8 @@ sub_F12C:
 
 
 sub_F136:
-		movea.l	($FFFFD8EC).w,a0
-		lea	($FFFFD8F2).w,a1
+		movea.l	(lword_D8EC).w,a0
+		lea	(unk_D8F2).w,a1
 		moveq	#0,d5
 
 loc_F140:
@@ -17563,17 +17563,17 @@ loc_F140:
 		cmpi.b	#2,d0
 		bne.s	loc_F1B8
 		_move.w	0(a0),d0
-		move.w	($FFFFD8DC).w,d1
-		move.w	($FFFFD8E0).w,d2
+		move.w	(word_D8DC).w,d1
+		move.w	(word_D8E0).w,d2
 		bsr.w	sub_F22C
 		bcs.s	loc_F1B8
 		move.w	2(a0),d0
-		move.w	($FFFFD8DE).w,d1
-		move.w	($FFFFD8E2).w,d2
+		move.w	(word_D8DE).w,d1
+		move.w	(word_D8E2).w,d2
 		bsr.w	sub_F22C
 		bcs.s	loc_F1B8
 		movea.l	a1,a4
-		lea	($FFFFD8F2).w,a3
+		lea	(unk_D8F2).w,a3
 		suba.l	a3,a4
 		movea.l	a0,a5
 		movea.l	a1,a6
@@ -17612,36 +17612,36 @@ sub_F1CA:
 		move.w	$10(a0),d1
 		addi.w	#$A0,d0
 		addi.w	#$70,d1
-		move.w	d0,($FFFFD8E4).w
-		move.w	d1,($FFFFD8E6).w
+		move.w	d0,(word_D8E4).w
+		move.w	d1,(word_D8E6).w
 		subi.w	#$140,d0
 		bcc.s	loc_F1EE
 		moveq	#0,d0
 
 loc_F1EE:
-		move.w	d0,($FFFFD8DC).w
+		move.w	d0,(word_D8DC).w
 		subi.w	#$E0,d1
 		bcc.s	loc_F1FA
 		moveq	#0,d1
 
 loc_F1FA:
-		move.w	d1,($FFFFD8DE).w
-		move.w	($FFFFD8E4).w,d0
-		move.w	($FFFFD8E6).w,d1
+		move.w	d1,(word_D8DE).w
+		move.w	(word_D8E4).w,d0
+		move.w	(word_D8E6).w,d1
 		addi.w	#$140,d0
-		cmp.w	($FFFFD8E8).w,d0
+		cmp.w	(word_D8E8).w,d0
 		bcs.s	loc_F214
-		move.w	($FFFFD8E8).w,d0
+		move.w	(word_D8E8).w,d0
 
 loc_F214:
-		move.w	d0,($FFFFD8E0).w
+		move.w	d0,(word_D8E0).w
 		addi.w	#$E0,d1
-		cmp.w	($FFFFD8EA).w,d1
+		cmp.w	(word_D8EA).w,d1
 		bcs.s	loc_F226
-		move.w	($FFFFD8EA).w,d1
+		move.w	(word_D8EA).w,d1
 
 loc_F226:
-		move.w	d1,($FFFFD8E2).w
+		move.w	d1,(word_D8E2).w
 		rts
 ; End of function sub_F1CA
 
@@ -17666,8 +17666,8 @@ locret_F236:
 
 
 sub_F238:
-		move.l	a0,($FFFFD8EC).w
-		lea	($FFFFD8F2).w,a0
+		move.l	a0,(lword_D8EC).w
+		lea	(unk_D8F2).w,a0
 		move.w	#bytesToXcnt($100,$10),d7
 
 loc_F244:
@@ -17680,8 +17680,8 @@ loc_F244:
 		move.w	#$FFFF,(a0)+
 		move.w	#$FFFF,(a0)+
 		dbf	d7,loc_F244
-		movea.l	($FFFFD8EC).w,a0
-		lea	($FFFFD8F2).w,a1
+		movea.l	(lword_D8EC).w,a0
+		lea	(unk_D8F2).w,a1
 
 loc_F270:
 		move.w	(a0),d0
@@ -17702,7 +17702,7 @@ locret_F284:
 
 DeleteSprite:
 		move.w	$24(a6),d0
-		lea	($FFFFD8F2).w,a0
+		lea	(unk_D8F2).w,a0
 		move.b	#2,(a0,d0.w)
 		jsr	(DeleteObject).w
 		rts
@@ -17732,7 +17732,7 @@ loc_F2A8:
 
 ; ---------------------------------------------------------------------------
 		move.w	$24(a6),d0
-		lea	($FFFFD8F2).w,a1
+		lea	(unk_D8F2).w,a1
 		move.b	(a1,d0.w),d1
 		andi.b	#$F0,d1
 		move.b	d1,(a1,d0.w)
@@ -17744,13 +17744,13 @@ loc_F2A8:
 
 loc_F2D0:
 		move.w	8(a6),d0
-		move.w	($FFFFD8DC).w,d1
-		move.w	($FFFFD8E0).w,d2
+		move.w	(word_D8DC).w,d1
+		move.w	(word_D8E0).w,d2
 		bsr.w	sub_F22C
 		bcs.s	locret_F2F2
 		move.w	obj.Ypos(a6),d0
-		move.w	($FFFFD8DE).w,d1
-		move.w	($FFFFD8E2).w,d2
+		move.w	(word_D8DE).w,d1
+		move.w	(word_D8E2).w,d2
 		bsr.w	sub_F22C
 
 locret_F2F2:
@@ -17758,12 +17758,12 @@ locret_F2F2:
 ; End of function loc_F2D0
 
 ; ---------------------------------------------------------------------------
-		lea	($FFFFD8F2).w,a0
+		lea	(unk_D8F2).w,a0
 		move.w	$24(a6),d1
 		move.b	d0,(a0,d1.w)
 		rts
 ; ---------------------------------------------------------------------------
-		lea	($FFFFD8F2).w,a0
+		lea	(unk_D8F2).w,a0
 		move.w	$24(a6),d1
 		move.b	(a0,d1.w),d0
 		rts
@@ -17795,13 +17795,13 @@ sub_F328:
 		moveq	#8,d0
 		moveq	#$13,d1
 		move.w	#$A001,d2
-		move.w	($FFFFD81E).w,d3
+		move.w	(word_D81E).w,d3
 		addi.w	#$40,d3
 		jsr	(sub_86E).w
 		moveq	#$28,d0
 		moveq	#9,d1
 		move.w	#$A001,d2
-		move.w	($FFFFD81E).w,d3
+		move.w	(word_D81E).w,d3
 		addi.w	#$980,d3
 		jsr	(sub_86E).w
 		rts
@@ -17819,7 +17819,7 @@ sub_F374:
 loc_F37C:
 		cmpi.b	#8,(unk_FDC1).w
 		bge.s	locret_F3B4
-		move.b	#$11,($FFFFDA75).w
+		move.b	#$11,(byte_DA75).w
 		addq.b	#2,(unk_FDC1).w
 		bra.s	loc_F3AA
 ; End of function sub_F374
@@ -17831,7 +17831,7 @@ loc_F37C:
 sub_F390:
 		tst.b	(unk_FDC1).w
 		beq.s	locret_F3B4
-		move.b	($FFFFDA85).w,($FFFFDA75).w
+		move.b	(byte_DA85).w,(byte_DA75).w
 		subq.b	#2,(unk_FDC1).w
 		tst.b	(unk_FDC1).w
 		bgt.s	loc_F3AA
@@ -18082,7 +18082,7 @@ sub_F58C:
 		moveq	#$28,d0
 		moveq	#$20,d1
 		move.w	#$8002,d2
-		move.w	($FFFFD816).w,d3
+		move.w	(word_D816).w,d3
 		jsr	(sub_86E).w
 		rts
 ; End of function sub_F58C
@@ -18095,7 +18095,7 @@ loc_F59E:
 		moveq	#$40,d0
 		move.w	($FFFFFDC6).w,d1
 		move.w	#$8003,d2
-		move.w	($FFFFD816).w,d3
+		move.w	(word_D816).w,d3
 		jsr	(sub_86E).w
 		cmpi.w	#$20,($FFFFFDC6).w
 		ble.s	locret_F5C0
@@ -18112,7 +18112,7 @@ loc_F5C2:
 		tst.w	($FFFFFDC6).w
 		bge.s	loc_F5D8
 		addq.w	#4,($FFFFFDC4).w
-		move.w	($FFFFCA3C).w,($FFFFC9FC).w
+		move.w	(word_CA3C).w,(word_C9FC).w
 		rts
 ; ---------------------------------------------------------------------------
 
@@ -18145,7 +18145,7 @@ loc_F612:
 		moveq	#$28,d3
 		sub.w	($FFFFFDC8).w,d3
 		lsl.w	#1,d3
-		add.w	($FFFFD816).w,d3
+		add.w	(word_D816).w,d3
 		jsr	(sub_86E).w
 		cmpi.w	#$28,($FFFFFDC8).w
 		blt.s	locret_F63A
@@ -18160,7 +18160,7 @@ loc_F63C:
 		tst.w	($FFFFFDC8).w
 		bge.s	loc_F652
 		addq.w	#4,($FFFFFDC4).w
-		move.w	#$104,($FFFFC9FC).w
+		move.w	#$104,(word_C9FC).w
 		rts
 ; ---------------------------------------------------------------------------
 
@@ -18169,7 +18169,7 @@ loc_F652:
 		sub.w	($FFFFFDC8).w,d0
 		moveq	#5,d1
 		move.w	#$8003,d2
-		move.w	($FFFFD816).w,d3
+		move.w	(word_D816).w,d3
 		jsr	(sub_86E).w
 		rts
 ; ---------------------------------------------------------------------------
@@ -18179,7 +18179,7 @@ loc_F668:
 		move.w	($FFFFFDCA).w,d0
 		moveq	#$1C,d1
 		move.w	#$8005,d2
-		move.w	($FFFFD816).w,d3
+		move.w	(word_D816).w,d3
 		move.w	d3,-(sp)
 		jsr	(sub_86E).w
 		move.w	(sp)+,d3
@@ -18217,7 +18217,7 @@ loc_F6CA:
 		move.w	($FFFFFDCA).w,d3
 		addq.w	#1,d3
 		lsl.w	#1,d3
-		add.w	($FFFFD816).w,d3
+		add.w	(word_D816).w,d3
 		movem.w	d0/d3,-(sp)
 		jsr	(sub_86E).w
 		movem.w	(sp)+,d0/d3
@@ -18246,7 +18246,7 @@ loc_F720:
 		moveq	#$28,d3
 		sub.w	($FFFFFDCC).w,d3
 		lsl.w	#1,d3
-		add.w	($FFFFD816).w,d3
+		add.w	(word_D816).w,d3
 		moveq	#5,d1
 		move.w	#$8007,d2
 		movem.w	d0/d3,-(sp)
@@ -18271,7 +18271,7 @@ loc_F720:
 		moveq	#$1C,d3
 		sub.w	($FFFFFDCC).w,d3
 		lsl.w	#7,d3
-		add.w	($FFFFD816).w,d3
+		add.w	(word_D816).w,d3
 		moveq	#9,d0
 		move.w	#$8006,d2
 		movem.w	d1/d3,-(sp)
@@ -18313,7 +18313,7 @@ loc_F7E8:
 loc_F7F8:
 		moveq	#6,d0
 		sub.w	($FFFFFDCC).w,d0
-		move.w	($FFFFD816).w,d3
+		move.w	(word_D816).w,d3
 		addi.w	#$44,d3
 		moveq	#5,d1
 		move.w	#$8004,d2
@@ -18332,7 +18332,7 @@ loc_F7F8:
 		jsr	(sub_86E).w
 		moveq	#6,d1
 		sub.w	($FFFFFDCC).w,d1
-		move.w	($FFFFD816).w,d3
+		move.w	(word_D816).w,d3
 		addi.w	#$B00,d3
 		moveq	#9,d0
 		move.w	#$8005,d2
@@ -18361,7 +18361,7 @@ loc_F884:
 		sub.w	($FFFFFDCE).w,d3
 		lsl.w	#1,d3
 		addi.w	#$380,d3
-		add.w	($FFFFD816).w,d3
+		add.w	(word_D816).w,d3
 		jsr	(sub_86E).w
 		cmpi.w	#$21,($FFFFFDCE).w
 		blt.s	locret_F8B0
@@ -18381,7 +18381,7 @@ loc_F8B2:
 
 loc_F8C2:
 		moveq	#2,d1
-		move.w	($FFFFD816).w,d3
+		move.w	(word_D816).w,d3
 		addi.w	#$380,d3
 		addi.w	#$E,d3
 		moveq	#$1E,d0
@@ -18438,7 +18438,7 @@ loc_F934:
 
 
 sub_F94A:
-		move.w	#$FFFF,($FFFFF9C0).w
+		move.w	#$FFFF,(word_F9C0).w
 		rts
 ; End of function sub_F94A
 
@@ -18449,7 +18449,7 @@ sub_F94A:
 
 
 Level_AnimateBG:
-		move.w	($FFFFD834).w,d0
+		move.w	(word_D834).w,d0
 		add.w	d0,d0
 		lea	loc_F964(pc),a0
 		adda.w	(a0,d0.w),a0
@@ -18468,7 +18468,7 @@ loc_F964:	dc.w locret_FA0A-loc_F964
 ; ---------------------------------------------------------------------------
 
 loc_F974:
-		lea	($FFFFF9C0).w,a6
+		lea	(word_F9C0).w,a6
 		move.w	(a6),d7
 		bpl.w	loc_F9BC
 		lea	2(a6),a5
@@ -18571,7 +18571,7 @@ sub_FA44:
 
 loc_FA4C:
 		move.w	(a0)+,d1			; load VRAM location
-		add.w	($FFFFD81E).w,d1
+		add.w	(word_D81E).w,d1
 		move.l	(a0)+,d0			; load art location to d0
 		move.w	(a0)+,d2			; load size of art to d2
 		movem.l	d7-a0,-(sp)			; store all register data to the stack pointer

@@ -43,51 +43,189 @@ word_C940:	ds.w 1
 word_C942:	ds.w 1
 word_C944:	ds.w 1
 word_C946:	ds.w 1
-			ds.w $38
+			ds.b $70
 word_C9B8:	ds.w 1
 word_C9BA:	ds.w 1
+			ds.b $12
+word_C9CE:	ds.w 1
+			ds.b 2
+word_C9D2:	ds.w 1
+			ds.b 2
+v_vdp_increment:	ds.w 1
+word_C9D8:	ds.w 1
+v_window_x:	ds.w 1
+v_window_y:	ds.w 1
+word_C9DE:	ds.w 1
+			ds.b 4
+byte_C9E4:	ds.b 1
+			ds.b 9
+word_C9EE:	ds.w 1
+word_C9F0:	ds.w 1
+			ds.b $A
+word_C9FC:	ds.w 1
+lword_C9FE:	ds.l 1
+lword_CA02:	ds.l 1
+			ds.b $16
+word_CA1C:	ds.w 1
+word_CA1E:	ds.w 1
+			ds.b $E
+word_CA2E:	ds.w 1
+			ds.b $C
+word_CA3C:	ds.w 1
+			ds.b 8
+lword_CA46:	ds.l 1
+			ds.b $14
+word_CA5E:	ds.w 1
+word_CA60:	ds.w 1
+			ds.b $37C
+word_CDDE:	ds.w 1
+word_CDE0:	ds.w 1
+byte_CDE1:	= word_CDE0+1
+			ds.b $382
+v_spritetablebuffer:	ds.b $280
+v_spritetablebuffer_end:
+v_pal:		ds.b $80	; ($80 bytes)
+v_pal_end:
+v_unk_pal:	ds.b $80
+v_unk_pal_end:
+byte_D4E4:	ds.b 1
+byte_D4E5:	ds.b 1
+byte_D4E6:	ds.b 1
+byte_D4E7:	ds.b 1
+byte_D4E8:	ds.b 1
+byte_D4E9:	ds.b 1
+word_D4EA:	ds.w 1
+byte_D4EC:	ds.b 1
+byte_D4ED:	ds.b 1
+byte_D4EE:	ds.b 1
+			ds.b 1
+lword_D4F0:	ds.l 1
+lword_D4F4:	ds.l 1
+v_dmaqueueindex:	ds.b 2+$A0
 
-word_C9D2:	equ ramaddr($FFFFC9D2)
-v_vdp_increment:	equ ramaddr($FFFFC9D6)
-word_C9D8:	equ	ramaddr($FFFFC9D8)
-v_window_x:	equ	ramaddr($FFFFC9DA)
-v_window_y:	equ	ramaddr($FFFFC9DC)
-word_C9DE:	equ ramaddr($FFFFC9DE)
-byte_C9E4:	equ ramaddr($FFFFC9E4)
-word_C9EE:	equ ramaddr($FFFFC9EE)
-lword_C9FE:	equ ramaddr($FFFFC9FE)
-lword_CA02:	equ ramaddr($FFFFCA02)
-v_pal:	equ	ramaddr($FFFFD3E4)	; ($80 bytes)
-v_pal_end:	equ	ramaddr($FFFFD464)
-v_dmaqueueindex:	equ ramaddr($FFFFD4F8)
+v_ngfx_buffer:	ds.b $200	; ($200 bytes)
 
-v_ngfx_buffer:	equ ramaddr($FFFFD59A)	; ($200 bytes)
+v_plc_buffer:	ds.b 6*16	; (6*16 bytes)
+v_plc_buffer_end:
+v_plc_ptrnemcode:	ds.l 1
+v_plc_repeatcount:	ds.l 1
+v_plc_paletteindex:	ds.l 1
+v_plc_previousrow:	ds.l 1
+v_plc_dataword:	ds.l 1
+v_plc_shiftvalue:	ds.l 1
+v_plc_patternsleft:	ds.w 1
+v_plc_framepatternsleft:	ds.w 1
 
-v_plc_buffer:	equ ramaddr($FFFFD79A)	; (6*16 bytes)
-v_plc_buffer_end:	equ ramaddr($FFFFD7FA)
-v_plc_ptrnemcode:	equ ramaddr($FFFFD7FA)
-v_plc_repeatcount:	equ ramaddr($FFFFD7FE)
-v_plc_paletteindex:	equ ramaddr($FFFFD802)
-v_plc_previousrow:	equ ramaddr($FFFFD806)
-v_plc_dataword:	equ ramaddr($FFFFD80A)
-v_plc_shiftvalue:	equ ramaddr($FFFFD80E)
-v_plc_patternsleft:	equ ramaddr($FFFFD812)
-v_plc_framepatternsleft:	equ ramaddr($FFFFD814)
+word_D816:	ds.w 1
+word_D818:	ds.w 1
+word_D81A:	ds.w 1
+word_D81C:	ds.w 1
+word_D81E:	ds.w 1
+word_D820:	ds.w 1
 
-v_sonic: equ ramaddr($FFFFD866)
-v_tails: equ ramaddr($FFFFD868)
-v_gamemode:	equ ramaddr($FFFFD822)	; (2 bytes)
-v_subgamemode =	v_gamemode+2
+v_gamemode:	ds.w 1	; (2 bytes)
+v_subgamemode:	ds.w 1
 
-v_titleselect:	equ ramaddr($FFFFD826)
+v_titleselect:	ds.w 1
+			ds.b 2
 
-v_menu_soundid:	equ ramaddr($FFFFD82A)
+v_menu_soundid:	ds.w 1
+
+word_D82C:	ds.w 1
+			ds.b 2
+word_D830:	ds.w 1
+word_D832:	ds.w 1
+word_D834:	ds.w 1
+word_D836:	ds.w 1
+			ds.b 2
+word_D83A:	ds.w 1
+word_D83C:	ds.w 1
+			ds.b 2
+word_D840:	ds.w 1
+			ds.b 2
+word_D844:	ds.w 1
+			ds.b 2
+word_D848:	ds.w 1
+			ds.b 2
+word_D84C:	ds.w 1
+			ds.b 2
+unk_D850:	ds.w 1
+			ds.b 2
+word_D854:	ds.w 1
+			ds.b 2
+word_D858:	ds.w 1
+			ds.b 2
+word_D85C:	ds.w 1
+			ds.b 4
+word_D862:	ds.w 1
+word_D864:	ds.w 1
+
+v_sonic:	ds.w 1
+v_tails:	ds.w 1
+			ds.b $10
+byte_D87A:	ds.b 1
+			ds.b 1
+lword_D87C:	ds.l 1
+lword_D880:	ds.l 1
+			ds.b 4
+lword_D888:	ds.l 1
+lword_D88C:	ds.l 1
+			ds.b 4
+lword_D894:	ds.l 1
+lword_D898:	ds.l 1
+byte_D89C:	ds.b 1
+			ds.b 1
+byte_D89E:	ds.b 1
+byte_D89F:	ds.b 1
+			ds.b 4
+word_D8A4:	ds.w 1
+word_D8A6:	ds.w 1
+			ds.b 4
+byte_D8AC:	ds.b 1
+			ds.b 1
+byte_D8AE:	ds.b 1
+			ds.b $2D
+word_D8DC:	ds.w 1
+word_D8DE:	ds.w 1
+word_D8E0:	ds.w 1
+word_D8E2:	ds.w 1
+word_D8E4:	ds.w 1
+word_D8E6:	ds.w 1
+word_D8E8:	ds.w 1
+word_D8EA:	ds.w 1
+lword_D8EC:	ds.l 1
+			ds.b 2
+unk_D8F2:	ds.b $100
+lword_D9F2:	ds.l 1
+lword_D9F6:	ds.l 1
+			ds.b 4
+word_D9FE:	ds.w 1
+			ds.b 6
+word_DA06:	ds.w 1
+			ds.b 6
+word_DA0E:	ds.w 1
+			ds.b $E
+word_DA1E:	ds.w 1
+			ds.b 6
+word_DA26:	ds.w 1
+			ds.b $E
+word_DA36:	ds.w 1
+			ds.b 6
+word_DA3E:	ds.w 1
+			ds.b $35
+byte_DA75:	ds.b 1
+			ds.b $F
+byte_DA85:	ds.b 1
+			ds.b $157A
+word_F000:	ds.w 1
+			ds.b $9BE
+word_F9C0:	ds.w 1
 
 unk_FDC1:	equ	ramaddr($FFFFFDC1)
 
-v_lagger:	equ ramaddr($FFFFFFC9)
-
 v_text:		equ ramaddr($FFFFFFC0)
+
+v_lagger:	equ ramaddr($FFFFFFC9)
 
 v_end:		equ ramaddr(0)
 	dephase
