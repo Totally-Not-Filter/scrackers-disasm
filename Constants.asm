@@ -9,6 +9,10 @@ vram_sprtbl:	equ $F000
 tile_size:	equ 8*8/2
 plane_size_64x32:	equ 64*32*2
 
+; ICD_BLK VRAM addresses
+vram_sprtbl_icd:	equ $D800
+vram_hscroll_icd:	equ $DC00
+
 ; Sega Screen VRAM addresses
 vram_sprtbl_sega:	equ $B800
 vram_hscroll_sega:	equ $BC00

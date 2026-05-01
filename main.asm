@@ -208,9 +208,9 @@ VDPInitValues:
 		dc.b 4					; 8004
 		dc.b $14				; 8114 Display Value
 		dc.b vram_fg>>10		; 8230 FG Scroll
-		dc.b $F000>>10			; 833C Window
+		dc.b vram_window_sega>>10	; 833C Window
 		dc.b vram_bg>>13		; 8407 BG Scroll
-		dc.b $D800>>9			; 856C Sprite Table
+		dc.b vram_sprtbl_icd>>9	; 856C Sprite Table
 		dc.b 0					; 8600
 		dc.b 0					; 8700 Background Colour (Backdrop)
 		dc.b 0					; 8800
@@ -218,7 +218,7 @@ VDPInitValues:
 		dc.b $FF				; 8AFF Horizontal Interupt
 		dc.b 0					; 8B00 Scroll type
 		dc.b $81				; 8C81 40 Cell Display
-		dc.b $DC00>>10			; 8D37 Horizontal Scroll
+		dc.b vram_hscroll_icd>>10	; 8D37 Horizontal Scroll
 		dc.b 0					; 8E00
 		dc.b 1					; 8F01 VDP Increment on/off
 		dc.b 1					; 9001 64 Cell Display (Out of screen extended)
