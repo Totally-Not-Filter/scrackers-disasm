@@ -15,9 +15,6 @@
 ; See http://www.segaretro.org/Enigma_compression for format description
 ; ---------------------------------------------------------------------------
 
-; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
-
-
 EniDec:
 		movea.w	d0,a3				; store starting art tile
 		move.b	(a0)+,d0

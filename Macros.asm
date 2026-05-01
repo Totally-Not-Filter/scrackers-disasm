@@ -72,7 +72,7 @@ resetZ80a:	macro
 ; ---------------------------------------------------------------------------
 
 disable_ints:	macro
-		move	#$2700,sr
+		move.w	#$2700,sr
 		endm
 
 ; ---------------------------------------------------------------------------
@@ -80,7 +80,7 @@ disable_ints:	macro
 ; ---------------------------------------------------------------------------
 
 enable_ints:	macro
-		move	#$2300,sr
+		move.w	#$2300,sr
 		endm
 
 ; function to make a little-endian 16-bit pointer for the Z80 sound driver

@@ -1,4 +1,11 @@
-; VDP addressses
+; VRAM addresses
+vram_window:	equ $B000
+vram_fg:	equ $C000
+vram_hscroll:	equ $D000
+vram_bg:	equ $E000
+vram_sprtbl:	equ $F000
+
+; VDP addresses
 vdp_data_port:		equ $C00000
 vdp_control_port:	equ $C00004
 
@@ -67,7 +74,7 @@ Map:		ds.l 1				; mappings address (4 bytes)
 			ds.b 4
 VelX:		ds.l 1				; x velocity (4 bytes)
 VelY:		ds.l 1				; y velocity (4 bytes)
-Unk20:		ds.w 1				; unknown (2 bytes)
+VRAM:		ds.w 1				; object video ram location (2 bytes)
 			ds.b 8
 Angle:		ds.b 1
 			ds.b 1

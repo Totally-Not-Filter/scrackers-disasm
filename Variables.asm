@@ -1,6 +1,6 @@
 
 	phase	ramaddr($FFFF0000)
-v_start:	ds.b $200
+v_ram_start:	ds.b $200
 
 v_systemstack:
 unk_0200:	ds.b $200
@@ -219,14 +219,50 @@ byte_DA85:	ds.b 1
 			ds.b $157A
 word_F000:	ds.w 1
 			ds.b $9BE
-word_F9C0:	ds.w 1
-
-unk_FDC1:	equ	ramaddr($FFFFFDC1)
-
-v_text:		equ ramaddr($FFFFFFC0)
-
-v_lagger:	equ ramaddr($FFFFFFC9)
-
-v_end:		equ ramaddr(0)
+word_F9C0:	ds.b $10
+			ds.b $F0
+word_FAC0:	ds.w 1
+word_FAC2:	ds.w 1
+word_FAC4:	ds.w 1
+word_FAC6:	ds.w 1
+word_FAC8:	ds.w 1
+lword_FACA:	ds.l 1
+			ds.b $12
+word_FAE0:	ds.w 1
+			ds.b 6
+byte_FAE8:	ds.b 1
+			ds.b 1
+word_FAEA:	ds.w 1
+word_FAEC:	ds.w 1
+word_FAEE:	ds.w 1
+word_FAF0:	ds.w 1
+word_FAF2:	ds.w 1
+			ds.b $A
+word_FAFE:	ds.w 1
+unk_FB00:	ds.b $C0
+lword_FBC0:	ds.l 1
+lword_FBC4:	ds.l 1
+lword_FBC8:	ds.l 1
+lword_FBCC:	ds.l 1
+lword_FBD0:	ds.l 1
+			ds.b 4
+unk_FBD8:	ds.b 1
+			ds.b $1E8
+unk_FDC1:	ds.b 1
+byte_FDC2:	ds.b 1
+			ds.b 1
+word_FDC4:	ds.w 1
+word_FDC6:	ds.w 1
+word_FDC8:	ds.w 1
+word_FDCA:	ds.w 1
+word_FDCC:	ds.w 1
+word_FDCE:	ds.w 1
+			ds.b $1F0
+v_text:		ds.l 1
+word_FFC4:	ds.w 1
+			ds.b 3
+v_lagger:	ds.b 1
+			ds.b $36
+v_ram_end:
 	dephase
 	!org 0

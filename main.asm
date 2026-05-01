@@ -9,8 +9,14 @@
 
 FixBugs = 0
 ;	| If 1, fixes some bugs (mainly sound driver related)
-ZeroOffsetOptimization = 0
+
+AllOptimizations = 0
+;	| If 1, enables all optimizations
+ZeroOffsetOptimization = 0|AllOptimizations
 ;	| If 1, makes a handful of zero-offset instructions smaller
+PaddingOptimization = 0|AllOptimizations
+;	| If 1, removes about 39 KB of various superfluous padding
+
 ; Include SMPS2ASM, for expressing SMPS bytecode in a portable and human-readable form.
 FixMusicAndSFXDataBugs = FixBugs
 SonicDriverVer = 3 ; Tell SMPS2ASM that we are targetting Sonic 3's sound driver
@@ -50,8 +56,8 @@ Checksum:	dc.w 0
 		dc.b "J               "
 ROM_Start:	dc.l RomStart
 ROM_Finish:	dc.l (EndofROM*2)-1
-		dc.l v_start&$FFFFFF
-		dc.l (v_end-1)&$FFFFFF
+		dc.l v_ram_start&$FFFFFF
+		dc.l (v_ram_end-1)&$FFFFFF
 		dc.l $20202020
 		dc.l $20202020
 		dc.l $20202020
@@ -75,7 +81,7 @@ EntryPoint:
 		move.b	-$10FF(a1),d0
 		andi.b	#$F,d0
 		beq.s	.skipsecurity
-		move.l	#'SEGA',$2F00(a1)
+		move.l	#"SEGA",$2F00(a1)
 
 .skipsecurity:
 		move.w	(a4),d0
@@ -138,7 +144,7 @@ EntryPoint:
 
 ; ===========================================================================
 SetupValues:	dc.w $8000				; VDP register Start
-		dc.w bytesToLcnt($10000)		; Repeat times for clearing 68k ram
+		dc.w bytesToLcnt(v_ram_end-v_ram_start)		; Repeat times for clearing 68k ram
 		dc.w $100				; VDP register Number increase (Used for Z80 functioning too)
 
 		dc.l z80_ram				; Z80 Ram start
@@ -150,10 +156,10 @@ SetupValues:	dc.w $8000				; VDP register Start
 VDPInitValues:
 		dc.b 4					; 8004
 		dc.b $14				; 8114 Display Value
-		dc.b $30				; 8230 FG Scroll
-		dc.b $3C				; 833C Window
-		dc.b 7					; 8407 BG Scroll
-		dc.b $6C				; 856C Sprite Table
+		dc.b vram_fg>>10		; 8230 FG Scroll
+		dc.b $F000>>10			; 833C Window
+		dc.b vram_bg>>13		; 8407 BG Scroll
+		dc.b $D800>>9			; 856C Sprite Table
 		dc.b 0					; 8600
 		dc.b 0					; 8700 Background Colour (Backdrop)
 		dc.b 0					; 8800
@@ -161,7 +167,7 @@ VDPInitValues:
 		dc.b $FF				; 8AFF Horizontal Interupt
 		dc.b 0					; 8B00 Scroll type
 		dc.b $81				; 8C81 40 Cell Display
-		dc.b $37				; 8D37 Horizontal Scroll
+		dc.b $DC00>>10			; 8D37 Horizontal Scroll
 		dc.b 0					; 8E00
 		dc.b 1					; 8F01 VDP Increment on/off
 		dc.b 1					; 9001 64 Cell Display (Out of screen extended)
@@ -172,7 +178,7 @@ VDPInitValues:
 		dc.b 0					; 9500 ""
 		dc.b 0					; 9600 ""
 		dc.b $80				; 9780 ""
-VDPInitValues_End
+VDPInitValues_End:
 
 		dc.l $40000080
 
@@ -215,7 +221,7 @@ Z80StartupCodeEnd:
 		dc.l $C0000000				; VDP CRAM address
 		dc.l $40000010
 PSGInitValues:	dc.b $9F,$BF,$DF,$FF			; PSG Values
-PSGInitValues_End
+PSGInitValues_End:
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Game Start
@@ -290,30 +296,27 @@ loc_36E:
 		move.w	#bytesToXcnt($10000,$10),d1			; set repeat times
 
 .clrVRAM:
+	rept 4
 		move.l	d0,(a0)				; clear VRAM
-		move.l	d0,(a0)				; clear VRAM
-		move.l	d0,(a0)				; clear VRAM
-		move.l	d0,(a0)				; clear VRAM
+	endr
 		dbf	d1,.clrVRAM			; repeat til VRAM is cleared
 
 		move.l	#$C0000000,(vdp_control_port).l	; set VDP in CRAM write mode
 		move.w	#bytesToXcnt($80,$10),d1				; set repeat times
 
 .clrCRAM:
+	rept 4
 		move.l	d0,(a0)				; clear CRAM
-		move.l	d0,(a0)				; clear CRAM
-		move.l	d0,(a0)				; clear CRAM
-		move.l	d0,(a0)				; clear CRAM
+	endr
 		dbf	d1,.clrCRAM			; repeat til CRAM is cleared
 
-		move.l	#$40000010,(vdp_control_port).l	; set VDP mode
+		move.l	#$40000010,(vdp_control_port).l	; set VDP in VSRAM mode
 		move.w	#bytesToXcnt($50,$10),d1				; set repeat times
 
 .clrVSRAM:
+	rept 4
 		move.l	d0,(a0)				; clear VSRAM
-		move.l	d0,(a0)				; clear VSRAM
-		move.l	d0,(a0)				; clear VSRAM
-		move.l	d0,(a0)				; clear VSRAM
+	endr
 		dbf	d1,.clrVSRAM			; repeat til VSRAM is cleared
 
 		lea	InitialVDPSetupArray(pc),a0	; load VDP setup values address to a0
@@ -337,31 +340,29 @@ ErrorTrap:
 		nop					; Delay
 		nop					; Delay
 		bra.s	ErrorTrap			; Trap
-; ---------------------------------------------------------------------------
 ; ===========================================================================
-; ---------------------------------------------------------------------------
+
 InitialVDPSetupArray:
 		dc.w $8004
-		dc.w $8104				; Display mode
-		dc.w $8230				; FG Scroll
-		dc.w $832C				; Window
-		dc.w $8407				; BG Scroll
-		dc.w $8578				; Sprite Table
+		dc.w $8104					; Display mode
+		dc.w $8200+vram_fg>>10		; FG Scroll
+		dc.w $8300+vram_window>>10	; Window
+		dc.w $8400+vram_bg>>13		; BG Scroll
+		dc.w $8500+vram_sprtbl>>9	; Sprite Table
 		dc.w $8600
-		dc.w $8730				; Background Colour (Backdrop)
+		dc.w $8730					; Background Colour (Backdrop)
 		dc.w $8800
 		dc.w $8900
-		dc.w $8A00				; Horizontal Interupt
-		dc.w $8B00				; Scroll type
-		dc.w $8C81				; 40 Cell Display
-		dc.w $8D34				; Horizontal Scroll
+		dc.w $8A00					; Horizontal Interupt
+		dc.w $8B00					; Scroll type
+		dc.w $8C81					; 40 Cell Display
+		dc.w $8D00+vram_hscroll>>10	; Horizontal Scroll
 		dc.w $8E00
-		dc.w $8F02				; VDP Increment on
-		dc.w $9001				; 64 Cell Display (Out of screen extended)
-		dc.w $9100				; Window horizontal position
-		dc.w $9200				; Window vertical position
+		dc.w $8F02					; VDP Increment on
+		dc.w $9001					; 64 Cell Display (Out of screen extended)
+		dc.w $9100					; Window horizontal position
+		dc.w $9200					; Window vertical position
 		dc.w 0
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; subroutine to transfer palette via DMA
@@ -397,13 +398,12 @@ DMAToCRAM:
 		move.w	(v_pal).w,-4(a0)		; move colour value in ram to VDP
 		rts
 ; ===========================================================================
-; ---------------------------------------------------------------------------
+
 DMAValues:
 		dc.w $9300+(v_pal_end-v_pal)/2	; DMA Transfer Size (Lower and Upper bytes, in order: XX00, 00XX)
 		dc.w $9400
 		dc.l (v_pal&$FFFFFF)/2			; DMA Transfer Source (7FE9F2 x 2 = FFD3E4)
-DMAValues_End
-; ---------------------------------------------------------------------------
+DMAValues_End:
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; another subroutine to set some VDP values
@@ -446,7 +446,7 @@ loc_506:
 		move.l	-(a1),d1
 		move.w	d1,(a4)
 		move.l	-(a1),d1
-		lsl.l	#1,d1
+		lsl.l	#1,d1				; this could be improved by using "add.l	d1,d1"
 		movea.l	d1,a2
 		move.w	(a2),-4(a4)
 		addq.w	#8,a1
@@ -460,13 +460,13 @@ loc_542:
 		clr.w	(v_dmaqueueindex).w
 		rts
 ; ===========================================================================
-; ---------------------------------------------------------------------------
-VDPVAL003:	dc.w $9300				; DMA register values (Blank)
+
+VDPVAL003:
+		dc.w $9300				; DMA register values (Blank)
 		dc.w $9400
 		dc.w $9500
 		dc.w $9600
 		dc.w $9700
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ;
@@ -679,7 +679,7 @@ locret_734:
 		move.b	d0,(byte_D4E7).w
 		move.b	d0,(byte_D4E8).w
 		move.b	#8,(byte_D4E9).w
-		move.w	#$E,(word_D4EA).w
+		move.w	#14,(word_D4EA).w
 
 loc_750:
 		subq.b	#1,(byte_D4E8).w
@@ -875,10 +875,8 @@ MapScreen:
 		cmp.w	d0,d0				; essentially a "nop"
 		rts
 ; ===========================================================================
-; ---------------------------------------------------------------------------
 		ori.b	#1,ccr
 		rts
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ;
@@ -903,10 +901,8 @@ SetupVDPUsingTable:
 		addq.w	#2,a0				; increment pointer by 2
 		bra.s	.loop				; keep going...
 ; ===========================================================================
-; ---------------------------------------------------------------------------
 		ori.b	#1,ccr				; (???)
 		rts
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ;
@@ -927,7 +923,7 @@ SetupVDPUsingTable:
 		lsl.w	#8,d0
 		move.w	d0,(word_D818).w
 		move.w	(a1),d0
-		lsl.w	#1,d0
+		lsl.w	#1,d0				; this could be improved by using "add.w	d0,d0"
 		lsl.w	#8,d0
 		move.w	d0,(word_D81A).w
 		move.w	(word_C9D2).w,d0
@@ -1009,8 +1005,8 @@ sub_9D4:
 		jsr	loc_9E6(pc,d0.w)
 		rts
 ; ===========================================================================
-; ---------------------------------------------------------------------------
-loc_9E6:	nop
+loc_9E6:
+		nop
 		rts
 ; ---------------------------------------------------------------------------
 		bra.w	loc_A5A
@@ -1029,7 +1025,6 @@ loc_9E6:	nop
 		bra.w	loc_B30
 ; ---------------------------------------------------------------------------
 		bra.w	loc_BBA
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 
 sub_A06:
@@ -1055,13 +1050,12 @@ sub_A06:
 		startZ80
 		rts
 ; ===========================================================================
-; ---------------------------------------------------------------------------
+
 byte_A4A:
 		dc.b 0,1,1,1
 		dc.b 2,3,3,3
 		dc.b 2,3,3,3
 		dc.b 2,3,3,3
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 
 loc_A5A:
@@ -1331,11 +1325,10 @@ sub_D3A:
 		add.w	d0,d0
 		jmp	loc_D4C(pc,d0.w)
 ; ===========================================================================
-; ---------------------------------------------------------------------------
-loc_D4C:	bra.w	loc_D98
+loc_D4C:
+		bra.w	loc_D98
 		bra.w	loc_D72
 		bra.w	sub_ACA
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 
 loc_D58:
@@ -1383,7 +1376,7 @@ sub_DAA:
 		rts
 ; ===========================================================================
 
-		include "_inc/Nemesis Decompression.asm"
+		include "_Include/Nemesis Decompression.asm"
 
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -1555,8 +1548,8 @@ loc_1034:
 		dbf	d1,loc_1034
 		rts
 
-		include "_inc/Enigma Decompression.asm"
-		include "_inc/Kosinski Decompression.asm"
+		include "_Include/Enigma Decompression.asm"
+		include "_Include/Kosinski Decompression.asm"
 
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -1965,15 +1958,24 @@ loc_1616:
 		rts
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
-;
+; Sprite building routine
 ; ---------------------------------------------------------------------------
 
-; We think this subroutine is responsible for building object sprites
+; d0 = ?
+; d2 = x position
+; d3 = y position
+; d4 = vram
+; d5 = sprite limit
+; d6 = sprite count
+; a3 = sprite mappings
+; a4 = ?
+; a5 = sprite table buffer end
+; a6 = sprite table buffer start
 
 BuildSprites:
 		lea	(v_spritetablebuffer).w,a6
 		moveq	#0,d6
-		lea	(v_pal).w,a5
+		lea	(v_spritetablebuffer_end).w,a5
 		moveq	#80-1,d5	; sprite limit
 		lea	(lword_D9F2).w,a4
 
@@ -1981,7 +1983,7 @@ loc_1650:
 		move.l	(a4)+,d0
 		move.l	d0,(a6)+
 		move.l	(a4)+,(a6)+
-		addq.w	#1,d6
+		addq.w	#1,d6					; increase sprite count
 		tst.b	d0
 		bne.s	loc_1650
 		move.b	d6,-5(a6)
@@ -2010,9 +2012,9 @@ loc_1684:
 		move.w	d2,$14(a0)
 		move.w	d3,$16(a0)
 		movea.l	obj.Map(a0),a3
-		move.b	$20(a0),d0
+		move.b	obj.VRAM(a0),d0
 		andi.w	#$18,d0
-		move.w	$20(a0),d4
+		move.w	obj.VRAM(a0),d4
 		move.w	d4,d7
 		andi.w	#$7FF,d4
 		sub.w	d4,d7
@@ -2024,8 +2026,9 @@ loc_16BA:
 		bmi.s	loc_1684
 		bra.s	loc_1664
 ; ===========================================================================
-; ---------------------------------------------------------------------------
-loc_16C0:	bmi.w	loc_16E0
+
+loc_16C0:
+		bmi.w	SpriteDraw_Normal
 		bra.w	loc_17FC
 ; ---------------------------------------------------------------------------
 		bmi.w	loc_1716
@@ -2036,44 +2039,44 @@ loc_16C0:	bmi.w	loc_16E0
 ; ---------------------------------------------------------------------------
 		bmi.w	loc_17B4
 		bra.w	loc_18D0
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 
-loc_16E0:
-		cmp.w	d5,d6
-		bcc.s	locret_1714
-		addq.w	#1,d6
-		move.w	(a3)+,d0
-		move.w	d0,d1
-		ext.w	d0
-		add.w	d3,d0
-		swap	d0
-		move.w	d1,d0
-		move.b	d6,d0
-		move.l	d0,(a6)+
-		move.w	(a3)+,d0
-		add.w	d4,d0
-		eor.w	d7,d0
-		swap	d0
-		move.b	(a3)+,d0
-		ext.w	d0
-		add.w	d2,d0
+SpriteDraw_Normal:
+		cmp.w	d5,d6				; compare sprite limit with sprite counter
+		bcc.s	locret_1714			; if it's reached the limit, don't draw
+		addq.w	#1,d6				; increase sprite count
+		move.w	(a3)+,d0			; get the size and signed y position of sprite mappings
+		move.w	d0,d1				; save size to d1
+		ext.w	d0					; extend y position to word range
+		add.w	d3,d0				; add alternate y position to the y position
+		swap	d0					; swap the upper and lower word
+		move.w	d1,d0				; move size into the swapped word
+		move.b	d6,d0				; move sprite count to the byte of the word
+									; results: $YYYYSSCC
+		move.l	d0,(a6)+			; move the results to the sprite buffer
+		move.w	(a3)+,d0			; get the VRAM location
+		add.w	d4,d0				; add x position to d0
+		eor.w	d7,d0				; xor the VRAM location with d0
+		swap	d0					; swap the upper and lower word
+		move.b	(a3)+,d0			; get the signed x position
+		ext.w	d0					; extend to word range
+		add.w	d2,d0				; add alternate x position to the x position
 		andi.w	#$1FF,d0
 		bne.s	loc_170E
-		move.w	#1,d0
+		move.w	#1,d0				; limit x position
 
 loc_170E:
-		move.l	d0,(a6)+
-		tst.b	(a3)+
-		beq.s	loc_16E0
+		move.l	d0,(a6)+			; move the results to the sprite buffer
+		tst.b	(a3)+				; compare the last byte with 0
+		beq.s	SpriteDraw_Normal	; if equal, continue drawing, if anything but 0, stop drawing
 
 locret_1714:
 		rts
 ; ===========================================================================
 
 loc_1716:
-		cmp.w	d5,d6
-		bcc.s	locret_1754
+		cmp.w	d5,d6						; compare sprite limit with sprite counter
+		bcc.s	locret_1754					; if it's reached the limit, don't draw
 		addq.w	#1,d6
 		move.w	(a3)+,d0
 		move.w	d0,d1
@@ -2107,8 +2110,8 @@ locret_1754:
 ; ===========================================================================
 
 loc_1756:
-		cmp.w	d5,d6
-		bcc.s	locret_1792
+		cmp.w	d5,d6						; compare sprite limit with sprite counter
+		bcc.s	locret_1792					; if it's reached the limit, don't draw
 		addq.w	#1,d6
 		moveq	#0,d0
 		move.b	(a3),d0
@@ -2140,7 +2143,7 @@ loc_178C:
 locret_1792:
 		rts
 ; ===========================================================================
-; ---------------------------------------------------------------------------
+
 byte_1794:	dc.b $F8,$F8,$F8,$F8
 		dc.b $F0,$F0,$F0,$F0
 		dc.b $E8,$E8,$E8,$E8
@@ -2150,12 +2153,11 @@ byte_17A4:	dc.b $F8,$F0,$E8,$E0
 		dc.b $F8,$F0,$E8,$E0
 		dc.b $F8,$F0,$E8,$E0
 		even
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 
 loc_17B4:
-		cmp.w	d5,d6
-		bcc.s	locret_17FA
+		cmp.w	d5,d6					; compare sprite limit with sprite counter
+		bcc.s	locret_17FA				; if it's reached the limit, don't draw
 		addq.w	#1,d6
 		moveq	#0,d0
 		move.b	(a3),d0
@@ -2292,7 +2294,7 @@ loc_18A6:
 locret_18AE:
 		rts
 ; ===========================================================================
-; ---------------------------------------------------------------------------
+
 byte_18B0:	dc.b $F8,$F8,$F8,$F8
 		dc.b $F0,$F0,$F0,$F0
 		dc.b $E8,$E8,$E8,$E8
@@ -2302,7 +2304,6 @@ byte_18C0:	dc.b $F8,$F0,$E8,$E0
 		dc.b $F8,$F0,$E8,$E0
 		dc.b $F8,$F0,$E8,$E0
 		even
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 
 loc_18D0:
@@ -2376,21 +2377,20 @@ loc_1946:
 		move.w	(a0),(word_D84C).w
 		clr.w	(a0)
 		move.w	d7,2(a0)
-		move.w	#$8000,4(a0)
+		move.w	#$8000,obj.Unk4(a0)
 		move.l	#Dummy_Mappings,obj.Map(a0)
 		moveq	#0,d7
-		move.l	d7,$20(a0)
+		move.l	d7,obj.VRAM(a0)
 		move.l	d7,obj.Xpos(a0)
 		move.l	d7,obj.Ypos(a0)
-		movem.l	(sp)+,d7
+		movem.l	(sp)+,d7				; this could be improved by using "move.l	(sp)+,d7"
 		rts
 ; ===========================================================================
-; ---------------------------------------------------------------------------
+
 Dummy_Mappings:
 		dc.b $00,$00
 		dc.w $0000
 		dc.b $00,$FF
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ;
@@ -2418,7 +2418,7 @@ loc_198E:
 		move.l	a1,-(sp)
 		tst.w	obj.ID(a6)
 		bpl.s	loc_19B0
-		movea.w	(a6),a1
+		movea.w	obj.ID(a6),a1
 		move.w	2(a6),2(a1)
 
 loc_19B0:
@@ -2433,7 +2433,7 @@ loc_19B0:
 		rts
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
-; Unused subroutine
+; Unused subroutine to move an object
 ; ---------------------------------------------------------------------------
 		move.l	obj.VelX(a6),d0
 		add.l	d0,obj.Xpos(a6)
@@ -2447,32 +2447,32 @@ loc_19B0:
 
 sub_19DA:
 		moveq	#0,d1
-		move.w	8(a0),d2
+		move.w	obj.Xpos(a0),d2
 		sub.w	(word_C9DE).w,d2
-		cmpi.w	#-$40,d2
+		cmpi.w	#-64,d2
 		bge.s	loc_19EC
-		moveq	#$40,d1
+		moveq	#64,d1
 
 loc_19EC:
-		cmpi.w	#$180,d2
+		cmpi.w	#128*3,d2
 		blt.s	loc_19F4
-		moveq	#$40,d1
+		moveq	#64,d1
 
 loc_19F4:
-		addi.w	#$80,d2
+		addi.w	#128,d2
 		move.w	obj.Ypos(a0),d3
 		sub.w	(word_C9EE).w,d3
-		cmpi.w	#-$40,d3
+		cmpi.w	#-64,d3
 		bge.s	loc_1A08
-		moveq	#$40,d1
+		moveq	#64,d1
 
 loc_1A08:
-		cmpi.w	#$120,d3
+		cmpi.w	#128*2+32,d3
 		blt.s	loc_1A10
-		moveq	#$40,d1
+		moveq	#64,d1
 
 loc_1A10:
-		addi.w	#$80,d3
+		addi.w	#128,d3
 		andi.w	#$FFBF,4(a0)
 		or.w	d1,4(a0)
 		rts
@@ -2519,8 +2519,9 @@ loc_1A64:
 		lea	(CollisionArrayRota).l,a2
 		jmp	loc_1A6E(pc,d0.w)
 ; ===========================================================================
-; ---------------------------------------------------------------------------
-loc_1A6E:	bra.w	loc_1C24
+
+loc_1A6E:
+		bra.w	loc_1C24
 ; ---------------------------------------------------------------------------
 		bra.w	loc_1C24
 ; ---------------------------------------------------------------------------
@@ -2591,8 +2592,9 @@ loc_1AF0:
 		lea	(CollisionArrayNorm).l,a2
 		jmp	loc_1AFE(pc,d0.w)
 ; ===========================================================================
-; ---------------------------------------------------------------------------
-loc_1AFE:	bra.w	loc_1C24
+
+loc_1AFE:
+		bra.w	loc_1C24
 ; ---------------------------------------------------------------------------
 		bra.w	loc_1C24
 ; ---------------------------------------------------------------------------
@@ -2623,7 +2625,6 @@ loc_1AFE:	bra.w	loc_1C24
 		bra.w	loc_1C24
 ; ---------------------------------------------------------------------------
 		bra.w	loc_1C28
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ;
@@ -2688,8 +2689,9 @@ loc_1B90:
 		move.w	d7,d1
 		rts
 ; ===========================================================================
-; ---------------------------------------------------------------------------
-locret_1BC6:	rts
+
+locret_1BC6:
+		rts
 ; ---------------------------------------------------------------------------
 		bra.s	loc_1BDE
 ; ---------------------------------------------------------------------------
@@ -2701,7 +2703,6 @@ locret_1BC6:	rts
 		neg.w	d0
 		addi.w	#$F,d0
 		rts
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 
 loc_1BDE:
@@ -2781,8 +2782,9 @@ loc_1C60:
 		move.w	off_1C6A(pc,d2.w),d2
 		jmp	off_1C6A(pc,d2.w)
 ; ===========================================================================
-; ---------------------------------------------------------------------------
-off_1C6A:	dc.w W1C6A_loc01-off_1C6A
+
+off_1C6A:
+		dc.w W1C6A_loc01-off_1C6A
 		dc.w W1C6A_loc03-off_1C6A
 		dc.w W1C6A_loc05-off_1C6A
 		dc.w W1C6A_loc07-off_1C6A
@@ -2790,9 +2792,7 @@ off_1C6A:	dc.w W1C6A_loc01-off_1C6A
 		dc.w W1C6A_loc02-off_1C6A
 		dc.w W1C6A_loc04-off_1C6A
 		dc.w W1C6A_loc06-off_1C6A
-; ---------------------------------------------------------------------------
 ; ===========================================================================
-; ---------------------------------------------------------------------------
 
 W1C6A_loc00:
 		adda.w	d0,a1
@@ -2920,8 +2920,9 @@ loc_1D72:
 		add.w	d1,d1
 		jmp	locret_1D92(pc,d1.w)
 ; ===========================================================================
-; ---------------------------------------------------------------------------
-locret_1D92:	rts		; For some reason, this offset table has been disabled? assuming it is
+
+locret_1D92:
+		rts		; For some reason, this offset table has been disabled? assuming it is
 ; ---------------------------------------------------------------------------
 		bra.s	loc_1D9C
 ; ---------------------------------------------------------------------------
@@ -2930,7 +2931,6 @@ locret_1D92:	rts		; For some reason, this offset table has been disabled? assumi
 		bra.s	loc_1DA4
 ; ---------------------------------------------------------------------------
 		bra.s	loc_1D9E
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 
 loc_1D9C:
@@ -2991,7 +2991,7 @@ loc_1E0C:
 		cmp.w	d1,d7
 		rts
 ; ===========================================================================
-; ---------------------------------------------------------------------------
+
 CollisionArrayNorm:
 		binclude	"collide/Collision Array (Normal).bin"
 		even
@@ -3001,7 +3001,6 @@ CollisionArrayRota:
 CurveResistMappings:
 		binclude	"collide/Angle Map.bin"
 		even
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 
@@ -3891,7 +3890,6 @@ ptr_GM_Options:	jmp	(OptionSoundTest).l		; Options (Sound Test) (40)
 
 GMAReturn:
 		rts
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ;
@@ -4057,12 +4055,11 @@ SoundDriverLoad:
 		enable_ints				; set the stack register (Starting VBlank)
 		rts
 ; ===========================================================================
-; ---------------------------------------------------------------------------
+
 Z80_Driver:
-		include	"sound/Z80.asm"
-Z80_Driver_End
+		include	"sound/Z80 Sound Driver.asm"
+Z80_Driver_End:
 		even
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; subroutine to save BGM number to Z80 to play music
@@ -4083,13 +4080,13 @@ SegaScreen:
 		pea	(a0)
 		lea	loc_6EB4(pc),a0
 		move.l	a0,(v_vdpindex).w
-		movem.l	(sp)+,a0
+		movem.l	(sp)+,a0				; this could be improved by using "movea.l	(sp)+,a0"
 		jsr	(SoundDriverLoad).l		; load the Z80 Sound Driver
 		lea	SegaScreen_VDPSettings(pc),a0
 		jsr	(SetupVDPUsingTable).w
 		bra.s	SegaContin
 ; ===========================================================================
-; ---------------------------------------------------------------------------
+
 SegaScreen_VDPSettings:
 		dc.w $8230				; plane a:
 		dc.w $8407				; plane b:
@@ -4103,7 +4100,6 @@ SegaScreen_VDPSettings:
 		dc.w $9100				; Window plane X: disabled
 		dc.w $9200				; Window plane Y: disabled
 		dc.w 0
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 
 SegaContin:
@@ -4138,11 +4134,11 @@ loc_64AA:
 		dbf	d7,loc_64AA
 		move.l	#$F00,(a0)+
 		move.l	d1,(a0)
-		clr.w	($FFFFFAC4).w
-		move.w	#1,($FFFFFAC6).w
-		move.w	($FFFFFFC4).w,d0
+		clr.w	(word_FAC4).w
+		move.w	#1,(word_FAC6).w
+		move.w	(word_FFC4).w,d0
 		andi.w	#4,d0
-		move.w	d0,($FFFFFAC8).w
+		move.w	d0,(word_FAC8).w
 		ori.w	#$8124,(word_C9BA).w
 		move.w	(word_C9BA).w,(vdp_control_port).l
 		ori.w	#$8144,(word_C9BA).w
@@ -4162,7 +4158,8 @@ loc_64F2:
 ; ---------------------------------------------------------------------------
 ; Sega Screen Sub Modes
 ; ---------------------------------------------------------------------------
-SegaSubArray:	bra.w	SegaScreen
+SegaSubArray:
+		bra.w	SegaScreen
 ; ---------------------------------------------------------------------------
 		bra.w	loc_6526
 ; ---------------------------------------------------------------------------
@@ -4173,7 +4170,6 @@ SegaSubArray:	bra.w	SegaScreen
 		bra.w	loc_65C6
 ; ---------------------------------------------------------------------------
 		bra.w	Sega_GotoTitle
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; subroutine to return without doing anything (Used in multiple routines)
@@ -4192,7 +4188,7 @@ loc_6526:
 		move.w	#$14,(v_subgamemode).w
 
 Sega_ChooseAnimation:
-		move.w	($FFFFFAC8).w,d0
+		move.w	(word_FAC8).w,d0
 		jmp	Sega_AnimationTable(pc,d0.w)
 
 Sega_AnimationTable:
@@ -4209,7 +4205,7 @@ SegaPaletteStart:
 		move.w	#$14,(v_subgamemode).w
 
 .cycling:
-		subq.w	#1,($FFFFFAC4).w
+		subq.w	#1,(word_FAC4).w
 		bne.s	MultiReturn
 		moveq	#$3F,d0
 		moveq	#$3F,d1
@@ -4221,8 +4217,8 @@ SegaPaletteStart:
 		moveq	#0,d2
 		move.w	(word_D818).w,d3
 		jsr	(sub_86E).w
-		move.w	#0,($FFFFFAC4).w		; clear colour number
-		move.w	(v_pal+4).w,($FFFFFAC6).w	; save first colour to storage
+		move.w	#0,(word_FAC4).w		; clear colour number
+		move.w	(v_pal+4).w,(word_FAC6).w	; save first colour to storage
 		move.w	#cWhite,(v_pal+4).w		; save white to colour palette
 		addq.w	#4,(v_subgamemode).w		; increase sub mode
 		rts
@@ -4238,16 +4234,16 @@ SegaPaletteCycle:
 
 loc_6594:
 		lea	(v_pal+4).w,a0		; load palette address to a0
-		move.w	($FFFFFAC4).w,d0		; load current colour number to d0
+		move.w	(word_FAC4).w,d0		; load current colour number to d0
 		add.w	d0,d0				; double it
 		adda.w	d0,a0				; add to colour palette location
-		move.w	($FFFFFAC6).w,(a0)+		; reload original colour from storage
-		move.w	(a0),($FFFFFAC6).w		; save next current colour to storage
+		move.w	(word_FAC6).w,(a0)+		; reload original colour from storage
+		move.w	(a0),(word_FAC6).w		; save next current colour to storage
 		move.w	#cWhite,(a0)			; save white to colour palette
-		addq.w	#1,($FFFFFAC4).w		; increase colour number to next colour
-		cmpi.w	#$C,($FFFFFAC4).w		; has colour number finished at C?
+		addq.w	#1,(word_FAC4).w		; increase colour number to next colour
+		cmpi.w	#$C,(word_FAC4).w		; has colour number finished at C?
 		bne.w	MultiReturn			; if not, branch to return
-		move.w	#$40,($FFFFFAC4).w		; set colour number to 40
+		move.w	#$40,(word_FAC4).w		; set colour number to 40
 		addq.w	#4,(v_subgamemode).w		; increase sub mode
 		rts
 ; ===========================================================================
@@ -4261,7 +4257,7 @@ loc_65C6:
 		move.w	#$14,(v_subgamemode).w
 
 loc_65D2:
-		subq.w	#1,($FFFFFAC4).w		; minus 1 from colour number
+		subq.w	#1,(word_FAC4).w		; minus 1 from colour number
 		bpl.w	MultiReturn			; if still positive, branch
 		moveq	#1,d0
 		jsr	(PaletteFadeOut).w
@@ -4541,9 +4537,6 @@ loc_67BC:
 		adda.w	d4,a6
 		dbf	d7,loc_6738
 		rts
-
-; =============== S U B	R O U T	I N E =======================================
-
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; this section maps the "SEGA" large letters on screen correctly
@@ -4676,10 +4669,10 @@ loc_6934:
 ; ---------------------------------------------------------------------------
 
 Sega_MainAnimation:
-		subq.w	#1,($FFFFFAC6).w
+		subq.w	#1,(word_FAC6).w
 		bne.w	MultiReturn
-		addq.w	#4,($FFFFFAC4).w
-		move.w	($FFFFFAC4).w,d0
+		addq.w	#4,(word_FAC4).w
+		move.w	(word_FAC4).w,d0
 
 .submodes:
 		jmp	.submodes(pc,d0.w)
@@ -4749,7 +4742,7 @@ loc_69FC:
 		lea	(unk_0800&$FFFFFF+$80).l,a0
 
 loc_6A02:
-		move.w	#8,($FFFFFAC6).w
+		move.w	#8,(word_FAC6).w
 		lea	(v_spritetablebuffer).w,a1
 		clr.l	(a1)+
 		move.w	#$FFA0,(word_CA5E).w
@@ -4782,7 +4775,7 @@ loc_6A4E:
 		lea	(unk_0800&$FFFFFF).l,a0
 
 loc_6A54:
-		move.w	#4,($FFFFFAC6).w
+		move.w	#4,(word_FAC6).w
 		lea	(v_spritetablebuffer).w,a1
 		clr.l	(a1)+
 		move.w	#$FFA0,(word_CA5E).w
@@ -4819,7 +4812,7 @@ loc_6AAC:
 		move.w	#$FFD0,d0
 
 loc_6AB6:
-		move.w	#4,($FFFFFAC6).w
+		move.w	#4,(word_FAC6).w
 		lea	(v_spritetablebuffer).w,a1
 		clr.l	(a1)+
 		move.w	d0,(word_CA5E).w
@@ -4856,7 +4849,7 @@ loc_6B04:
 		move.w	#$120,d0
 
 loc_6B0C:
-		move.w	#4,($FFFFFAC6).w
+		move.w	#4,(word_FAC6).w
 		move.w	#$A0,(word_CA5E).w
 		move.w	#$A0,(word_CA60).w
 		move.w	#$118,(word_CDDE).w
@@ -4906,7 +4899,7 @@ loc_6B94:
 		lea	(v_spritetablebuffer+$38).w,a0
 
 loc_6B9E:
-		move.w	#4,($FFFFFAC6).w
+		move.w	#4,(word_FAC6).w
 		move.w	#$A0,(word_CA5E).w
 		move.w	#$A0,(word_CA60).w
 		move.w	#$118,(word_CDDE).w
@@ -4943,13 +4936,13 @@ loc_6BD8:
 		move.b	3(a0),d0
 		move.l	d0,(a0)+
 		move.l	$20(a0),(a0)
-		move.w	#$10,($FFFFFAC4).w
+		move.w	#$10,(word_FAC4).w
 		addq.w	#4,(v_subgamemode).w
 		rts
 ; ---------------------------------------------------------------------------
 
 Sega_AltAnimation:
-		move.w	($FFFFFAC4).w,d0
+		move.w	(word_FAC4).w,d0
 		jmp	.submodes(pc,d0.w)
 ; ---------------------------------------------------------------------------
 
@@ -4991,8 +4984,8 @@ loc_6C70:
 		adda.w	#$100,a6
 		dbf	d7,loc_6C70
 		enable_ints
-		addq.w	#4,($FFFFFAC4).w
-		move.w	#$20,($FFFFFAC6).w
+		addq.w	#4,(word_FAC4).w
+		move.w	#$20,(word_FAC6).w
 		move.w	#$F8,(word_CA5E).w
 		move.w	#$18,(word_CDDE).w
 		move.w	#$F8,(word_CA60).w
@@ -5027,9 +5020,9 @@ loc_6CFC:
 		move.w	#$8164,(word_C9BA).w
 		subi.w	#$10,(word_CA5E).w
 		subi.w	#$10,(word_CA60).w
-		subq.w	#1,($FFFFFAC6).w
+		subq.w	#1,(word_FAC6).w
 		bne.s	locret_6D20
-		addq.w	#4,($FFFFFAC4).w
+		addq.w	#4,(word_FAC4).w
 
 locret_6D20:
 		rts
@@ -5055,8 +5048,8 @@ loc_6D38:
 		enable_ints
 		subi.w	#$10,(word_CA5E).w
 		subi.w	#$10,(word_CA60).w
-		addq.w	#4,($FFFFFAC4).w
-		move.w	#$20,($FFFFFAC6).w
+		addq.w	#4,(word_FAC4).w
+		move.w	#$20,(word_FAC6).w
 		rts
 ; ---------------------------------------------------------------------------
 
@@ -5079,11 +5072,12 @@ loc_6D6E:
 	rept 8
 		move.l	(a0)+,(a1)+
 	endr
-		addq.w	#4,($FFFFFAC4).w
-		move.w	#$20,($FFFFFAC6).w
+		addq.w	#4,(word_FAC4).w
+		move.w	#$20,(word_FAC6).w
 		rts
 ; ---------------------------------------------------------------------------
-dword_6DBC:	dc.l $D80F01
+dword_6DBC:
+		dc.l $D80F01
 		dc.l $40FFEF
 		dc.l $D80F02
 		dc.l $500005
@@ -5098,19 +5092,19 @@ loc_6DDC:
 		addq.w	#8,(v_spritetablebuffer+$E).w
 		addq.w	#8,(v_spritetablebuffer+$16).w
 		addq.w	#8,(v_spritetablebuffer+$1E).w
-		subq.w	#1,($FFFFFAC6).w
+		subq.w	#1,(word_FAC6).w
 		bne.s	locret_6DFC
-		addq.w	#4,($FFFFFAC4).w
-		move.w	#$21,($FFFFFAC6).w
+		addq.w	#4,(word_FAC4).w
+		move.w	#$21,(word_FAC6).w
 
 locret_6DFC:
 		rts
 ; ---------------------------------------------------------------------------
 
 loc_6DFE:
-		subq.w	#1,($FFFFFAC6).w
+		subq.w	#1,(word_FAC6).w
 		beq.s	loc_6E40
-		move.w	($FFFFFAC6).w,d0
+		move.w	(word_FAC6).w,d0
 		move.w	d0,d1
 		andi.w	#3,d1
 		bne.s	locret_6E3E
@@ -5136,7 +5130,7 @@ locret_6E3E:
 ; ---------------------------------------------------------------------------
 
 loc_6E40:
-		addq.w	#4,($FFFFFAC4).w
+		addq.w	#4,(word_FAC4).w
 		rts
 ; ---------------------------------------------------------------------------
 byte_6E46:
@@ -5169,7 +5163,7 @@ loc_6E66:
 		move.l	d0,(a0)+
 		move.l	-$20(a0),(a0)
 		move.b	#4,-$21(a0)
-		move.w	#$10,($FFFFFAC4).w
+		move.w	#$10,(word_FAC4).w
 		addq.w	#4,(v_subgamemode).w
 		rts
 ; ---------------------------------------------------------------------------
@@ -5192,12 +5186,12 @@ loc_6EB4:
 		move.l	(word_CA5E).w,(vdp_data_port).l
 		move.l	#$40000010,(vdp_control_port).l
 		move.l	(word_CDDE).w,(vdp_data_port).l
-		move.w	($FFFFFFC4).w,d0
+		move.w	(word_FFC4).w,d0
 		add.w	d0,d0
 		add.w	d0,d0
-		add.w	($FFFFFFC4).w,d0
+		add.w	(word_FFC4).w,d0
 		addq.w	#1,d0
-		move.w	d0,($FFFFFFC4).w
+		move.w	d0,(word_FFC4).w
 		ori.b	#$80,(v_lagger).w
 		addq.w	#1,(word_F000).w
 		movem.l	(sp)+,d0-a6
@@ -5237,12 +5231,13 @@ SegatoVDPRep:
 		dbf	d7,SegatoVDPRep			; repeat
 		rte
 ; ===========================================================================
-; ---------------------------------------------------------------------------
-PAL_Segalogo:	binclude	"Palettes/PalSegaLogo.bin" ; palettes used in the Sega logo
+
+PAL_Segalogo:
+		binclude	"Palettes/PalSegaLogo.bin" ; palettes used in the Sega logo
 		even
-ARTCRA_SegaLogo:binclude	"artcra/Sega Logo.cra"	; compressed Sega patterns
+ARTCRA_SegaLogo:
+		binclude	"artcra/Sega Logo.cra"	; compressed Sega patterns
 		even
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Title Screen (Mode: 08)
@@ -5259,19 +5254,19 @@ TitleScreen:
 		bra.w	TitleLoad
 ; ---------------------------------------------------------------------------
 		bra.w	TitleStart
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 
 TitleLoad:
 		pea	(a0)
 		lea	loc_7576(pc),a0
 		move.l	a0,(v_vdpindex).w
-		movem.l	(sp)+,a0
+		movem.l	(sp)+,a0				; this could be improved by using "movea.l	(sp)+,a0"
 		disable_ints
 		lea	TitleScreen_VDPSettings(pc),a0
 		jsr	(SetupVDPUsingTable).w
 		bra.s	TitleLoad_Continue
 ; ---------------------------------------------------------------------------
+
 TitleScreen_VDPSettings:
 		dc.w $8230
 		dc.w $8407
@@ -5354,10 +5349,9 @@ TitleLoad_Continue:
 		addq.w	#4,(v_subgamemode).w		; increase sub mode
 		rts
 ; ===========================================================================
-; ---------------------------------------------------------------------------
+
 PAL_MainMenus:	binclude	"Palettes/PalMainMenus.bin"
 		even
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 
 TitleStart:
@@ -5461,7 +5455,7 @@ sub_75BC:
 		or.w	d0,d1
 		rts
 ; ===========================================================================
-; ---------------------------------------------------------------------------
+
 ARTNEM_MainMenusText:
 		binclude	"artnem/Main Menu Text.nem"
 		even
@@ -5480,7 +5474,6 @@ MAPUNC_TitleMenu_3:
 		dc.w	"1ST ROM "
 		dc.w	"19940401"	; format: YYYY-MM-DD (ISO 8601 standard)
 		charset
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Field Screens (Mode: 10)
@@ -5490,7 +5483,7 @@ Fields:
 		pea	(a0)
 		lea	Vint_Fields(pc),a0
 		move.l	a0,(v_vdpindex).w
-		movem.l	(sp)+,a0
+		movem.l	(sp)+,a0				; this could be improved by using "movea.l	(sp)+,a0"
 		lea	Fields_VDPSettings(pc),a0
 		jsr	(SetupVDPUsingTable).w
 		move.b	#bgm_Electoria,d0		; load BGM 81
@@ -5517,11 +5510,11 @@ Fields:
 		move.w	(word_C9BA).w,(vdp_control_port).l
 		bra.w	Fields_MainLoop
 ; ===========================================================================
-; ---------------------------------------------------------------------------
+
 PAL_PrimaryColours_Field:
 		binclude	 "Palettes/PalPrimaryColoursField.bin"
 		even
-; ---------------------------------------------------------------------------
+
 Fields_VDPSettings:
 		dc.w $8230
 		dc.w $832C
@@ -5533,7 +5526,6 @@ Fields_VDPSettings:
 		dc.w $8B03
 		dc.w $8C89
 		dc.w 0
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 
 Fields_MainLoop:
@@ -5571,7 +5563,7 @@ Field_ReadController:
 		or.b	d2,d1
 		andi.b	#$70,d1
 		or.b	d1,d0
-		lea	($FFFFFB00).w,a4
+		lea	(unk_FB00).w,a4
 		move.b	-1(a4),d1
 		andi.w	#$F,d1
 		move.b	(a4,d1.w),d2
@@ -5580,7 +5572,7 @@ Field_ReadController:
 		move.b	d2,-2(a4)
 		lea	(byte_D89C).w,a4
 		bsr.w	sub_7FB0
-		move.b	($FFFFFAFE).w,d0
+		move.b	(word_FAFE).w,d0
 		lea	(unk_C938).w,a3
 		moveq	#0,d1
 		move.b	(byte_D8AC).w,d1
@@ -5638,6 +5630,7 @@ loc_7FC6:
 ; End of function sub_7FB0
 
 ; ---------------------------------------------------------------------------
+
 byte_8000:
 		dc.b 0,$C0,$40,$C0
 		dc.b $80,$A0,$60,$A0
@@ -5789,7 +5782,7 @@ sub_8196:
 		move.w	#2,obj.Pointer(a0)       ; Load Sonic Object Pointer?
 		move.w	#$70,obj.Xpos(a0)               ; Set starting X position
 		move.w	#$70,obj.Ypos(a0)               ; Set starting Y position
-		move.w	#$8000,obj.Unk20(a0)
+		move.w	#$8000,obj.VRAM(a0)
 		move.w	a0,(word_D862).w
 
 Load_Tails:
@@ -5801,7 +5794,7 @@ loc_81CC:
 		move.w	#$802,obj.Pointer(a0)    ; Load Tails Object Pointer?
 		move.w	#$B0,obj.Xpos(a0)               ; Set starting X position
 		move.w	#$70,obj.Ypos(a0)               ; Set starting Y position
-		move.w	#$8000,obj.Unk20(a0)
+		move.w	#$8000,obj.VRAM(a0)
 		move.w	a0,(word_D864).w
 
 locret_81F6:
@@ -5954,15 +5947,15 @@ loc_82DE:
 		move.l	d0,(word_CDDE).w
 		tst.w	(word_D834).w
 		bne.w	loc_837C
-		subq.w	#3,($FFFFFAEE).w
-		subq.w	#5,($FFFFFAF0).w
+		subq.w	#3,(word_FAEE).w
+		subq.w	#5,(word_FAF0).w
 		move.w	(word_D830).w,d0
 		neg.w	d0
 		move.w	d0,d1
 		swap	d0
 		swap	d1
-		move.w	($FFFFFAEE).w,d0
-		move.w	($FFFFFAF0).w,d1
+		move.w	(word_FAEE).w,d0
+		move.w	(word_FAF0).w,d1
 		btst	#0,(byte_CDE1).w
 		beq.s	loc_8320
 		exg.l	d0,d1
@@ -5975,20 +5968,21 @@ loc_8328:
 		move.l	d0,(a0)+
 		move.l	d1,(a0)+
 		dbf	d2,loc_8328
-		cmpi.w	#5,($FFFFFAEA).w
+		cmpi.w	#5,(word_FAEA).w
 		bcs.s	loc_8356
-		clr.w	($FFFFFAEA).w
-		addq.w	#1,($FFFFFAEC).w
-		move.w	($FFFFFAEC).w,d0
+		clr.w	(word_FAEA).w
+		addq.w	#1,(word_FAEC).w
+		move.w	(word_FAEC).w,d0
 		andi.w	#3,d0
 		lsl.w	#3,d0
 		move.l	PALCY_RainbowField(pc,d0.w),(v_pal+$58).w
 		move.l	PALCY_RainbowField+4(pc,d0.w),(v_pal+$5C).w
 
 loc_8356:
-		addq.w	#1,($FFFFFAEA).w
+		addq.w	#1,(word_FAEA).w
 		rts
 ; ---------------------------------------------------------------------------
+
 PALCY_RainbowField:
 		dc.w $EEA
 		dc.w $EC4
@@ -6025,10 +6019,10 @@ loc_837C:
 		bsr.w	sub_860A
 		lea	loc_85D6(pc),a0
 		bsr.w	sub_860A
-		cmpi.w	#$A,($FFFFFAF0).w
+		cmpi.w	#$A,(word_FAF0).w
 		bcs.s	loc_83E4
-		clr.w	($FFFFFAF0).w
-		move.w	($FFFFFAF2).w,d0
+		clr.w	(word_FAF0).w
+		move.w	(word_FAF2).w,d0
 		andi.w	#$7FF0,d0
 		addi.w	#$10,d0
 		cmpi.w	#$180,d0
@@ -6036,18 +6030,19 @@ loc_837C:
 		moveq	#0,d0
 
 loc_83C8:
-		move.w	d0,($FFFFFAF2).w
+		move.w	d0,(word_FAF2).w
 		move.l	PALCY_ElectricField_1(pc,d0.w),(v_pal+$66).w
 		move.l	PALCY_ElectricField_1+4(pc,d0.w),(v_pal+$6A).w
 		move.l	PALCY_ElectricField_1+8(pc,d0.w),(v_pal+$6E).w
 		move.l	PALCY_ElectricField_1+$C(pc,d0.w),(v_pal+$72).w
 
 loc_83E4:
-		addq.w	#1,($FFFFFAF0).w
+		addq.w	#1,(word_FAF0).w
 		rts
 ; End of function sub_82B2
 
 ; ---------------------------------------------------------------------------
+
 PALCY_ElectricField_1:
 		dc.w $CE0
 		dc.w $AC2
@@ -6242,7 +6237,7 @@ PALCY_ElectricField_1:
 		dc.w $626
 		dc.w $404
 loc_856A:
-		dc.l $FFFFFAEC
+		dc.l word_FAEC
 	if FixBugs
 		dc.l v_pal+$58
 	else
@@ -6302,7 +6297,7 @@ PALCY_ElectricField_2:
 		dc.w $EE0
 		dc.w $FFFF	; unknown
 loc_85D6:
-		dc.l $FFFFFAEE
+		dc.l word_FAEE
 	if FixBugs
 		dc.l v_pal+$5A
 	else
@@ -6346,7 +6341,6 @@ locret_8630:
 		rts
 ; End of function sub_860A
 
-; ---------------------------------------------------------------------------
 		rts
 
 ; =============== S U B	R O U T	I N E =======================================
@@ -6520,6 +6514,7 @@ loc_87A4:
 ; End of function sub_8736
 
 ; ---------------------------------------------------------------------------
+
 CharacterDataTable:
 		dc.l ANI_SonicFields
 		dc.l ANI_TailsFields
@@ -6555,7 +6550,7 @@ CharacterDataTable:
 		dc.l 0
 ; ===========================================================================
 
-		include "_inc/Crackers Decompression.asm"
+		include "_Include/Crackers Decompression.asm"
 
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -6566,7 +6561,7 @@ Levels:
 		pea	(a0)
 		lea	loc_8B1C(pc),a0
 		move.l	a0,(v_vdpindex).w
-		movem.l	(sp)+,a0
+		movem.l	(sp)+,a0				; this could be improved by using "movea.l	(sp)+,a0"
 		lea	Level_VDPSettings(pc),a0
 		jsr	(SetupVDPUsingTable).w
 		move.b	#bgm_Electoria,d0
@@ -6625,9 +6620,11 @@ loc_896C:
 		jsr	(sub_F94A).l
 		bra.w	Level_MainLoop
 ; ---------------------------------------------------------------------------
+
 PAL_PrimaryColours:
 		binclude	"Palettes/PalPrimaryColours.bin"
 		even
+
 Level_VDPSettings:
 		dc.w $8230
 		dc.w $832C
@@ -6683,7 +6680,7 @@ Level_ReadController:
 		or.b	d2,d1
 		andi.b	#$70,d1
 		or.b	d1,d0
-		lea	($FFFFFB00).w,a4
+		lea	(unk_FB00).w,a4
 		move.b	-1(a4),d1
 		andi.w	#$F,d1
 		move.b	(a4,d1.w),d2
@@ -6692,7 +6689,7 @@ Level_ReadController:
 		move.b	d2,-2(a4)
 		lea	(byte_D89C).w,a4
 		bsr.w	sub_8ABC
-		move.b	($FFFFFAFE).w,d0
+		move.b	(word_FAFE).w,d0
 		lea	(unk_C938).w,a3
 		moveq	#0,d1
 		move.b	(byte_D8AC).w,d1
@@ -6750,6 +6747,7 @@ loc_8AD2:
 ; End of function sub_8ABC
 
 ; ---------------------------------------------------------------------------
+
 byte_8B0C:	dc.b 0,	$C0, $40, $C0
 		dc.b $80, $A0, $60, $A0
 		dc.b 0,	$E0, $20, $E0
@@ -6847,10 +6845,13 @@ sub_8BFE:
 ; End of function sub_8BFE
 
 ; ---------------------------------------------------------------------------
-word_8C18:	dc.w $3FFF
+
+word_8C18:
+		dc.w $3FFF
 		dc.w $7FF
 		dc.w $7FF
 		dc.w $FFF
+
 ObjPos_Pointers:
 		dc.l Objpos_SSZ
 		dc.l Objpos_TTZ
@@ -6922,7 +6923,7 @@ sub_8CCE:
 		moveq	#0,d1
 		move.w	(word_D834).w,d1
 		andi.w	#1,d1
-		lsl.l	#1,d1
+		lsl.l	#1,d1				; this could be improved by using "add.l	d1,d1"
 		jmp	loc_8CDE(pc,d1.w)
 ; End of function sub_8CCE
 
@@ -6953,6 +6954,7 @@ loc_8CE4:
 		dbf	d7,.load
 		rts
 ; ---------------------------------------------------------------------------
+
 PAL_TechnoTowerZone:
 		binclude	"Palettes/PalTechnoTowerZone.bin"
 		binclude	"Palettes/PalTechnoTowerZone 2.bin"
@@ -6984,7 +6986,7 @@ LevelSelect_Init:
 		pea	(a0)
 		lea	loc_903C(pc),a0
 		move.l	a0,(v_vdpindex).w
-		movem.l	(sp)+,a0
+		movem.l	(sp)+,a0				; this could be improved by using "movea.l	(sp)+,a0"
 		disable_ints
 		moveq	#$3F,d0
 		moveq	#$3F,d1
@@ -7099,7 +7101,9 @@ loc_8F94:
 		jsr	(MapScreen).w
 		bra.s	loc_8FCA
 ; ---------------------------------------------------------------------------
-word_8FB6:	dc.w 5
+
+word_8FB6:
+		dc.w 5
 		dc.w 5
 		dc.w 5
 		dc.w 5
@@ -7204,6 +7208,7 @@ sub_9098:
 ; End of function sub_9098
 
 ; ---------------------------------------------------------------------------
+
 ARTNEM_MenuSelectorBorder:
 		binclude	"artnem/Menu Select Border.nem" ; Selector art for Select Menu screen
 		even
@@ -7243,7 +7248,7 @@ OptionSoundTest_Main:
 		pea	(a0)
 		lea	loc_94B4(pc),a0
 		move.l	a0,(v_vdpindex).w
-		movem.l	(sp)+,a0
+		movem.l	(sp)+,a0				; this could be improved by using "movea.l	(sp)+,a0"
 		disable_ints
 		moveq	#$3F,d0
 		moveq	#$3F,d1
@@ -7268,7 +7273,7 @@ OptionSoundTest_Main:
 
 OptionText:
 		dc.w "OPTION"
-OptionText_End
+OptionText_End:
 		charset
 ; ---------------------------------------------------------------------------
 
@@ -7279,10 +7284,10 @@ OptionSoundTest_Exit:
 		tst.b	(v_lagger).w
 		bpl.s	.wait
 		move.w	(word_C944).w,d0
-		add.b	d0,($FFFFD82B).w
+		add.b	d0,(v_menu_soundid+1).w
 		move.w	(word_C946).w,d0
 		lsl.w	#4,d0
-		add.b	d0,($FFFFD82B).w
+		add.b	d0,(v_menu_soundid+1).w
 		disable_ints
 		move.w	(v_menu_soundid).w,d0
 		move.w	(word_D816).w,d1
@@ -7568,7 +7573,7 @@ loc_967C:
 		movea.l	a1,a0
 		lea	SSZ_MapBGLocs(pc),a2
 		bsr.w	DecEniMapLocs
-		move.l	a1,($FFFFFBC0).w
+		move.l	a1,(lword_FBC0).w
 		movea.l	a0,a1
 		lea	(unk_0B84&$FFFFFF).l,a3
 		lea	(unk_0C86&$FFFFFF).l,a4
@@ -7646,7 +7651,7 @@ sub_97B4:
 		move.w	d0,$12(a1)
 		move.w	obj.Ypos(a0),d1
 		subi.w	#$80,d1
-		mulu.w	#2,d1
+		mulu.w	#2,d1				; this could be improved by using "add.w	d1,d1"
 		ext.l	d1
 		divu.w	#5,d1
 		move.w	d1,$10(a1)
@@ -7666,11 +7671,11 @@ locret_97E6:
 
 ; ---------------------------------------------------------------------------
 		lea	(word_CA5E).w,a2
-		clr.w	($FFFFFBC8).w
+		clr.w	(lword_FBC8).w
 		move.w	(word_C9DE).w,d3
 		neg.w	d3
-		addq.w	#3,($FFFFFBC4).w
-		move.w	($FFFFFBC4).w,d2
+		addq.w	#3,(lword_FBC4).w
+		move.w	(lword_FBC4).w,d2
 		move.w	#$70-1,d7
 		move.w	$10(a1),d0
 		move.w	d0,d1
@@ -7687,8 +7692,8 @@ loc_980E:
 		move.w	d3,(a2)+
 		neg.w	d1
 		move.w	d1,(a2)+
-		addi.l	#$1000,($FFFFFBC8).w
-		sub.w	($FFFFFBC8).w,d2
+		addi.l	#$1000,(lword_FBC8).w
+		sub.w	(lword_FBC8).w,d2
 		dbf	d7,loc_980E
 		move.l	#word_CA5E,d0
 		move.w	(word_D81C).w,d1
@@ -7706,8 +7711,8 @@ loc_9846:
 		move.w	d3,(a2)+
 		neg.w	d1
 		move.w	d1,(a2)+
-		addi.l	#$1000,($FFFFFBC8).w
-		sub.w	($FFFFFBC8).w,d2
+		addi.l	#$1000,(lword_FBC8).w
+		sub.w	(lword_FBC8).w,d2
 		dbf	d7,loc_9846
 		move.l	#word_CA5E,d0
 		move.w	(word_D81C).w,d1
@@ -7771,7 +7776,7 @@ loc_9898:
 		movea.l	a1,a0
 		lea	TTZ_MapBGLocs(pc),a2
 		bsr.w	DecEniMapLocs
-		move.l	a1,($FFFFFBC0).w
+		move.l	a1,(lword_FBC0).w
 		movea.l	a0,a1
 		lea	(unk_0B84&$FFFFFF).l,a3
 		lea	(unk_0C86&$FFFFFF).l,a4
@@ -7837,16 +7842,16 @@ locret_9998:
 		swap	d0
 		move.l	d0,d1
 		lsr.l	#1,d0
-		add.l	d0,($FFFFFBC4).w
+		add.l	d0,(lword_FBC4).w
 		move.l	d1,d0
 		lsr.l	#2,d0
-		add.l	d0,($FFFFFBC8).w
+		add.l	d0,(lword_FBC8).w
 		move.l	d1,d0
 		lsr.l	#3,d0
-		add.l	d0,($FFFFFBCC).w
+		add.l	d0,(lword_FBCC).w
 		move.l	d1,d0
 		lsr.l	#4,d0
-		add.l	d0,($FFFFFBD0).w
+		add.l	d0,(lword_FBD0).w
 
 loc_99CC:
 		lea	(word_CDDE).w,a2
@@ -7866,102 +7871,103 @@ loc_99E4:
 ; ---------------------------------------------------------------------------
 ; A table of RAM adresses
 ; ---------------------------------------------------------------------------
-dword_99F0:	dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC8
-		dc.l $FFFFFBC8
-		dc.l $FFFFFBC8
-		dc.l $FFFFFBC8
-		dc.l $FFFFFBCC
-		dc.l $FFFFFBCC
-		dc.l $FFFFFBD0
-		dc.l $FFFFFBD0
-		dc.l $FFFFFBD8
-		dc.l $FFFFFBD8
-		dc.l $FFFFFBD8
-		dc.l $FFFFFBD8
-		dc.l $FFFFFBD8
-		dc.l $FFFFFBD8
-		dc.l $FFFFFBD8
-		dc.l $FFFFFBD8
-		dc.l $FFFFFBD0
-		dc.l $FFFFFBD0
-		dc.l $FFFFFBCC
-		dc.l $FFFFFBCC
-		dc.l $FFFFFBC8
-		dc.l $FFFFFBC8
-		dc.l $FFFFFBC8
-		dc.l $FFFFFBC8
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC8
-		dc.l $FFFFFBC8
-		dc.l $FFFFFBC8
-		dc.l $FFFFFBC8
-		dc.l $FFFFFBCC
-		dc.l $FFFFFBCC
-		dc.l $FFFFFBD0
-		dc.l $FFFFFBD0
-		dc.l $FFFFFBD8
-		dc.l $FFFFFBD8
-		dc.l $FFFFFBD8
-		dc.l $FFFFFBD8
-		dc.l $FFFFFBD8
-		dc.l $FFFFFBD8
-		dc.l $FFFFFBD8
-		dc.l $FFFFFBD8
-		dc.l $FFFFFBD0
-		dc.l $FFFFFBD0
-		dc.l $FFFFFBCC
-		dc.l $FFFFFBCC
-		dc.l $FFFFFBC8
-		dc.l $FFFFFBC8
-		dc.l $FFFFFBC8
-		dc.l $FFFFFBC8
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
-		dc.l $FFFFFBC4
+dword_99F0:
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC8
+		dc.l lword_FBC8
+		dc.l lword_FBC8
+		dc.l lword_FBC8
+		dc.l lword_FBCC
+		dc.l lword_FBCC
+		dc.l lword_FBD0
+		dc.l lword_FBD0
+		dc.l unk_FBD8
+		dc.l unk_FBD8
+		dc.l unk_FBD8
+		dc.l unk_FBD8
+		dc.l unk_FBD8
+		dc.l unk_FBD8
+		dc.l unk_FBD8
+		dc.l unk_FBD8
+		dc.l lword_FBD0
+		dc.l lword_FBD0
+		dc.l lword_FBCC
+		dc.l lword_FBCC
+		dc.l lword_FBC8
+		dc.l lword_FBC8
+		dc.l lword_FBC8
+		dc.l lword_FBC8
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC8
+		dc.l lword_FBC8
+		dc.l lword_FBC8
+		dc.l lword_FBC8
+		dc.l lword_FBCC
+		dc.l lword_FBCC
+		dc.l lword_FBD0
+		dc.l lword_FBD0
+		dc.l unk_FBD8
+		dc.l unk_FBD8
+		dc.l unk_FBD8
+		dc.l unk_FBD8
+		dc.l unk_FBD8
+		dc.l unk_FBD8
+		dc.l unk_FBD8
+		dc.l unk_FBD8
+		dc.l lword_FBD0
+		dc.l lword_FBD0
+		dc.l lword_FBCC
+		dc.l lword_FBCC
+		dc.l lword_FBC8
+		dc.l lword_FBC8
+		dc.l lword_FBC8
+		dc.l lword_FBC8
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
+		dc.l lword_FBC4
 ; ---------------------------------------------------------------------------
 		cmpi.w	#$D60,(word_C9EE).w
 		bcc.s	loc_9B80
@@ -8135,9 +8141,11 @@ locret_9C1C:
 locret_9C1E:
 		rts
 ; ---------------------------------------------------------------------------
+
 SSZ_ArtLocs:
 		dc.l ARTNEM_SSZ8x8_FG
 		dc.l ARTNEM_SSZ8x8_BG
+
 SSZ_FG_StartLocCam:
 		dc.w $0000		; Start X scroll
 		dc.w $00D0		; Start Y scroll
@@ -8150,11 +8158,13 @@ SSZ_FG_StartLocCam:
 		dc.w $0000		; Min X display area
 		dc.w $0520		; Max Y display area
 		dc.w $0000		; Min Y display area
+
 SSZ_MapFGLocs:
 		dc.l MAPENI_SSZ16x16_FG
 		dc.l MAPENI_SSZ128x128_FG
 		dc.l MAPENI_SSZLayout_FG
 		dc.l COL_SSZPrimary
+
 SSZ_BG_StartLocCam:
 		dc.w $0000		; Start X scroll
 		dc.w $0054		; Start Y scroll
@@ -8167,10 +8177,12 @@ SSZ_BG_StartLocCam:
 		dc.w $0000		; Min X display area
 		dc.w $0220		; Max Y display area
 		dc.w $0000		; Min Y display area
+
 SSZ_MapBGLocs:
 		dc.l MAPENI_SSZ16x16_BG
 		dc.l MAPENI_SSZ128x128_BG
 		dc.l MAPENI_SSZLayout_BG
+
 PAL_SpeedSliderZone:
 		binclude	"Palettes/PalSpeedSliderZone.bin"
 		even
@@ -8178,6 +8190,7 @@ PAL_SpeedSliderZone:
 TTZ_ArtLocs:
 		dc.l ARTNEM_TTZ8x8_FG
 		dc.l ARTNEM_TTZ8x8_BG
+
 TTZ_FG_StartLocCam:
 		dc.w $0015		; Start X scroll
 		dc.w $0DE0		; Start Y scroll
@@ -8190,11 +8203,13 @@ TTZ_FG_StartLocCam:
 		dc.w $0000		; Min X display area
 		dc.w $0F20		; Max Y display area
 		dc.w $0000		; Min Y display area
+
 TTZ_MapFGLocs:
 		dc.l MAPENI_TTZ16x16_FG
 		dc.l MAPENI_TTZ128x128_FG
 		dc.l MAPENI_TTZLayout_FG
 		dc.l COL_TTZPrimary
+
 TTZ_BG_StartLocCam:
 		dc.w $0030		; Start X scroll
 		dc.w $0A60		; Start Y scroll
@@ -8207,14 +8222,15 @@ TTZ_BG_StartLocCam:
 		dc.w $0000		; Min X display area
 		dc.w $0B20		; Max Y display area
 		dc.w $0000		; Min Y display area
+
 TTZ_MapBGLocs:
 		dc.l MAPENI_TTZ16x16_BG
 		dc.l MAPENI_TTZ128x128_BG
 		dc.l MAPENI_TTZLayout_BG
+
 PAL_TechnoTowerZoneUnused:
 		binclude	"Palettes/PalTechnoTowerZoneUnused.bin"	; Misnomer; used in world 2 attraction 1
 		even
-; ---------------------------------------------------------------------------
 
 ; =============== S U B	R O U T	I N E =======================================
 
@@ -8715,7 +8731,7 @@ sub_A178:
 		lea	(unk_D850).w,a6
 
 loc_A17C:
-		_move.w	0(a6),d0
+		_move.w	obj.ID(a6),d0
 		bne.s	loc_A184
 		rts
 ; ---------------------------------------------------------------------------
@@ -8760,6 +8776,7 @@ loc_A1BC:
 		movea.w	(word_D862).w,a4
 		jmp	(a0)
 ; ---------------------------------------------------------------------------
+
 CharacterTable:
         dc.l SonicObject	; Load Sonic			; something to do with stopping reflexes
 		dc.l TailsObject       ; Load Tails
@@ -8783,7 +8800,9 @@ loc_A1FC:
 		movea.l	off_A206(pc,d0.w),a0
 		jmp	(a0)		; A dynamic call... to entries on a table right next line?
 ; ---------------------------------------------------------------------------
-off_A206:	dc.l loc_B422
+
+off_A206:
+		dc.l loc_B422
 		dc.l loc_B81A
 		dc.l loc_A262
 		dc.l loc_A262
@@ -8805,7 +8824,9 @@ loc_A234:
 		movea.l	off_A23E(pc,d0.w),a0
 		jmp	(a0)
 ; ---------------------------------------------------------------------------
-off_A23E:	dc.l loc_A262
+
+off_A23E:
+		dc.l loc_A262
 		dc.l loc_BC30
 		dc.l loc_A262
 		dc.l loc_A262
@@ -8883,7 +8904,7 @@ loc_A2F0:
 		sne	d0
 		andi.b	#8,d0
 		move.b	d0,$20(a6)
-		move.b	#$A,($FFFFFAE8).w
+		move.b	#$A,(byte_FAE8).w
 		move.b	obj.Angle(a6),d0
 		addi.b	#$10,d0
 		cmpi.b	#$20,d0
@@ -9127,8 +9148,8 @@ loc_A530:
 		jsr	(sub_C49A).l
 		jsr	(sub_C29E).l
 		beq.s	loc_A550
-		move.w	d0,($FFFFFAC0).w
-		move.w	d1,($FFFFFAC2).w
+		move.w	d0,(word_FAC0).w
+		move.w	d1,(word_FAC2).w
 		rts
 ; ---------------------------------------------------------------------------
 
@@ -9542,8 +9563,8 @@ loc_A928:
 		jsr	(sub_C29E).l
 		beq.s	loc_A94E
 		bset	#0,$25(a6)
-		move.w	d0,($FFFFFAC0).w
-		move.w	d1,($FFFFFAC2).w
+		move.w	d0,(word_FAC0).w
+		move.w	d1,(word_FAC2).w
 		rts
 ; ---------------------------------------------------------------------------
 
@@ -9668,7 +9689,7 @@ ObjSonic_ThrowPartner:
 		move.b	3(a5),d0
 		andi.b	#btnABC,d0
 		beq.s	locret_AAA2
-		move.w	($FFFFFAE0).w,d0
+		move.w	(word_FAE0).w,d0
 		cmpi.w	#$18,d0
 		bcc.s	locret_AAA2
 		move.b	#$A,7(a6)
@@ -9727,6 +9748,7 @@ locret_AAF6:
 ; Leftover Sonic subroutine for smooth physics collision
 ; (causes movement not to be so jagged)
 ; ===========================================================================
+
 Sonic_SlopeResist:
 		rts
 ; End of function Sonic_SlopeResist
@@ -9822,7 +9844,7 @@ loc_ABB6:
 		sne	d0
 		andi.b	#8,d0
 		move.b	d0,$20(a6)
-		move.b	#$A,($FFFFFAE8).w
+		move.b	#$A,(byte_FAE8).w
 		move.b	obj.Angle(a6),d0
 		addi.b	#$10,d0
 		cmpi.b	#$20,d0
@@ -10052,8 +10074,8 @@ loc_ADE2:
 		jsr	(sub_C49A).l
 		jsr	(sub_C29E).l
 		beq.s	loc_AE02
-		move.w	d0,($FFFFFAC0).w
-		move.w	d1,($FFFFFAC2).w
+		move.w	d0,(word_FAC0).w
+		move.w	d1,(word_FAC2).w
 		rts
 ; ---------------------------------------------------------------------------
 
@@ -10462,8 +10484,8 @@ loc_B1D6:
 		jsr	(sub_C29E).l
 		beq.s	loc_B1FC
 		bset	#0,$25(a6)
-		move.w	d0,($FFFFFAC0).w
-		move.w	d1,($FFFFFAC2).w
+		move.w	d0,(word_FAC0).w
+		move.w	d1,(word_FAC2).w
 		rts
 ; ---------------------------------------------------------------------------
 
@@ -10604,7 +10626,7 @@ ObjTails_ThrowPartner:
 		move.b	3(a5),d0
 		andi.b	#btnABC,d0
 		beq.s	locret_B386
-		move.w	($FFFFFAE0).w,d0
+		move.w	(word_FAE0).w,d0
 		cmpi.w	#$18,d0
 		bcc.s	locret_B386
 		move.b	#$A,7(a6)
@@ -10663,6 +10685,7 @@ locret_B3DA:
 ; Leftover Tails subroutine for smooth physics collision
 ; (causes movement not to be so jagged)
 ; ===========================================================================
+
 Tails_SlopeResist:
 		rts
 ; End of function Tails_SlopeResist
@@ -10738,7 +10761,9 @@ loc_B436:
 		move.w	off_B448(pc,d7.w),d7
 		jmp	off_B448(pc,d7.w)
 ; ---------------------------------------------------------------------------
-off_B448:	dc.w loc_B47C-off_B448
+
+off_B448:
+		dc.w loc_B47C-off_B448
 		dc.w sub_B512-off_B448
 		dc.w sub_B548-off_B448
 		dc.w sub_B580-off_B448
@@ -10796,6 +10821,7 @@ loc_B4A2:
 		moveq	#-2,d1
 		bra.w	loc_CA8A
 ; ---------------------------------------------------------------------------
+
 word_B4CC:
         dc.w $9C
 		dc.w $98
@@ -10837,7 +10863,9 @@ sub_B512:
 		lea	loc_B518(pc),a0
 		bra.s	loc_B4A2
 ; ---------------------------------------------------------------------------
-loc_B518:	dc.w $14
+
+loc_B518:
+		dc.w $14
 		dc.w $FFF3
 		dc.w $FFFA
 		dc.w 0
@@ -10867,6 +10895,7 @@ sub_B548:
 		lea	word_B550(pc),a0
 		bra.w	loc_B4A2
 ; ---------------------------------------------------------------------------
+
 word_B550:
 		dc.w $2C
 		dc.w 1
@@ -10898,6 +10927,7 @@ sub_B580:
 		lea	word_B588(pc),a0
 		bra.w	loc_B4A2
 ; ---------------------------------------------------------------------------
+
 word_B588:
 		dc.w $44
 		dc.w $FFFA
@@ -10929,7 +10959,9 @@ sub_B5B8:
 		lea	loc_B5C0(pc),a0
 		bra.w	loc_B4A2
 ; ---------------------------------------------------------------------------
-loc_B5C0:	dc.w $5C
+
+loc_B5C0:
+		dc.w $5C
 		dc.w 7
 		dc.w $FFF9
 		dc.w 0
@@ -11029,7 +11061,9 @@ sub_B67C:
 		move.w	word_B69A(pc,d0.w),$26(a6)
 		rts
 ; ---------------------------------------------------------------------------
-word_B69A:	dc.w 0
+
+word_B69A:
+		dc.w 0
 		dc.w 4
 		dc.w 8
 		dc.w 4
@@ -11040,6 +11074,7 @@ sub_B6A2:
 		bsr.w	sub_B4EC
 		rts
 ; ---------------------------------------------------------------------------
+
 word_B6AC:
 		dc.w $F4
 		dc.w $FFEE
@@ -11064,7 +11099,9 @@ sub_B6CC:
 		bsr.w	sub_B4EC
 		rts
 ; ---------------------------------------------------------------------------
-word_B6D6:	dc.w $100
+
+word_B6D6:
+		dc.w $100
 		dc.w $FFEC
 		dc.w $FFEC
 		dc.w 0
@@ -11175,7 +11212,9 @@ sub_B7A8:
 		move.w	word_B7C6(pc,d0.w),$26(a6)
 		rts
 ; ---------------------------------------------------------------------------
-word_B7C6:	dc.w $FC
+
+word_B7C6:
+		dc.w $FC
 		dc.w $100
 		dc.w $104
 		dc.w $108
@@ -11184,7 +11223,6 @@ word_B7C6:	dc.w $FC
 ; ---------------------------------------------------------------------------
 
 loc_B7D2:
-
 		tst.b	5(a6)
 		bmi.s	loc_B7DA
 		rts
@@ -11225,7 +11263,9 @@ loc_B82E:
 		move.w	off_B840(pc,d7.w),d7
 		jmp	off_B840(pc,d7.w)
 ; ---------------------------------------------------------------------------
-off_B840:	dc.w sub_B874-off_B840
+
+off_B840:
+		dc.w sub_B874-off_B840
 		dc.w sub_B916-off_B840
 		dc.w sub_B95C-off_B840
 		dc.w sub_B9A4-off_B840
@@ -11287,7 +11327,9 @@ loc_B8A2:
 		move.b	$20(a5),d2
 		bra.w	loc_CA8A
 ; ---------------------------------------------------------------------------
-word_B8D0:	dc.w $20
+
+word_B8D0:
+		dc.w $20
 		dc.w $1C
 		dc.w $18
 		dc.w $14
@@ -11327,7 +11369,9 @@ sub_B916:
 		lea	word_B91C(pc),a0
 		bra.s	loc_B8A2
 ; ---------------------------------------------------------------------------
-word_B91C:	dc.w $60
+
+word_B91C:
+		dc.w $60
 		dc.w $FFF4
 		dc.w $FFEE
 		dc.w 0
@@ -11365,7 +11409,9 @@ sub_B95C:
 		lea	word_B964(pc),a0
 		bra.w	loc_B8A2
 ; ---------------------------------------------------------------------------
-word_B964:	dc.w $70
+
+word_B964:
+		dc.w $70
 		dc.w $FFF0
 		dc.w $FFE9
 		dc.w 0
@@ -11403,7 +11449,8 @@ sub_B9A4:
 		lea	word_B9AC(pc),a0
 		bra.w	loc_B8A2
 ; ---------------------------------------------------------------------------
-word_B9AC:	dc.w $80
+word_B9AC:
+		dc.w $80
 		dc.w $FFEE
 		dc.w $FFEC
 		dc.w 0
@@ -11441,7 +11488,8 @@ sub_B9EC:
 		lea	word_B9F4(pc),a0
 		bra.w	loc_B8A2
 ; ---------------------------------------------------------------------------
-word_B9F4:	dc.w $80
+word_B9F4:
+		dc.w $80
 		dc.w $FFF0
 		dc.w $FFE8
 		dc.w 0
@@ -11535,7 +11583,8 @@ sub_BAB4:
 		bsr.w	sub_B8F0
 		rts
 ; ---------------------------------------------------------------------------
-word_BABE:	dc.w $40
+word_BABE:
+		dc.w $40
 		dc.w $FFEE
 		dc.w $FFEC
 		dc.w 0
@@ -11558,7 +11607,8 @@ sub_BADE:
 		bsr.w	sub_B8F0
 		rts
 ; ---------------------------------------------------------------------------
-loc_BAE8:	dc.w $4C
+loc_BAE8:
+		dc.w $4C
 		dc.w $FFEC
 		dc.w $FFEC
 		dc.w 0
@@ -11669,7 +11719,8 @@ sub_BBBA:
 		move.w	word_BBD8(pc,d0.w),$26(a6)
 		rts
 ; ---------------------------------------------------------------------------
-word_BBD8:	dc.w $F0
+word_BBD8:
+		dc.w $F0
 		dc.w $F4
 		dc.w $F8
 		dc.w $FC
@@ -11721,7 +11772,9 @@ loc_BC44:
 		move.w	word_BC56(pc,d7.w),d7
 		jmp	word_BC56(pc,d7.w)
 ; ---------------------------------------------------------------------------
-word_BC56:	dc.w loc_BC8A-word_BC56
+
+word_BC56:
+		dc.w loc_BC8A-word_BC56
 		dc.w loc_BCBC-word_BC56
 		dc.w loc_BCBC-word_BC56
 		dc.w loc_BCBC-word_BC56
@@ -11812,7 +11865,9 @@ loc_BCF0:
 		bsr.w	loc_CA8A
 		rts
 ; ---------------------------------------------------------------------------
-word_BD36:	dc.w $FFDC
+
+word_BD36:
+		dc.w $FFDC
 		dc.w $FFF8
 		dc.w 0
 		dc.w 0
@@ -11844,7 +11899,9 @@ word_BD36:	dc.w $FFDC
 		dc.w 7
 		dc.w $18
 		dc.w 0
-word_BD76:	dc.w $54
+
+word_BD76:
+		dc.w $54
 		dc.w $55
 		dc.w $56
 		dc.w $57
@@ -11910,7 +11967,9 @@ loc_BDDE:
 		bsr.w	sub_CA82
 		rts
 ; ---------------------------------------------------------------------------
-word_BDFC:	dc.w $54
+
+word_BDFC:
+		dc.w $54
 		dc.w $54
 		dc.w $54
 		dc.w $55
@@ -11936,7 +11995,6 @@ loc_BE1E:
 ; ---------------------------------------------------------------------------
 
 loc_BE26:
-
 		tst.b	5(a6)
 		bmi.s	loc_BE2E
 		rts
@@ -11975,7 +12033,7 @@ sub_BE72:
 		bmi.s	loc_BE9C
 		move.w	#$80,obj.Unk4(a0)
 		move.w	#$800,obj.Pointer(a0) ; Load Sonic Hands Object Pointer?
-		move.w	#0,obj.Unk20(a0)
+		move.w	#0,obj.VRAM(a0)
 		move.w	a0,(word_D862).w
 
 loc_BE9C:
@@ -11990,7 +12048,7 @@ loc_BE9C:
 		move.w	(word_C9EE).w,d0
 		addi.w	#$70,d0
 		move.w	d0,obj.Ypos(a0)
-		move.w	#0,obj.Unk20(a0)
+		move.w	#0,obj.VRAM(a0)
 		movea.w	(word_D862).w,a6
 		move.w	a0,(word_D862).w
 		move.w	a0,$24(a6)
@@ -12002,7 +12060,7 @@ loc_BEE0:
 		bmi.s	loc_BF00
 		move.w	#$80,obj.Unk4(a0)
 		move.w	#$1000,obj.Pointer(a0) ; Load Unknown Object Pointer?
-		move.w	#0,obj.Unk20(a0)
+		move.w	#0,obj.VRAM(a0)
 		move.w	(word_D862).w,$24(a0)
 
 loc_BF00:
@@ -12011,7 +12069,7 @@ loc_BF00:
 		bmi.s	loc_BF1E
 		move.w	#$80,obj.Unk4(a0)
 		move.w	#$C00,obj.Pointer(a0) ; Load Tails Hands Object Pointer?
-		move.w	#$21,obj.Unk20(a0)
+		move.w	#$21,obj.VRAM(a0)
 		move.w	a0,(word_D864).w
 
 loc_BF1E:
@@ -12026,7 +12084,7 @@ loc_BF1E:
 		move.w	(word_C9EE).w,d0
 		addi.w	#$70,d0
 		move.w	d0,obj.Ypos(a0)
-		move.w	#$21,obj.Unk20(a0)
+		move.w	#$21,obj.VRAM(a0)
 		movea.w	(word_D864).w,a6
 		move.w	a0,(word_D864).w
 		move.w	a0,$24(a6)
@@ -12038,7 +12096,7 @@ loc_BF62:
 		bmi.s	locret_BF82
 		move.w	#$80,obj.Unk4(a0)
 		move.w	#$1400,obj.Pointer(a0) ; Load Tails Tail Object Pointer?
-		move.w	#$21,obj.Unk20(a0)
+		move.w	#$21,obj.VRAM(a0)
 		move.w	(word_D864).w,$24(a0)
 
 locret_BF82:
@@ -12057,7 +12115,7 @@ sub_BF84:
 		moveq	#0,d2
 
 loc_BF90:
-		btst	d3,($FFFFFAE8).w
+		btst	d3,(byte_FAE8).w
 		beq.s	loc_BFB4
 		move.b	(a1),d5
 		beq.s	loc_BFF8
@@ -12083,7 +12141,7 @@ loc_BFB4:
 
 loc_BFC4:
 		subi.w	#$10,d1
-		btst	d3,($FFFFFAE8).w
+		btst	d3,(byte_FAE8).w
 		beq.s	loc_BFD6
 		move.b	(a1),d5
 		cmpi.b	#$10,d5
@@ -12127,7 +12185,7 @@ loc_C00C:
 		move.l	(sp)+,d7
 		move.w	(sp)+,d6
 		addi.w	#$10,d1
-		btst	d3,($FFFFFAE8).w
+		btst	d3,(byte_FAE8).w
 		beq.s	loc_C03A
 		move.b	(a1),d5
 		cmpi.b	#$10,d5
@@ -12166,7 +12224,7 @@ sub_C048:
 		moveq	#-$40,d2
 
 loc_C054:
-		btst	d3,($FFFFFAE8).w
+		btst	d3,(byte_FAE8).w
 		beq.s	loc_C078
 		move.b	(a2),d5
 		beq.s	loc_C0C6
@@ -12192,7 +12250,7 @@ loc_C078:
 
 loc_C088:
 		subi.w	#$10,d0
-		btst	d3,($FFFFFAE8).w
+		btst	d3,(byte_FAE8).w
 		beq.s	loc_C09A
 		move.b	(a2),d5
 		cmpi.b	#$10,d5
@@ -12240,7 +12298,7 @@ loc_C0DA:
 		move.l	(sp)+,d7
 		move.w	(sp)+,d6
 		addi.w	#$10,d0
-		btst	d3,($FFFFFAE8).w
+		btst	d3,(byte_FAE8).w
 		beq.s	loc_C108
 		move.b	(a2),d5
 		cmpi.b	#$10,d5
@@ -12279,7 +12337,7 @@ sub_C116:
 		moveq	#-$80,d2
 
 loc_C122:
-		btst	d3,($FFFFFAE8).w
+		btst	d3,(byte_FAE8).w
 		beq.s	loc_C146
 		move.b	(a1),d5
 		beq.s	loc_C188
@@ -12304,7 +12362,7 @@ loc_C146:
 
 loc_C156:
 		addi.w	#$10,d1
-		btst	d3,($FFFFFAE8).w
+		btst	d3,(byte_FAE8).w
 		beq.s	loc_C168
 		move.b	(a1),d5
 		cmpi.b	#$10,d5
@@ -12348,7 +12406,7 @@ loc_C19C:
 		move.l	(sp)+,d7
 		move.w	(sp)+,d6
 		subi.w	#$10,d1
-		btst	d3,($FFFFFAE8).w
+		btst	d3,(byte_FAE8).w
 		beq.s	loc_C1CA
 		move.b	(a1),d5
 		cmpi.b	#$10,d5
@@ -12387,7 +12445,7 @@ sub_C1DA:
 		moveq	#$40,d2
 
 loc_C1E6:
-		btst	d3,($FFFFFAE8).w
+		btst	d3,(byte_FAE8).w
 		beq.s	loc_C20A
 		move.b	(a2),d5
 		beq.s	loc_C24C
@@ -12412,7 +12470,7 @@ loc_C20A:
 
 loc_C21A:
 		addi.w	#$10,d0
-		btst	d3,($FFFFFAE8).w
+		btst	d3,(byte_FAE8).w
 		beq.s	loc_C22C
 		move.b	(a2),d5
 		cmpi.b	#$10,d5
@@ -12456,7 +12514,7 @@ loc_C260:
 		move.l	(sp)+,d7
 		move.w	(sp)+,d6
 		subi.w	#$10,d0
-		btst	d3,($FFFFFAE8).w
+		btst	d3,(byte_FAE8).w
 		beq.s	loc_C28E
 		move.b	(a2),d5
 		cmpi.b	#$10,d5
@@ -12490,7 +12548,7 @@ loc_C28E:
 sub_C29E:
 		move.w	$24(a6),d4
 		andi.w	#2,d4
-		move.b	#$A,($FFFFFAE8).w
+		move.b	#$A,(byte_FAE8).w
 		move.b	obj.Angle(a6),d0
 		addi.b	#$20,d0
 		andi.w	#$C0,d0
@@ -12521,16 +12579,16 @@ loc_C2CE:
 		move.l	d3,-(sp)
 		move.w	d2,-(sp)
 		move.w	d5,-(sp)
-		move.b	d2,($FFFFFAC5).w
-		move.l	a0,($FFFFFACA).w
+		move.b	d2,(word_FAC4+1).w
+		move.l	a0,(lword_FACA).w
 		moveq	#0,d2
 		move.b	$22(a6),d2
 		neg.w	d2
 		add.w	d2,d0
 		add.w	d2,d0
 		bsr.w	sub_BF84
-		move.b	d2,($FFFFFAC4).w
-		move.l	a0,($FFFFFAC6).w
+		move.b	d2,(word_FAC4).w
+		move.l	a0,(word_FAC6).w
 		move.w	d5,d0
 		move.w	(sp)+,d1
 		cmp.w	d1,d0
@@ -12572,16 +12630,16 @@ loc_C340:
 		move.l	d3,-(sp)
 		move.w	d2,-(sp)
 		move.w	d5,-(sp)
-		move.b	d2,($FFFFFAC5).w
-		move.l	a0,($FFFFFACA).w
+		move.b	d2,(word_FAC4+1).w
+		move.l	a0,(lword_FACA).w
 		moveq	#0,d2
 		move.b	$23(a6),d2
 		neg.w	d2
 		add.w	d2,d1
 		add.w	d2,d1
 		bsr.w	sub_C1DA
-		move.b	d2,($FFFFFAC4).w
-		move.l	a0,($FFFFFAC6).w
+		move.b	d2,(word_FAC4).w
+		move.l	a0,(word_FAC6).w
 		move.w	d5,d0
 		move.w	(sp)+,d1
 		cmp.w	d1,d0
@@ -12624,15 +12682,15 @@ loc_C3B4:
 		move.l	d3,-(sp)
 		move.w	d2,-(sp)
 		move.w	d5,-(sp)
-		move.b	d2,($FFFFFAC5).w
-		move.l	a0,($FFFFFACA).w
+		move.b	d2,(word_FAC4+1).w
+		move.l	a0,(lword_FACA).w
 		moveq	#0,d2
 		move.b	$22(a6),d2
 		add.w	d2,d0
 		add.w	d2,d0
 		bsr.w	sub_C116
-		move.b	d2,($FFFFFAC4).w
-		move.l	a0,($FFFFFAC6).w
+		move.b	d2,(word_FAC4).w
+		move.l	a0,(word_FAC6).w
 		move.w	d5,d0
 		move.w	(sp)+,d1
 		cmp.w	d1,d0
@@ -12674,15 +12732,15 @@ loc_C428:
 		move.l	d3,-(sp)
 		move.w	d2,-(sp)
 		move.w	d5,-(sp)
-		move.b	d2,($FFFFFAC5).w
-		move.l	a0,($FFFFFACA).w
+		move.b	d2,(word_FAC4+1).w
+		move.l	a0,(lword_FACA).w
 		moveq	#0,d2
 		move.b	$23(a6),d2
 		add.w	d2,d1
 		add.w	d2,d1
 		bsr.w	sub_C048
-		move.b	d2,($FFFFFAC4).w
-		move.l	a0,($FFFFFAC6).w
+		move.b	d2,(word_FAC4).w
+		move.l	a0,(word_FAC6).w
 		move.w	d5,d0
 		move.w	(sp)+,d1
 		cmp.w	d1,d0
@@ -12717,7 +12775,7 @@ loc_C48E:
 sub_C49A:
 		move.w	$24(a6),d4
 		andi.w	#2,d4
-		move.b	#8,($FFFFFAE8).w
+		move.b	#8,(byte_FAE8).w
 		move.b	obj.Angle(a6),d0
 		addi.b	#$20,d0
 		andi.w	#$40,d0
@@ -12904,7 +12962,7 @@ loc_C632:
 sub_C636:
 		tst.l	$1C(a6)
 		bpl.w	loc_C68A
-		move.b	#8,($FFFFFAE8).w
+		move.b	#8,(byte_FAE8).w
 		moveq	#0,d0
 		move.b	$22(a6),d0
 		neg.w	d0
@@ -12939,7 +12997,7 @@ loc_C686:
 ; ---------------------------------------------------------------------------
 
 loc_C68A:
-		move.b	#$A,($FFFFFAE8).w
+		move.b	#$A,(byte_FAE8).w
 		moveq	#0,d0
 		move.b	$22(a6),d0
 		add.w	8(a6),d0
@@ -13054,7 +13112,7 @@ loc_C76C:
 		bne.w	loc_C7BC
 		cmpi.b	#$A,7(a6)
 		beq.s	loc_C7BC
-		move.w	($FFFFFAE0).w,d0
+		move.w	(word_FAE0).w,d0
 		cmpi.w	#$10,d0
 		bcc.s	loc_C7BC
 		movea.w	(word_D864).w,a0
@@ -13122,6 +13180,7 @@ loc_C832:
 		move.l	a3,obj.Map(a6)
 		rts
 ; ---------------------------------------------------------------------------
+
 CharacterDataTable_Levels:
         dc.l ANI_Sonic
 		dc.l ANI_Tails
@@ -13192,20 +13251,20 @@ sub_C8CA:
 		move.w	(word_D81E).w,d1
 		addi.w	#$D12,d1
 		jsr	(sub_5090).l
-		move.w	($FFFFFAC0).w,d0
+		move.w	(word_FAC0).w,d0
 		move.w	(word_D81E).w,d1
 		addi.w	#$C9C,d1
 		jsr	(sub_5090).l
-		move.w	($FFFFFAC2).w,d0
+		move.w	(word_FAC2).w,d0
 		move.w	(word_D81E).w,d1
 		addi.w	#$CA6,d1
 		jsr	(sub_5090).l
-		movea.l	($FFFFFAC6).w,a0
+		movea.l	(word_FAC6).w,a0
 		move.w	(a0),d0
 		move.w	(word_D81E).w,d1
 		addi.w	#$D1C,d1
 		jsr	(sub_5090).l
-		movea.l	($FFFFFACA).w,a0
+		movea.l	(lword_FACA).w,a0
 		move.w	(a0),d0
 		move.w	(word_D81E).w,d1
 		addi.w	#$D26,d1
@@ -13264,6 +13323,7 @@ loc_CA16:
 ; End of function sub_C9DE
 
 ; ---------------------------------------------------------------------------
+
 loc_CA2C:
 		dc.w $0000
 		dc.w $0420
@@ -13614,7 +13674,7 @@ sub_CCCA:
 		add.l	d2,d1
 		move.l	d1,d0
 		jsr	(sub_42A0).w
-		move.w	d0,($FFFFFAE0).w
+		move.w	d0,(word_FAE0).w
 		move.w	d0,d3
 		sub.w	(a2),d3
 		bmi.w	loc_CEF2
@@ -13856,7 +13916,9 @@ locret_CF8E:
 ; End of function sub_CCCA
 
 ; ---------------------------------------------------------------------------
-loc_CF90:	dc.w $5C2
+
+loc_CF90:
+		dc.w $5C2
 		dc.w $5C2
 		dc.w $5C6
 		dc.w $5C6
@@ -13888,138 +13950,8 @@ loc_CF90:	dc.w $5C2
 		dc.w $FFFF
 		dc.w $FFFF
 		dc.w $FFFF
-loc_CFD0:	dc.b   0
-		dc.b $80
-		dc.b   0
-		dc.b $7F
-		dc.b   0
-		dc.b   2
-		dc.b   4
-		dc.b   6
-		dc.b   8
-		dc.b  $A
-		dc.b  $C
-		dc.b  $E
-		dc.b $10
-		dc.b $12
-		dc.b $14
-		dc.b $16
-		dc.b $18
-		dc.b $1A
-		dc.b $1C
-		dc.b $1E
-		dc.b $20
-		dc.b $22
-		dc.b $24
-		dc.b $26
-		dc.b $28
-		dc.b $2A
-		dc.b $2C
-		dc.b $2E
-		dc.b $30
-		dc.b $32
-		dc.b $34
-		dc.b $36
-		dc.b $38
-		dc.b $3A
-		dc.b $3C
-		dc.b $3E
-		dc.b $40
-		dc.b $42
-		dc.b $44
-		dc.b $46
-		dc.b $48
-		dc.b $4A
-		dc.b $4C
-		dc.b $4E
-		dc.b $50
-		dc.b $52
-		dc.b $54
-		dc.b $56
-		dc.b $58
-		dc.b $5A
-		dc.b $5C
-		dc.b $5E
-		dc.b $60
-		dc.b $62
-		dc.b $64
-		dc.b $66
-		dc.b $68
-		dc.b $6A
-		dc.b $6C
-		dc.b $6E
-		dc.b $70
-		dc.b $72
-		dc.b $74
-		dc.b $76
-		dc.b $78
-		dc.b $7A
-		dc.b $7C
-		dc.b $7E
-		dc.b $80
-		dc.b $82
-		dc.b $84
-		dc.b $86
-		dc.b $88
-		dc.b $8A
-		dc.b $8C
-		dc.b $8E
-		dc.b $90
-		dc.b $92
-		dc.b $94
-		dc.b $96
-		dc.b $98
-		dc.b $9A
-		dc.b $9C
-		dc.b $9E
-		dc.b $A0
-		dc.b $A2
-		dc.b $A4
-		dc.b $A6
-		dc.b $A8
-		dc.b $AA
-		dc.b $AC
-		dc.b $AE
-		dc.b $B0
-		dc.b $B2
-		dc.b $B4
-		dc.b $B6
-		dc.b $B8
-		dc.b $BA
-		dc.b $BC
-		dc.b $BE
-		dc.b $C0
-		dc.b $C2
-		dc.b $C4
-		dc.b $C6
-		dc.b $C8
-		dc.b $CA
-		dc.b $CC
-		dc.b $CE
-		dc.b $D0
-		dc.b $D2
-		dc.b $D4
-		dc.b $D6
-		dc.b $D8
-		dc.b $DA
-		dc.b $DC
-		dc.b $DE
-		dc.b $E0
-		dc.b $E2
-		dc.b $E4
-		dc.b $E6
-		dc.b $E8
-		dc.b $EA
-		dc.b $EC
-		dc.b $EE
-		dc.b $F0
-		dc.b $F2
-		dc.b $F4
-		dc.b $F6
-		dc.b $F8
-		dc.b $FA
-		dc.b $FC
-		dc.b $FE
+
+loc_CFD0:
 		dc.b   0
 		dc.b $80
 		dc.b   0
@@ -14292,7 +14224,7 @@ loc_CFD0:	dc.b   0
 		dc.b   2
 		dc.b   4
 		dc.b   6
-unk_D164:	dc.b   8
+		dc.b   8
 		dc.b  $A
 		dc.b  $C
 		dc.b  $E
@@ -14324,7 +14256,143 @@ unk_D164:	dc.b   8
 		dc.b $42
 		dc.b $44
 		dc.b $46
-unk_D184:	dc.b $48
+		dc.b $48
+		dc.b $4A
+		dc.b $4C
+		dc.b $4E
+		dc.b $50
+		dc.b $52
+		dc.b $54
+		dc.b $56
+		dc.b $58
+		dc.b $5A
+		dc.b $5C
+		dc.b $5E
+		dc.b $60
+		dc.b $62
+		dc.b $64
+		dc.b $66
+		dc.b $68
+		dc.b $6A
+		dc.b $6C
+		dc.b $6E
+		dc.b $70
+		dc.b $72
+		dc.b $74
+		dc.b $76
+		dc.b $78
+		dc.b $7A
+		dc.b $7C
+		dc.b $7E
+		dc.b $80
+		dc.b $82
+		dc.b $84
+		dc.b $86
+		dc.b $88
+		dc.b $8A
+		dc.b $8C
+		dc.b $8E
+		dc.b $90
+		dc.b $92
+		dc.b $94
+		dc.b $96
+		dc.b $98
+		dc.b $9A
+		dc.b $9C
+		dc.b $9E
+		dc.b $A0
+		dc.b $A2
+		dc.b $A4
+		dc.b $A6
+		dc.b $A8
+		dc.b $AA
+		dc.b $AC
+		dc.b $AE
+		dc.b $B0
+		dc.b $B2
+		dc.b $B4
+		dc.b $B6
+		dc.b $B8
+		dc.b $BA
+		dc.b $BC
+		dc.b $BE
+		dc.b $C0
+		dc.b $C2
+		dc.b $C4
+		dc.b $C6
+		dc.b $C8
+		dc.b $CA
+		dc.b $CC
+		dc.b $CE
+		dc.b $D0
+		dc.b $D2
+		dc.b $D4
+		dc.b $D6
+		dc.b $D8
+		dc.b $DA
+		dc.b $DC
+		dc.b $DE
+		dc.b $E0
+		dc.b $E2
+		dc.b $E4
+		dc.b $E6
+		dc.b $E8
+		dc.b $EA
+		dc.b $EC
+		dc.b $EE
+		dc.b $F0
+		dc.b $F2
+		dc.b $F4
+		dc.b $F6
+		dc.b $F8
+		dc.b $FA
+		dc.b $FC
+		dc.b $FE
+		dc.b   0
+		dc.b $80
+		dc.b   0
+		dc.b $7F
+		dc.b   0
+		dc.b   2
+		dc.b   4
+		dc.b   6
+
+unk_D164:
+		dc.b   8
+		dc.b  $A
+		dc.b  $C
+		dc.b  $E
+		dc.b $10
+		dc.b $12
+		dc.b $14
+		dc.b $16
+		dc.b $18
+		dc.b $1A
+		dc.b $1C
+		dc.b $1E
+		dc.b $20
+		dc.b $22
+		dc.b $24
+		dc.b $26
+		dc.b $28
+		dc.b $2A
+		dc.b $2C
+		dc.b $2E
+		dc.b $30
+		dc.b $32
+		dc.b $34
+		dc.b $36
+		dc.b $38
+		dc.b $3A
+		dc.b $3C
+		dc.b $3E
+		dc.b $40
+		dc.b $42
+		dc.b $44
+		dc.b $46
+
+unk_D184:
+		dc.b $48
 		dc.b $4A
 		dc.b $4C
 		dc.b $4E
@@ -15821,19 +15889,25 @@ loc_E28C:
 locret_E296:
 		rts
 ; ---------------------------------------------------------------------------
-word_E298:	dc.w $601
+
+word_E298:
+		dc.w $601
 		dc.w $602
 		dc.w $600
 		dc.w $82FF
 		dc.w $100
 		dc.w $8080
-word_E2A4:	dc.w $601
+
+word_E2A4:
+		dc.w $601
 		dc.w $602
 		dc.w $600
 		dc.w $82FF
 		dc.w $100
 		dc.w $8080
-word_E2B0:	dc.w $601
+
+word_E2B0:
+		dc.w $601
 		dc.w $802
 		dc.w $600
 		dc.w $82FF
@@ -15887,6 +15961,7 @@ loc_E32C:
 		bset	#7,5(a6)
 		rts
 ; ---------------------------------------------------------------------------
+
 Scattering_Rings_Mappings:
 ;	mappings 1
 		dc.b 5,$F8
@@ -15932,6 +16007,7 @@ Path_Swapper:
 		addq.b	#1,$28(a6)
 		bra.s	loc_E37C
 ; ---------------------------------------------------------------------------
+
 word_E376:
 		dc.b $F,$F0
 		dc.w $8001
@@ -16073,6 +16149,7 @@ Path_Swapper_2:
 		addq.b	#1,$28(a6)
 		bra.s	loc_E480
 ; ---------------------------------------------------------------------------
+
 word_E47A:
 		dc.b $F,$F0
 		dc.w $8001
@@ -17021,6 +17098,7 @@ loc_ECCE:
 locret_ECE4:
 		rts
 ; ---------------------------------------------------------------------------
+
 unk_ECE6:
 		dc.b   0
 		dc.b   2
@@ -17168,7 +17246,9 @@ loc_EDC6:
 locret_EDE2:
 		rts
 ; ---------------------------------------------------------------------------
-word_EDE4:	dc.w $E
+
+word_EDE4:
+		dc.w $E
 		dc.w $C
 		dc.w $A
 		dc.w 8
@@ -17176,13 +17256,17 @@ word_EDE4:	dc.w $E
 		dc.w 8
 		dc.w $A
 		dc.w $C
-word_EDF4:	dc.w $A66
+
+word_EDF4:
+		dc.w $A66
 		dc.w $C66
 		dc.w $C86
 		dc.w $C88
 		dc.w $A88
 		dc.w $A68
-word_EE00:	dc.w $C88
+
+word_EE00:
+		dc.w $C88
 		dc.w $C86
 		dc.w $C66
 		dc.w $A66
@@ -17211,11 +17295,15 @@ loc_EE0C:
 locret_EE4A:
 		rts
 ; ---------------------------------------------------------------------------
-word_EE4C:	dc.w $800
+
+word_EE4C:
+		dc.w $800
 		dc.w $820
 		dc.w $840
 		dc.w $820
-word_EE54:	dc.w $840
+
+word_EE54:
+		dc.w $840
 		dc.w $820
 		dc.w $800
 		dc.w $820
@@ -17252,7 +17340,9 @@ loc_EE86:
 locret_EEB8:
 		rts
 ; ---------------------------------------------------------------------------
-word_EEBA:	dc.w $E
+
+word_EEBA:
+		dc.w $E
 		dc.w $C
 		dc.w $A
 		dc.w 8
@@ -17260,11 +17350,15 @@ word_EEBA:	dc.w $E
 		dc.w 8
 		dc.w $A
 		dc.w $C
-word_EECA:	dc.w $828
+
+word_EECA:
+		dc.w $828
 		dc.w $628
 		dc.w $62A
 		dc.w $82A
-word_EED2:	dc.w $62A
+
+word_EED2:
+		dc.w $62A
 		dc.w $82A
 		dc.w $828
 		dc.w $628
@@ -17301,7 +17395,9 @@ loc_EF04:
 locret_EF36:
 		rts
 ; ---------------------------------------------------------------------------
-word_EF38:	dc.w $E
+
+word_EF38:
+		dc.w $E
 		dc.w $C
 		dc.w $A
 		dc.w 8
@@ -17309,11 +17405,15 @@ word_EF38:	dc.w $E
 		dc.w 8
 		dc.w $A
 		dc.w $C
-word_EF48:	dc.w $200
+
+word_EF48:
+		dc.w $200
 		dc.w $400
 		dc.w $600
 		dc.w $400
-word_EF50:	dc.w $600
+
+word_EF50:
+		dc.w $600
 		dc.w $400
 		dc.w $200
 		dc.w $400
@@ -17345,7 +17445,9 @@ loc_EF7E:
 locret_EFA2:
 		rts
 ; ---------------------------------------------------------------------------
-word_EFA4:	dc.w $EE
+
+word_EFA4:
+		dc.w $EE
 		dc.w $AC
 		dc.w $68
 		dc.w $46
@@ -17353,7 +17455,9 @@ word_EFA4:	dc.w $EE
 		dc.w $46
 		dc.w $68
 		dc.w $AC
-word_EFB4:	dc.w $6A
+
+word_EFB4:
+		dc.w $6A
 		dc.w $48
 		dc.w $24
 		dc.w $22
@@ -17361,7 +17465,9 @@ word_EFB4:	dc.w $6A
 		dc.w $22
 		dc.w $24
 		dc.w $48
-word_EFC4:	dc.w $2E
+
+word_EFC4:
+		dc.w $2E
 		dc.w $A
 		dc.w 6
 		dc.w 4
@@ -17398,6 +17504,7 @@ loc_EFF8:
 loc_F00A:
 		bra.w	loc_F0DE
 ; ---------------------------------------------------------------------------
+
 loc_F00E:
 		dc.w $90
 		dc.w $D01
@@ -17508,7 +17615,7 @@ loc_F00E:
 loc_F0DE:
 		disable_ints
 		move.l	#ArtUnc_HUD,d0
-		move.w	#$A000,d1
+		move.w	#$500*$20,d1
 		move.w	#$800,d2
 		jsr	(DMA_WriteData).w
 		move.l	#$7F000003,(vdp_control_port).l
@@ -17924,7 +18031,6 @@ loc_F462:
 		bra.w	loc_F4D8
 ; End of function sub_F45C
 
-; ---------------------------------------------------------------------------
 		rts
 
 ; =============== S U B	R O U T	I N E =======================================
@@ -17945,6 +18051,7 @@ sub_F472:
 ; End of function sub_F472
 
 ; ---------------------------------------------------------------------------
+
 TitleCardBG_TileLocationArray:
 		dc.w $40
 		dc.l TCBG_Tile2
@@ -17970,11 +18077,11 @@ TitleCardBG_TileLocationArray:
 		dc.l TCBG_TileC
 		dc.w $1E0
 		dc.l TCBG_TileD
-TitleCardBG_TileLocationArray_End
+TitleCardBG_TileLocationArray_End:
 ; ---------------------------------------------------------------------------
 
 loc_F4D8:
-		move.b	#1,($FFFFFDC2).w
+		move.b	#1,(byte_FDC2).w
 		bsr.w	sub_F4E4
 		rts
 
@@ -17982,12 +18089,12 @@ loc_F4D8:
 
 
 sub_F4E4:
-		clr.w	($FFFFFDC4).w
-		clr.w	($FFFFFDC6).w
-		clr.w	($FFFFFDC8).w
-		clr.w	($FFFFFDCA).w
-		clr.w	($FFFFFDCC).w
-		clr.w	($FFFFFDCE).w
+		clr.w	(word_FDC4).w
+		clr.w	(word_FDC6).w
+		clr.w	(word_FDC8).w
+		clr.w	(word_FDCA).w
+		clr.w	(word_FDCC).w
+		clr.w	(word_FDCE).w
 		rts
 ; End of function sub_F4E4
 
@@ -18001,7 +18108,7 @@ sub_F4FE:
 .wait:
 		tst.b	(v_lagger).w
 		bpl.s	.wait
-		move.w	($FFFFFDC4).w,d0
+		move.w	(word_FDC4).w,d0
 		cmpi.w	#$14,d0
 		bge.s	locret_F536
 		jsr	loc_F520(pc,d0.w)
@@ -18040,15 +18147,15 @@ sub_F538:
 		bpl.s	.wait
 		jsr	(ReadCtrlInput).w
 		jsr	(BuildSprites).w
-		tst.b	($FFFFFDC2).w
+		tst.b	(byte_FDC2).w
 		beq.s	loc_F562
 		btst	#bitStart,(unk_C93D).w
 		beq.s	sub_F538
-		clr.b	($FFFFFDC2).w
-		clr.w	($FFFFFDC4).w
+		clr.b	(byte_FDC2).w
+		clr.w	(word_FDC4).w
 
 loc_F562:
-		move.w	($FFFFFDC4).w,d0
+		move.w	(word_FDC4).w,d0
 		cmpi.w	#$14,d0
 		bge.s	locret_F58A
 		jsr	loc_F574(pc,d0.w)
@@ -18088,30 +18195,27 @@ sub_F58C:
 ; End of function sub_F58C
 
 ; ---------------------------------------------------------------------------
-; START	OF FUNCTION CHUNK FOR sub_F4FE
 
 loc_F59E:
-		addq.w	#2,($FFFFFDC6).w
+		addq.w	#2,(word_FDC6).w
 		moveq	#$40,d0
-		move.w	($FFFFFDC6).w,d1
+		move.w	(word_FDC6).w,d1
 		move.w	#$8003,d2
 		move.w	(word_D816).w,d3
 		jsr	(sub_86E).w
-		cmpi.w	#$20,($FFFFFDC6).w
+		cmpi.w	#$20,(word_FDC6).w
 		ble.s	locret_F5C0
-		addq.w	#4,($FFFFFDC4).w
+		addq.w	#4,(word_FDC4).w
 
 locret_F5C0:
 		rts
-; END OF FUNCTION CHUNK	FOR sub_F4FE
 ; ---------------------------------------------------------------------------
-; START	OF FUNCTION CHUNK FOR sub_F538
 
 loc_F5C2:
-		subq.w	#2,($FFFFFDC6).w
-		tst.w	($FFFFFDC6).w
+		subq.w	#2,(word_FDC6).w
+		tst.w	(word_FDC6).w
 		bge.s	loc_F5D8
-		addq.w	#4,($FFFFFDC4).w
+		addq.w	#4,(word_FDC4).w
 		move.w	(word_CA3C).w,(word_C9FC).w
 		rts
 ; ---------------------------------------------------------------------------
@@ -18123,7 +18227,7 @@ loc_F5D8:
 		movea.l	a1,a5
 		movea.l	a3,a0
 		_move.w	0(a1),d0
-		move.w	($FFFFFDC6).w,d1
+		move.w	(word_FDC6).w,d1
 		lsl.w	#3,d1
 		add.w	$10(a1),d1
 		move.w	$18(a1),d4
@@ -18133,40 +18237,38 @@ loc_F5D8:
 		jsr	(sub_14E4).w
 		move.w	#$2000,sr
 		rts
-; END OF FUNCTION CHUNK	FOR sub_F538
 ; ---------------------------------------------------------------------------
-; START	OF FUNCTION CHUNK FOR sub_F4FE
 
 loc_F612:
-		addq.w	#2,($FFFFFDC8).w
+		addq.w	#2,(word_FDC8).w
 		moveq	#2,d0
 		moveq	#5,d1
 		move.w	#$8004,d2
 		moveq	#$28,d3
-		sub.w	($FFFFFDC8).w,d3
+		sub.w	(word_FDC8).w,d3
 		lsl.w	#1,d3
 		add.w	(word_D816).w,d3
 		jsr	(sub_86E).w
-		cmpi.w	#$28,($FFFFFDC8).w
+		cmpi.w	#$28,(word_FDC8).w
 		blt.s	locret_F63A
-		addq.w	#4,($FFFFFDC4).w
+		addq.w	#4,(word_FDC4).w
 
 locret_F63A:
 		rts
 ; ---------------------------------------------------------------------------
 
 loc_F63C:
-		subq.w	#2,($FFFFFDC8).w
-		tst.w	($FFFFFDC8).w
+		subq.w	#2,(word_FDC8).w
+		tst.w	(word_FDC8).w
 		bge.s	loc_F652
-		addq.w	#4,($FFFFFDC4).w
+		addq.w	#4,(word_FDC4).w
 		move.w	#$104,(word_C9FC).w
 		rts
 ; ---------------------------------------------------------------------------
 
 loc_F652:
 		moveq	#$28,d0
-		sub.w	($FFFFFDC8).w,d0
+		sub.w	(word_FDC8).w,d0
 		moveq	#5,d1
 		move.w	#$8003,d2
 		move.w	(word_D816).w,d3
@@ -18175,16 +18277,16 @@ loc_F652:
 ; ---------------------------------------------------------------------------
 
 loc_F668:
-		addq.w	#1,($FFFFFDCA).w
-		move.w	($FFFFFDCA).w,d0
+		addq.w	#1,(word_FDCA).w
+		move.w	(word_FDCA).w,d0
 		moveq	#$1C,d1
 		move.w	#$8005,d2
 		move.w	(word_D816).w,d3
 		move.w	d3,-(sp)
 		jsr	(sub_86E).w
 		move.w	(sp)+,d3
-		add.w	($FFFFFDCA).w,d3
-		add.w	($FFFFFDCA).w,d3
+		add.w	(word_FDCA).w,d3
+		add.w	(word_FDCA).w,d3
 		move.l	#$800B800C,d0
 		moveq	#5,d1
 		move.w	d3,-(sp)
@@ -18194,19 +18296,19 @@ loc_F668:
 		moveq	#$17,d1
 		addi.w	#$280,d3
 		bsr.w	sub_F904
-		cmpi.w	#9,($FFFFFDCA).w
+		cmpi.w	#9,(word_FDCA).w
 		blt.s	locret_F6B6
-		addq.w	#4,($FFFFFDC4).w
+		addq.w	#4,(word_FDC4).w
 
 locret_F6B6:
 		rts
 ; ---------------------------------------------------------------------------
 
 loc_F6B8:
-		subq.w	#1,($FFFFFDCA).w
-		cmpi.w	#$FFFF,($FFFFFDCA).w
+		subq.w	#1,(word_FDCA).w
+		cmpi.w	#$FFFF,(word_FDCA).w
 		bge.s	loc_F6CA
-		addq.w	#4,($FFFFFDC4).w
+		addq.w	#4,(word_FDC4).w
 		rts
 ; ---------------------------------------------------------------------------
 
@@ -18214,9 +18316,9 @@ loc_F6CA:
 		moveq	#1,d0
 		moveq	#5,d1
 		move.w	#$8004,d2
-		move.w	($FFFFFDCA).w,d3
+		move.w	(word_FDCA).w,d3
 		addq.w	#1,d3
-		lsl.w	#1,d3
+		lsl.w	#1,d3				; this could be improved by using "add.w	d3,d3"
 		add.w	(word_D816).w,d3
 		movem.w	d0/d3,-(sp)
 		jsr	(sub_86E).w
@@ -18241,11 +18343,11 @@ loc_F6CA:
 ; ---------------------------------------------------------------------------
 
 loc_F720:
-		addq.w	#1,($FFFFFDCC).w
+		addq.w	#1,(word_FDCC).w
 		moveq	#1,d0
 		moveq	#$28,d3
-		sub.w	($FFFFFDCC).w,d3
-		lsl.w	#1,d3
+		sub.w	(word_FDCC).w,d3
+		lsl.w	#1,d3				; this could be improved by using "add.w	d3,d3"
 		add.w	(word_D816).w,d3
 		moveq	#5,d1
 		move.w	#$8007,d2
@@ -18269,7 +18371,7 @@ loc_F720:
 		jsr	(sub_86E).w
 		moveq	#1,d1
 		moveq	#$1C,d3
-		sub.w	($FFFFFDCC).w,d3
+		sub.w	(word_FDCC).w,d3
 		lsl.w	#7,d3
 		add.w	(word_D816).w,d3
 		moveq	#9,d0
@@ -18292,27 +18394,27 @@ loc_F720:
 		move.w	#$8008,d2
 		addi.w	#$30,d3
 		jsr	(sub_86E).w
-		cmpi.w	#6,($FFFFFDCC).w
+		cmpi.w	#6,(word_FDCC).w
 		blt.s	locret_F7E6
-		cmpi.w	#6,($FFFFFDCC).w
+		cmpi.w	#6,(word_FDCC).w
 		blt.s	locret_F7E6
-		addq.w	#4,($FFFFFDC4).w
+		addq.w	#4,(word_FDC4).w
 
 locret_F7E6:
 		rts
 ; ---------------------------------------------------------------------------
 
 loc_F7E8:
-		subq.w	#1,($FFFFFDCC).w
-		tst.w	($FFFFFDCC).w
+		subq.w	#1,(word_FDCC).w
+		tst.w	(word_FDCC).w
 		bge.s	loc_F7F8
-		addq.w	#4,($FFFFFDC4).w
+		addq.w	#4,(word_FDC4).w
 		rts
 ; ---------------------------------------------------------------------------
 
 loc_F7F8:
 		moveq	#6,d0
-		sub.w	($FFFFFDCC).w,d0
+		sub.w	(word_FDCC).w,d0
 		move.w	(word_D816).w,d3
 		addi.w	#$44,d3
 		moveq	#5,d1
@@ -18327,11 +18429,11 @@ loc_F7F8:
 		jsr	(sub_86E).w
 		movem.w	(sp)+,d0/d2-d3
 		moveq	#$13,d1
-		sub.w	($FFFFFDCC).w,d1
+		sub.w	(word_FDCC).w,d1
 		addi.w	#$480,d3
 		jsr	(sub_86E).w
 		moveq	#6,d1
-		sub.w	($FFFFFDCC).w,d1
+		sub.w	(word_FDCC).w,d1
 		move.w	(word_D816).w,d3
 		addi.w	#$B00,d3
 		moveq	#9,d0
@@ -18353,29 +18455,29 @@ loc_F7F8:
 ; ---------------------------------------------------------------------------
 
 loc_F884:
-		addq.w	#3,($FFFFFDCE).w
+		addq.w	#3,(word_FDCE).w
 		moveq	#3,d0
 		moveq	#2,d1
 		move.w	#$800A,d2
 		moveq	#$28,d3
-		sub.w	($FFFFFDCE).w,d3
+		sub.w	(word_FDCE).w,d3
 		lsl.w	#1,d3
 		addi.w	#$380,d3
 		add.w	(word_D816).w,d3
 		jsr	(sub_86E).w
-		cmpi.w	#$21,($FFFFFDCE).w
+		cmpi.w	#$21,(word_FDCE).w
 		blt.s	locret_F8B0
-		addq.w	#4,($FFFFFDC4).w
+		addq.w	#4,(word_FDC4).w
 
 locret_F8B0:
 		rts
 ; ---------------------------------------------------------------------------
 
 loc_F8B2:
-		subq.w	#3,($FFFFFDCE).w
-		tst.w	($FFFFFDCE).w
+		subq.w	#3,(word_FDCE).w
+		tst.w	(word_FDCE).w
 		bge.s	loc_F8C2
-		addq.w	#4,($FFFFFDC4).w
+		addq.w	#4,(word_FDC4).w
 		rts
 ; ---------------------------------------------------------------------------
 
@@ -18385,7 +18487,7 @@ loc_F8C2:
 		addi.w	#$380,d3
 		addi.w	#$E,d3
 		moveq	#$1E,d0
-		sub.w	($FFFFFDCE).w,d0
+		sub.w	(word_FDCE).w,d0
 		bne.s	loc_F8F8
 		moveq	#2,d0
 		move.w	#$8005,d2
@@ -18403,7 +18505,6 @@ loc_F8F8:
 		addq.w	#6,d3
 		jsr	(sub_86E).w
 		rts
-; END OF FUNCTION CHUNK	FOR sub_F538
 
 ; =============== S U B	R O U T	I N E =======================================
 
@@ -18442,7 +18543,6 @@ sub_F94A:
 		rts
 ; End of function sub_F94A
 
-; ---------------------------------------------------------------------------
 		rts
 
 ; =============== S U B	R O U T	I N E =======================================
@@ -18457,7 +18557,9 @@ Level_AnimateBG:
 ; End of function Level_AnimateBG
 
 ; ---------------------------------------------------------------------------
-loc_F964:	dc.w locret_FA0A-loc_F964
+
+loc_F964:
+		dc.w locret_FA0A-loc_F964
 		dc.w loc_FA0C-loc_F964
 		dc.w locret_FA0A-loc_F964
 		dc.w locret_FA0A-loc_F964
@@ -18537,6 +18639,7 @@ locret_FA04:
 
 word_FA06:
 		dc.w	$C9FA,$CA3A
+
 locret_FA0A:
 		rts
 ; ---------------------------------------------------------------------------
@@ -18545,6 +18648,7 @@ loc_FA0C:
 		lea	TTZ_AniTileLocs(pc),a0
 		bra.w	loc_F974
 ; ---------------------------------------------------------------------------
+
 TTZ_AniTileLocs:
 		dc.w $10
 		dc.w $23E0
@@ -18785,7 +18889,7 @@ Music86:	include	"Sound/Music/Mus86 - Game Over.asm"
 ; ---------------------------------------------------------------------------
 ; Align to $00016000, Unknown Data
 ; ---------------------------------------------------------------------------
-	align $1000
+		align $1000
 ; ---------------------------------------------------------------------------
 ; Data Location (00016000 - 00016703)
 ; Striped out
@@ -18877,28 +18981,31 @@ SoundAF:	include	"Sound/SFX/SndAF.asm"
 ; Striped out
 ; UnkData_0001FB62:
 		binclude	"UnknownCodes/UnknownData_0001FB62.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Align to $00020000, PCM Voice Data
 ; ---------------------------------------------------------------------------
 DACBank:	startBank
 DAC_Sample1:	binclude	"Sound/DAC/Kick.dpcm"	; DAC 81 (Beat Sample)
-DAC_Sample1_End:even
+DAC_Sample1_End:
+		even
 DAC_Sample2:	binclude	"Sound/DAC/Snare.dpcm"	; DAC 82 (Snare Sample)
-DAC_Sample2_End:even
+DAC_Sample2_End:
+		even
 DAC_Sample3:	binclude	"Sound/DAC/Tom.dpcm"	; DAC 83-85 [Hi to Low pitches] (Timpani/Tom-beat Sample)
-DAC_Sample3_End:even
+DAC_Sample3_End:
+		even
 ; ---------------------------------------------------------------------------
 ; these two samples can be heard when note 86 and 87 are triggered in music
 ; (however they are not used in any of the regular music)
 ; ---------------------------------------------------------------------------
 DAC_Sample4:	binclude	"Sound/DAC/Let's Go.dpcm" ; DAC 86 (Unknown voice: "Lets Go" or "Ley'k Go" in Japanese accent)
-DAC_Sample4_End:even
+DAC_Sample4_End:
+		even
 DAC_Sample5:	binclude	"Sound/DAC/Hey.dpcm"	; DAC 87 (Unknown voice: "Hey!" or "Hez!" in Japanese accent)
-DAC_Sample5_End:even
+DAC_Sample5_End:
+		even
 		finishBank
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Unknown Data
@@ -18907,7 +19014,6 @@ DAC_Sample5_End:even
 ; Striped out
 ; UnkData_000244A2:
 		binclude	"UnknownCodes/UnknownData_000244A2.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Unknown Data
@@ -18916,7 +19022,6 @@ DAC_Sample5_End:even
 ; Striped out
 ; UnkData_000247F0:
 		binclude	"UnknownCodes/UnknownData_000247F0.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Unknown Data
@@ -18925,7 +19030,6 @@ DAC_Sample5_End:even
 ; Striped out
 ; UnkData_0002600A:
 		binclude	"UnknownCodes/UnknownData_0002600A.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Unknown Data
@@ -18934,7 +19038,6 @@ DAC_Sample5_End:even
 ; Striped out
 ; UnkData_00028845:
 		binclude	"UnknownCodes/UnknownData_00028845.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Unknown Data
@@ -18943,112 +19046,91 @@ DAC_Sample5_End:even
 ; Striped out
 ; UnkData_0002A223:
 		binclude	"UnknownCodes/UnknownData_0002A223.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Align to $0002C000, Unknown Data
 ; ---------------------------------------------------------------------------
-	align $2000
+		align $2000
 ; ---------------------------------------------------------------------------
 ; Data Location (0002C000 - 0002D1FF)
 ; Striped out
 ; UnkData_0002C000:
 		binclude	"UnknownCodes/UnknownData_0002C000.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Align to $00030000, Used Multiple Data
 ; ---------------------------------------------------------------------------
-	align $8000
-; ---------------------------------------------------------------------------
+		align $8000
+
 ArtUnc_HUD:
 		binclude	"artunc/Hud.bin"		; Hud Patterns
 		even
-; ---------------------------------------------------------------------------
 ARTNEM_RingTetherStarsUnused:
 		binclude	"artnem/Unused - Ring Tether Stars.nem" ; unused Ring tether stars
 		even
-; ---------------------------------------------------------------------------
+
 ARTNEM_SSZ8x8_FG:
 		binclude	"artnem/8x8 - SSZ FG.nem"	; 8x8 tiles for SSZ FG
 		even
-; ---------------------------------------------------------------------------
 MAPENI_SSZ16x16_FG:
 		binclude	"map16/SSZ FG.eni"		; 16x16 blocks for SSZ FG
 		even
-; ---------------------------------------------------------------------------
 MAPENI_SSZ128x128_FG:
 		binclude	"map128/SSZ FG.eni"		; 128x128 chunks for SSZ FG
 		even
-; ---------------------------------------------------------------------------
 MAPENI_SSZLayout_FG:
 		binclude	"levels/SSZ FG.eni"		; Layout for SSZ FG
 		even
-; ---------------------------------------------------------------------------
 COL_SSZPrimary:
-		binclude	"collide/ColSSZPrimary.bin"	; Primary Collisions for SSZ
+		binclude	"collide/SSZ Primary.bin"	; Primary Collisions for SSZ
 		even
-; ---------------------------------------------------------------------------
 COL_SSZSecondary:
-		binclude	"collide/ColSSZSecondary.bin"	; Secondary Collisions for SSZ
+		binclude	"collide/SSZ Secondary.bin"	; Secondary Collisions for SSZ
 		even
-; ---------------------------------------------------------------------------
 ARTNEM_SSZ8x8_BG:
 		binclude	"artnem/8x8 - SSZ BG.nem"	; 8x8 tiles for SSZ BG
 		even
-; ---------------------------------------------------------------------------
 MAPENI_SSZ16x16_BG:
 		binclude	"map16/SSZ BG.eni"		; 16x16 blocks for SSZ BG
 		even
-; ---------------------------------------------------------------------------
 MAPENI_SSZ128x128_BG:
 		binclude	"map128/SSZ BG.eni"		; 128x128 chunks for SSZ BG
 		even
-; ---------------------------------------------------------------------------
 MAPENI_SSZLayout_BG:
 		binclude	"levels/SSZ BG.eni"		; Layout for SSZ BG
 		even
-; ---------------------------------------------------------------------------
+
 ARTNEM_TTZ8x8_FG:
 		binclude	"artnem/8x8 - TTZ FG.nem"	; 8x8 tiles for TTZ FG
 		even
-; ---------------------------------------------------------------------------
 MAPENI_TTZ16x16_FG:
 		binclude	"map16/TTZ FG.eni"		; 16x16 blocks for TTZ FG
 		even
-; ---------------------------------------------------------------------------
 MAPENI_TTZ128x128_FG:
 		binclude	"map128/TTZ FG.eni"		; 128x128 chunks for TTZ FG
 		even
-; ---------------------------------------------------------------------------
 MAPENI_TTZLayout_FG:
 		binclude	"levels/TTZ FG.eni"		; Layout for TTZ FG
 		even
-; ---------------------------------------------------------------------------
 COL_TTZPrimary:
-		binclude	"collide/ColTTZPrimary.bin"	; Primary Collisions for TTZ
+		binclude	"collide/TTZ Primary.bin"	; Primary Collisions for TTZ
 		even
-; ---------------------------------------------------------------------------
 COL_TTZSecondary:
-		binclude	"collide/ColTTZSecondary.bin"	; Secondary Collisions for TTZ
+		binclude	"collide/TTZ Secondary.bin"	; Secondary Collisions for TTZ
 		even
-; ---------------------------------------------------------------------------
 ARTNEM_TTZ8x8_BG:
 		binclude	"artnem/8x8 - TTZ BG.nem"	; 8x8 tiles for TTZ BG
 		even
-; ---------------------------------------------------------------------------
 MAPENI_TTZ16x16_BG:
 		binclude	"map16/TTZ BG.eni"		; 16x16 blocks for TTZ BG
 		even
-; ---------------------------------------------------------------------------
 MAPENI_TTZ128x128_BG:
 		binclude	"map128/TTZ BG.eni"		; 128x128 chunks for TTZ BG
 		even
-; ---------------------------------------------------------------------------
 MAPENI_TTZLayout_BG:
 		binclude	"levels/TTZ BG.eni"		; Layout for TTZ BG
 		even
-; ---------------------------------------------------------------------------
+
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Title Card and Pause Bar Patterns
@@ -19065,9 +19147,8 @@ MAPENI_TTZLayout_BG:
 ; "6" gets added to the address of the art label to tell the engine
 ; where the art is, (basically telling it to jump over that first word and
 ; long-word code to get to the art that is directly after it).
-; ---------------------------------------------------------------------------
 ; ===========================================================================
-; ---------------------------------------------------------------------------
+
 ARTUNC_TitleCardBGAndPause:
 		dc.w 32					; 32 bytes (1 tile)
 		dc.l 6					; jump forward 6 bytes to art
@@ -19132,7 +19213,7 @@ TCBG_TileD:
 		dc.w 32*2				; 64 bytes (2 tiles)
 		dc.l 6					; jump forward 6 bytes to art
 		binclude "artunc/TCBGD.bin"		; Title Card - Light blue Zig-Zag tiles (The Light blue tiles overlapping the white Zig-Zag tiles basically)
-; ---------------------------------------------------------------------------
+
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Nemesis Compressed Object Patterns
@@ -19140,22 +19221,18 @@ TCBG_TileD:
 ARTNEM_Springs:
 		binclude	"artnem/Springs.nem"		; Red and Yellow Springs
 		even
-; ---------------------------------------------------------------------------
 ARTNEM_SpikesHoz:
 		binclude	"artnem/Spikes Horizontal.nem"	; Horizontal Spikes
 		even
-; ---------------------------------------------------------------------------
 ARTNEM_SpikesVer:
 		binclude	"artnem/Spikes Vertical.nem"	; Vertical Spikes
 		even
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Sprite mapping - "Sprngs" and "Spikes" Objects
 ; ---------------------------------------------------------------------------
 		include	"PLCMAPANI/MAP_Springs.asm"		; Spring mapping
 		include	"PLCMAPANI/MAP_Spikes.asm"		; Spikes mapping
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Unknown Data, Something to do with sprite mapping or PLC (Possibly an
@@ -19239,17 +19316,15 @@ unk_42364:		dc.b $FF,$A0,$FF,$AC,$FF,$B8
 ; AAAA -> 70	=	Spikes Angle Down/Left
 ; AAAA -> 72+	=	These are either pathswappers, blank, invalid, gliches of previous objects, lag the engine, or crash (as far as I've seen)
 ;			note: some pathswappers crash on TTZ (Not sure why though)
-; ---------------------------------------------------------------------------
 ; ===========================================================================
-; --------------------------------------------------------------------------
+
 Objpos_SSZ:
 		binclude	"objpos/SSZ.bin"		; Speed Slider Zone's Object Position
 		even
-; ---------------------------------------------------------------------------
+
 Objpos_TTZ:
 		binclude	"objpos/TTZ.bin"		; Techno Tower Zone's Object Position
 		even
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; uncompressed Art (Used for animation)
@@ -19257,39 +19332,30 @@ Objpos_TTZ:
 ARTUNC_TTZAnimatedFanFG1:
 		binclude	"artunc/TTZAnimatedFanFG1.bin"	; Fan tiles 1
 		even
-; ---------------------------------------------------------------------------
 ARTUNC_TTZAnimatedFanFG2:
 		binclude	"artunc/TTZAnimatedFanFG2.bin"	; Fan tiles 2
 		even
-; ---------------------------------------------------------------------------
 ARTUNC_TTZAnimatedTurbineBG1:
 		binclude	"artunc/TTZAnimatedTurbineBG1.bin" ; Turbine tiles 1
 		even
-; ---------------------------------------------------------------------------
 ARTUNC_TTZAnimatedTurbineBG2:
 		binclude	"artunc/TTZAnimatedTurbineBG2.bin" ; Turbine tiles 2
 		even
-; ---------------------------------------------------------------------------
 ARTUNC_TTZAnimatedTurbineBG3:
 		binclude	"artunc/TTZAnimatedTurbineBG3.bin" ; Turbine tiles 3
 		even
-; ---------------------------------------------------------------------------
 ARTUNC_TTZAnimatedTurbineBG4:
 		binclude	"artunc/TTZAnimatedTurbineBG4.bin" ; Turbine tiles 4
 		even
-; ---------------------------------------------------------------------------
 ARTUNC_TTZAnimatedTurbineBG5:
 		binclude	"artunc/TTZAnimatedTurbineBG5.bin" ; Turbine tiles 5
 		even
-; ---------------------------------------------------------------------------
 ARTUNC_TTZAnimatedTurbineBG6:
 		binclude	"artunc/TTZAnimatedTurbineBG6.bin" ; Turbine tiles 6
 		even
-; ---------------------------------------------------------------------------
 ARTUNC_TTZAnimatedTurbineBG7:
 		binclude	"artunc/TTZAnimatedTurbineBG7.bin" ; Turbine tiles 7
 		even
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Multiple Uncompressed Art (some of these are unused)
@@ -19316,7 +19382,6 @@ AniArt_MultiStars:					; Multiple Stars (Unused)
 		binclude	"artunc/MultipleStars_Un.bin"
 AniArt_MiliSymbol:					; "" (Second/Mili-Second Symbol)
 		binclude	"artunc/Hud_Sym2.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Field Data (Palettes, Art, mapping)
@@ -19346,7 +19411,6 @@ MAPUNC_ElectricFieldFG:
 MAPUNC_ElectricFieldBG:
 		binclude	"Uncompressed/MapuncElectricFieldBG.bin" ; Screen map for Electric Field BG
 		even
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Unknown Data
@@ -19358,117 +19422,92 @@ MAPUNC_ElectricFieldBG:
 ; Striped out
 ; UnkData_00054460:
 		binclude	"artunc/Mini Tails.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Align to $00060000, Sonic's Arms
 ; ---------------------------------------------------------------------------
-	align $8000
-; ---------------------------------------------------------------------------
+		align $8000
+
 ARTUNC_SonicArms:
 		binclude	"artunc/SonicArms.bin"		; Sonic's Arms
 		even
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Align to $00064000, Tails' Arms
 ; ---------------------------------------------------------------------------
-	align $4000
-; ---------------------------------------------------------------------------
+		align $4000
+
 ARTUNC_TailsArms:
 		binclude	"artunc/TailsArms.bin"		; Tails' Arms
 		even
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; PLC, mapping & Main index block - Sonic's Arm
 ; ---------------------------------------------------------------------------
 PLCMAP_SonArm_MainIndex:
 		include	"PLCMAPANI/PLCMAP_IndxBlck_SonicArm.asm"
-; ---------------------------------------------------------------------------
 PLC_SonicArm:
 		include	"PLCMAPANI/PLC_SonicArm.asm"
-; ---------------------------------------------------------------------------
 Map_SonicArm:
 		include	"PLCMAPANI/MAP_SonicArm.asm"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Animation, PLC, mapping & Main index block - Sonic
 ; ---------------------------------------------------------------------------
 ANI_Sonic:
 		include	"PLCMAPANI/ANI_Sonic.asm"
-; ---------------------------------------------------------------------------
 PLCMAP_Sonic_MainIndex:
 		include	"PLCMAPANI/PLCMAP_IndxBlck_Sonic.asm"
-; ---------------------------------------------------------------------------
 PLC_Sonic:
 		include	"PLCMAPANI/PLC_Sonic.asm"
-; ---------------------------------------------------------------------------
 Map_Sonic:
 		include	"PLCMAPANI/MAP_Sonic.asm"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; PLC, mapping & Main index block - Tails' Arm
 ; ---------------------------------------------------------------------------
 PLCMAP_TalArm_MainIndex:
 		include	"PLCMAPANI/PLCMAP_IndxBlck_TailsArm.asm"
-; ---------------------------------------------------------------------------
 PLC_TailsArm:
 		include	"PLCMAPANI/PLC_TailsArm.asm"
-; ---------------------------------------------------------------------------
 MAP_TailsArm:
 		include	"PLCMAPANI/MAP_TailsArm.asm"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Animation, PLC, mapping & Main index block - Tails
 ; ---------------------------------------------------------------------------
 ANI_Tails:
 		include	"PLCMAPANI/ANI_Tails.asm"
-; ---------------------------------------------------------------------------
 PLCMAP_Tails_MainIndex:
 		include	"PLCMAPANI/PLCMAP_IndxBlck_Tails.asm"
-; ---------------------------------------------------------------------------
 PLC_Tails:
 		include	"PLCMAPANI/PLC_Tails.asm"
-; ---------------------------------------------------------------------------
 MAP_Tails:
 		include	"PLCMAPANI/MAP_Tails.asm"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Animation, PLC, mapping & Main index block - Sonic Fields
 ; ---------------------------------------------------------------------------
 ANI_SonicFields:
 		include	"PLCMAPANI/ANI_SonicFields.asm"
-; ---------------------------------------------------------------------------
 PLCMAP_SonicFields_MainIndex:
 		include	"PLCMAPANI/PLCMAP_IndxBlck_SonicFields.asm"
-; ---------------------------------------------------------------------------
 PLC_SonicFields:
 		include	"PLCMAPANI/PLC_SonicFields.asm"
-; ---------------------------------------------------------------------------
 Map_SonicFields:
 		include	"PLCMAPANI/MAP_SonicFields.asm"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Animation, PLC, mapping & Main index block - Tails Fields
 ; ---------------------------------------------------------------------------
 ANI_TailsFields:
 		include	"PLCMAPANI/ANI_TailsFields.asm"
-; ---------------------------------------------------------------------------
 PLCMAP_TailsFields_MainIndex:
 		include	"PLCMAPANI/PLCMAP_IndxBlck_TailsFields.asm"
-; ---------------------------------------------------------------------------
 PLC_TailsFields:
 		include	"PLCMAPANI/PLC_TailsFields.asm"
-; ---------------------------------------------------------------------------
 Map_TailsFields:
 		include	"PLCMAPANI/MAP_TailsFields.asm"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Unknown Data
@@ -19477,18 +19516,16 @@ Map_TailsFields:
 ; Striped out
 ; UnkData_00068FD6:
 		binclude	"UnknownCodes/UnknownData_00068FD6.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Align to $0006C000, Unknown Data
 ; ---------------------------------------------------------------------------
-	align $2000
+		align $2000
 ; ---------------------------------------------------------------------------
 ; Data Location (0006C000 - 0006CE07)
 ; Striped out
 ; UnkData_0006C000:
 		binclude	"UnknownCodes/UnknownData_0006C000.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Unknown Data
@@ -19497,60 +19534,54 @@ Map_TailsFields:
 ; Striped out
 ; UnkData_0006CE08:
 		binclude	"UnknownCodes/UnknownData_0006CE08.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Align to $00070000, Unknown Data
 ; ---------------------------------------------------------------------------
-	align $4000
+		align $4000
 ; ---------------------------------------------------------------------------
 ; Data Location (00070000 - 00071813)
 ; Striped out
 ; UnkData_00070000:
 		binclude	"UnknownCodes/UnknownData_00070000.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Align to $00072000, Unknown Data
 ; ---------------------------------------------------------------------------
-	align $800
+		align $800
 ; ---------------------------------------------------------------------------
 ; Data Location (00072000 - 00072763)
 ; Striped out
 ; UnkData_00072000:
 		binclude	"UnknownCodes/UnknownData_00072000.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Align to $00074000, Unknown Data
 ; ---------------------------------------------------------------------------
-	align $2000
+		align $2000
 ; ---------------------------------------------------------------------------
 ; Data Location (00074000 - 0007562F)
 ; Striped out
 ; UnkData_00074000:
 		binclude	"UnknownCodes/UnknownData_00074000.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Align to $00076000, Unknown Data
 ; ---------------------------------------------------------------------------
-	align $1000
+		align $1000
 ; ---------------------------------------------------------------------------
 ; Data Location (00076000 - 00076703)
 ; Striped out
 ; UnkData_00076000:
 		binclude	"UnknownCodes/UnknownData_00076000.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Uncompressed Art - Sonic
 ; ---------------------------------------------------------------------------
-	align $10000
-; ---------------------------------------------------------------------------
+		align $10000
+
 ARTUNC_Sonic:	binclude	"artunc/Sonic.bin"
 		even
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Unknown Data
@@ -19559,17 +19590,15 @@ ARTUNC_Sonic:	binclude	"artunc/Sonic.bin"
 ; Striped out
 ; UnkData_0008C0A0:
 		binclude	"UnknownCodes/UnknownData_0008C0A0.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Uncompressed Art - Sonic Fields
 ; ---------------------------------------------------------------------------
-	align $4000
-; ---------------------------------------------------------------------------
+		align $4000
+
 ARTUNC_SonicField:
 		binclude	"artunc/SonicField.bin"
 		even
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Unknown Data
@@ -19578,28 +19607,25 @@ ARTUNC_SonicField:
 ; Striped out
 ; UnkData_00093B20:
 		binclude	"UnknownCodes/UnknownData_00093B20.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Align to $00096000, Unknown Data
 ; ---------------------------------------------------------------------------
-	align $1000
+		align $1000
 ; ---------------------------------------------------------------------------
 ; Data Location (00096000 - 00096703)
 ; Striped out
 ; UnkData_00096000:
 		binclude	"UnknownCodes/UnknownData_00096000.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Uncompressed Art - Unknown Unused Small Hud Patterns
 ; ---------------------------------------------------------------------------
-	align $2000
-; ---------------------------------------------------------------------------
+		align $2000
+
 ARTUNC_UnknownHud:
 		binclude	"artunc/UnknownHud.bin"
 		even
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Unknown Data
@@ -19608,17 +19634,15 @@ ARTUNC_UnknownHud:
 ; Striped out
 ; UnkData_00098740:
 		binclude	"UnknownCodes/UnknownData_00098740.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Uncompressed Art - Tails
 ; ---------------------------------------------------------------------------
 	align $10
-; ---------------------------------------------------------------------------
+
 ARTUNC_Tails:
 		binclude	"artunc/Tails.bin"
 		even
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Align to $000AC000, Unknown Data
@@ -19629,17 +19653,15 @@ ARTUNC_Tails:
 ; Striped out
 ; UnkData_000AC000:
 		binclude	"UnknownCodes/UnknownData_000AC000.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Uncompressed Art - Tails Field
 ; ---------------------------------------------------------------------------
 	align $4000
-; ---------------------------------------------------------------------------
+
 ARTUNC_TailsField:
 		binclude	"artunc/TailsField.bin"
 		even
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Unknown Data
@@ -19648,7 +19670,6 @@ ARTUNC_TailsField:
 ; Striped out
 ; UnkData_000B3820:
 		binclude	"UnknownCodes/UnknownData_000B3820.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Align to $000B6000, Unknown Data
@@ -19659,7 +19680,6 @@ ARTUNC_TailsField:
 ; Striped out
 ; UnkData_000B6000:
 		binclude	"UnknownCodes/UnknownData_000B6000.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Align to $000C0000, Unknown Data
@@ -19670,7 +19690,6 @@ ARTUNC_TailsField:
 ; Striped out
 ; UnkData_000C0000:
 		binclude	"artunc/Mini Sonic.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Align to $000CC000, Unknown Data
@@ -19684,7 +19703,6 @@ ARTUNC_TailsField:
 ; ---------------------------------------------------------------------------
 ; Data Location (000D0000 - 000D58BF)
 		binclude	"artunc/Mini Tails (Duplicate).bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Align to $000D6000, Unknown Data
@@ -19695,7 +19713,6 @@ ARTUNC_TailsField:
 ; Striped out
 ; UnkData_000D6000:
 		binclude	"UnknownCodes/UnknownData_000D6000.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Align to $000D8000, Unknown Data
@@ -19709,7 +19726,6 @@ ARTUNC_TailsField:
 ; ---------------------------------------------------------------------------
 ; Data Location (000D9C10 - 000DA3FF)
 		binclude	"UnknownCodes/UnknownData_000D9C10.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Align to $000E0000, Unknown Data
@@ -19720,7 +19736,6 @@ ARTUNC_TailsField:
 ; Striped out
 ; UnkData_000E0000:
 		binclude	"UnknownCodes/UnknownData_000E0000.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Align to $000E4000, Unknown Data
@@ -19731,7 +19746,6 @@ ARTUNC_TailsField:
 ; Striped out
 ; UnkData_000E4000:
 		binclude	"UnknownCodes/UnknownData_000E4000.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Align to $000E6000, Unknown Data
@@ -19742,7 +19756,6 @@ ARTUNC_TailsField:
 ; Striped out
 ; UnkData_000E6000:
 		binclude	"UnknownCodes/UnknownData_000E6000.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Align to $000EC000, Unknown Data
@@ -19753,7 +19766,6 @@ ARTUNC_TailsField:
 ; Striped out
 ; UnkData_000EC000:
 		binclude	"UnknownCodes/UnknownData_000EC000.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Align to $000F0000, Unknown Data
@@ -19764,7 +19776,6 @@ ARTUNC_TailsField:
 ; Striped out
 ; UnkData_000F0000:
 		binclude	"UnknownCodes/UnknownData_000F0000.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Align to $000F2000, Unknown Data
@@ -19775,7 +19786,6 @@ ARTUNC_TailsField:
 ; Striped out
 ; UnkData_000F2000:
 		binclude	"UnknownCodes/UnknownData_000F2000.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Align to $000F4000, Unknown Data
@@ -19786,7 +19796,6 @@ ARTUNC_TailsField:
 ; Striped out
 ; UnkData_000F4000:
 		binclude	"UnknownCodes/UnknownData_000F4000.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Align to $000F6000, Unknown Data
@@ -19797,15 +19806,14 @@ ARTUNC_TailsField:
 ; Striped out
 ; UnkData_000F6000:
 		binclude	"UnknownCodes/UnknownData_000F6000.bin"
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Align to $00100000, End Of Rom
 ; ---------------------------------------------------------------------------
+	if PaddingOptimization=0
 		cnop -1,2<<lastbit(*)
 		dc.b $FF
+	endif
 
 EndofROM:
 		END
-; ---------------------------------------------------------------------------
-; ===========================================================================
