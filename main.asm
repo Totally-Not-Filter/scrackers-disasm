@@ -31,26 +31,77 @@ SonicDriverVer = 3 ; Tell SMPS2ASM that we are targetting Sonic 3's sound driver
 ; Sonic Crackers Disassembly
 ; ---------------------------------------------------------------------------
 
-RomStart:	dc.l v_systemstack&$FFFFFF,	EntryPoint,	ErrorTrap,	ErrorTrap
-		dc.l ErrorTrap,	ErrorTrap,	ErrorTrap,	ErrorTrap
-		dc.l ErrorTrap,	unk_C81E,	unk_C812,	unk_C818
-		dc.l ErrorTrap,	ErrorTrap,	ErrorTrap,	ErrorTrap
-		dc.l ErrorTrap,	ErrorTrap,	ErrorTrap,	ErrorTrap
-		dc.l ErrorTrap,	ErrorTrap,	ErrorTrap,	ErrorTrap
-		dc.l unk_C824,	ErrorTrap,	unk_C82A,	ErrorTrap
-		dc.l unk_C836,	ErrorTrap,	unk_C830,	ErrorTrap
-		dc.l ErrorTrap,	ErrorTrap,	ErrorTrap,	ErrorTrap
-		dc.l ErrorTrap,	ErrorTrap,	ErrorTrap,	ErrorTrap
-		dc.l ErrorTrap,	ErrorTrap,	ErrorTrap,	ErrorTrap
-		dc.l ErrorTrap,	ErrorTrap,	ErrorTrap,	ErrorTrap
-		dc.l ErrorTrap,	ErrorTrap,	ErrorTrap,	ErrorTrap
-		dc.l ErrorTrap,	ErrorTrap,	ErrorTrap,	ErrorTrap
-		dc.l ErrorTrap,	ErrorTrap,	ErrorTrap,	ErrorTrap
-		dc.l ErrorTrap,	ErrorTrap,	ErrorTrap,	ErrorTrap
+RomStart:
+		dc.l v_systemstack&$FFFFFF
+		dc.l EntryPoint
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l unk_C81E
+		dc.l unk_C812
+		dc.l unk_C818
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l unk_C824
+		dc.l ErrorTrap
+		dc.l unk_C82A
+		dc.l ErrorTrap
+		dc.l unk_C836
+		dc.l ErrorTrap
+		dc.l unk_C830
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
+		dc.l ErrorTrap
 		dc.b "SEGA MEGA DRIVE "
 		dc.b "(C)SEGA 1994.JUL"
-		dc.b "SONIC STUDIUM                                   "
-		dc.b "SONIC STUDIUM                                   "
+		dc.b "SONIC STUDIUM           "
+		dc.b "                        "
+		dc.b "SONIC STUDIUM           "
+		dc.b "                        "
 		dc.b "GM XXXXXXXX-XX"
 Checksum:	dc.w 0
 		dc.b "J               "
