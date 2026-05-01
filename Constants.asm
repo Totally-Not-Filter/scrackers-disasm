@@ -1,9 +1,30 @@
-; VRAM addresses
+; Universal VRAM addresses
 vram_window:	equ $B000
 vram_fg:	equ $C000
 vram_hscroll:	equ $D000
 vram_bg:	equ $E000
 vram_sprtbl:	equ $F000
+
+; VRAM data
+tile_size:	equ 8*8/2
+plane_size_64x32:	equ 64*32*2
+
+; Sega Screen VRAM addresses
+vram_sprtbl_sega:	equ $B800
+vram_hscroll_sega:	equ $BC00
+vram_window_sega:	equ $F000
+
+; Title Screen VRAM addresses
+vram_sprtbl_title:	equ $F800
+vram_hscroll_title:	equ $FC00
+
+; Field VRAM addresses
+vram_sprtbl_field:	equ $A800
+vram_hscroll_field:	equ $AC00
+vram_window_field:	equ $B000
+
+; Level VRAM addresses
+vram_hscroll_lvl:	equ $D000
 
 ; VDP addresses
 vdp_data_port:		equ $C00000

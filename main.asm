@@ -343,7 +343,7 @@ loc_36E:
 		move.w	#$8F02,(v_vdp_increment).w
 
 		moveq	#0,d0				; clear d0
-		move.l	#$40000000,(vdp_control_port).l	; set VDP in VRAM write mode
+		writeVRAM 0	; set VDP in VRAM write mode
 		move.w	#bytesToXcnt($10000,$10),d1			; set repeat times
 
 .clrVRAM:
@@ -352,7 +352,7 @@ loc_36E:
 	endr
 		dbf	d1,.clrVRAM			; repeat til VRAM is cleared
 
-		move.l	#$C0000000,(vdp_control_port).l	; set VDP in CRAM write mode
+		writeCRAM 0	; set VDP in CRAM write mode
 		move.w	#bytesToXcnt($80,$10),d1				; set repeat times
 
 .clrCRAM:
@@ -361,7 +361,7 @@ loc_36E:
 	endr
 		dbf	d1,.clrCRAM			; repeat til CRAM is cleared
 
-		move.l	#$40000010,(vdp_control_port).l	; set VDP in VSRAM mode
+		writeVSRAM 0	; set VDP in VSRAM mode
 		move.w	#bytesToXcnt($50,$10),d1				; set repeat times
 
 .clrVSRAM:
@@ -445,7 +445,7 @@ DMAToCRAM:
 		andi.w	#$FFEF,(word_C9BA).w
 		move.w	(word_C9BA).w,(a0)
 		startZ80
-		move.l	#$C0000000,(vdp_control_port).l	; set VDP in CRAM write mode
+		writeCRAM 0	; set VDP in CRAM write mode
 		move.w	(v_pal).w,-4(a0)		; move colour value in ram to VDP
 		rts
 ; ===========================================================================
@@ -4139,17 +4139,17 @@ SegaScreen:
 ; ===========================================================================
 
 SegaScreen_VDPSettings:
-		dc.w $8230				; plane a:
-		dc.w $8407				; plane b:
-		dc.w $833C				; window table:
-		dc.w $855C				; sprite table: B800
-		dc.w $8D2F				; horizontal scroll table: BC00
-		dc.w $8B00				; full scroll horizontally/vertically, external interrupt disabled
-		dc.w $8C81				; H40, no shadow/highlight
-		dc.w $9011				; tilemap: 64x64
-		dc.w $8700				; background color: entry 0
-		dc.w $9100				; Window plane X: disabled
-		dc.w $9200				; Window plane Y: disabled
+		dc.w $8200+vram_fg>>10		; plane a:
+		dc.w $8400+vram_bg>>13		; plane b:
+		dc.w $8300+vram_window_sega>>10	; window table:
+		dc.w $8500+vram_sprtbl_sega>>9	; sprite table: B800
+		dc.w $8D00+vram_hscroll_sega>>10	; horizontal scroll table: BC00
+		dc.w $8B00					; full scroll horizontally/vertically, external interrupt disabled
+		dc.w $8C81					; H40, no shadow/highlight
+		dc.w $9011					; tilemap: 64x64
+		dc.w $8700					; background color: entry 0
+		dc.w $9100					; Window plane X: disabled
+		dc.w $9200					; Window plane Y: disabled
 		dc.w 0
 ; ===========================================================================
 
@@ -4595,9 +4595,9 @@ loc_67BC:
 
 Sega_MapTiles:
 		lea	(vdp_data_port).l,a3		; load VDP address to a3
-		moveq	#bytesToXcnt($200,$20),d7				; set repeat times
+		moveq	#bytesToXcnt($200,tile_size),d7				; set repeat times
 		disable_ints				; set the stack register (Stopping VBlank)
-		move.l	#$5E000000,4(a3)		; set VDP to VRAM write mode
+		writeVRAM $F0*tile_size,vdp_control_port-vdp_data_port(a3)	; set VDP to VRAM write mode
 		moveq	#0,d0				; clear d0
 
 ; this is to set the art in such a way that each tile represents 1 pixel on screen
@@ -4650,7 +4650,7 @@ loc_6864:
 ; ---------------------------------------------------------------------------
 		lea	(unk_0200&$FFFFFF).l,a0		; load dumped art location to a0
 		lea	(unk_0A00&$FFFFFF).l,a1		; load second art location to a1
-		move.l	#$48000000,(a1)+		; set VDP settings first to second art location
+		writeVRAM $800,(a1)+		; set VDP settings first to second art location
 		move.w	#$40,(a1)+			; then set repeat times to it
 		moveq	#4-1,d6				; set repeat times
 
@@ -4694,7 +4694,7 @@ loc_68F0:
 		dbf	d6,loc_68EE
 		lea	(unk_0A00&$FFFFFF).l,a0
 		lea	(unk_2A00&$FFFFFF).l,a1
-		move.l	#$40000001,(a1)+
+		writeVRAM $4000,(a1)+
 		move.w	#$100,(a1)+
 		moveq	#8-1,d6
 
@@ -5235,7 +5235,7 @@ loc_6EB4:
 		andi.w	#3,d0
 		move.l	d0,(vdp_control_port).l
 		move.l	(word_CA5E).w,(vdp_data_port).l
-		move.l	#$40000010,(vdp_control_port).l
+		writeVSRAM 0
 		move.l	(word_CDDE).w,(vdp_data_port).l
 		move.w	(word_FFC4).w,d0
 		add.w	d0,d0
@@ -5319,11 +5319,11 @@ TitleLoad:
 ; ---------------------------------------------------------------------------
 
 TitleScreen_VDPSettings:
-		dc.w $8230
-		dc.w $8407
-		dc.w $833C
-		dc.w $857C
-		dc.w $8D3F
+		dc.w $8200+vram_fg>>10
+		dc.w $8400+vram_bg>>13
+		dc.w $8300+vram_window_sega>>10
+		dc.w $8500+vram_sprtbl_title>>9
+		dc.w $8D00+vram_hscroll_title>>10
 		dc.w $8B00
 		dc.w $8C81
 		dc.w $9011
@@ -5342,7 +5342,7 @@ TitleLoad_Continue:
 		andi.w	#3,d0
 		move.l	d0,(vdp_control_port).l
 		move.l	#0,(vdp_data_port).l
-		move.l	#$40000010,(vdp_control_port).l
+		writeVSRAM 0
 		move.l	#0,(vdp_data_port).l
 		moveq	#$3F,d0
 		moveq	#$3F,d1
@@ -5355,15 +5355,15 @@ TitleLoad_Continue:
 		move.w	#$E000,d3
 		jsr	(sub_86E).w
 		lea	ARTNEM_MainMenusText(pc),a0	; load Main Menu text art address to a0
-		move.l	#$40000000,(vdp_control_port).l	; set VDP location to dump
+		writeVRAM 0	; set VDP location to dump
 		jsr	(NemDec).w			; decompress
-		move.l	#$41040003,d0			; prepare VDP settings
+		writeVRAM	vram_fg+$104,d0		; prepare VDP settings
 		lea	MAPUNC_TitleMenu_1(pc),a1	; load uncompressed title mappings to a1 (Title Screen "Banner")
 		moveq	#38-1,d1				; set X loop
 		moveq	#16-1,d2				; set Y loop
 		move.w	#0,d3				; set to use palette line 0 (and to map behind object plane)
 		jsr	(MapScreen).w			; map it on screen correctly
-		move.l	#$4A180003,d0			; prepare VDP settings
+		writeVRAM	vram_fg+$A18,d0		; prepare VDP settings
 		lea	MAPUNC_TitleMenu_2(pc),a1	; load uncompressed title mappings to a1 (Title Screen "Main Menu Selection")
 		moveq	#8-1,d1				; set X loop
 		moveq	#4-1,d2				; set Y loop
@@ -5371,7 +5371,7 @@ TitleLoad_Continue:
 		move.w	#$100,(word_D820).w
 		jsr	(MapScreen).w			; map it on screen correctly
 		move.w	#$80,(word_D820).w
-		move.l	#$4BBC0003,d0
+		writeVRAM	vram_fg+$BBC,d0
 		lea	MAPUNC_TitleMenu_3(pc),a1	; load uncompressed title mappings to a1 (Title Screen "1ST	ROM 19940401")
 		moveq	#8-1,d1				; set X loop
 		moveq	#2-1,d2				; set Y loop
@@ -5387,7 +5387,8 @@ TitleLoad_Continue:
 		move.l	(a0)+,(a1)+
 		dbf	d0,.loadpalette
 		jsr	(DMAToCRAM).w
-		move.l	#$78000003,(vdp_control_port).l
+
+		writeVRAM	vram_sprtbl_title
 		move.l	#0,(vdp_data_port).l
 
 		charset	' ','~',0
@@ -5471,7 +5472,7 @@ TitleScrn_ToLevSel:
 
 loc_7576:
 		movem.l	d0-a6,-(sp)
-		move.l	#$78000003,(vdp_control_port).l
+		writeVRAM	vram_sprtbl_title
 		move.w	(word_D832).w,(vdp_data_port).l
 		jsr	(ReadCtrlInput).w
 		move.b	(unk_C93C).w,d0
@@ -5514,7 +5515,7 @@ ARTNEM_MainMenusText:
 		charset	' ','~',0
 
 MAPUNC_TitleMenu_1:
-		binclude	"Uncompressed/MapuncTitleMenu01.bin" ; Uncompressed screen map for the title screen - banner
+		binclude	"tilemaps/MapuncTitleMenu01.bin" ; tile map for the title screen - banner
 		even
 MAPUNC_TitleMenu_2:
 		dc.w	"1P START"
@@ -5567,11 +5568,11 @@ PAL_PrimaryColours_Field:
 		even
 
 Fields_VDPSettings:
-		dc.w $8230
-		dc.w $832C
-		dc.w $8407
-		dc.w $8554
-		dc.w $8D2B
+		dc.w $8200+vram_fg>>10
+		dc.w $8300+vram_window_field>>10
+		dc.w $8400+vram_bg>>13
+		dc.w $8500+vram_sprtbl_field>>9
+		dc.w $8D00+vram_hscroll_field>>10
 		dc.w $9011
 		dc.w $8720
 		dc.w $8B03
@@ -5695,7 +5696,7 @@ Vint_Fields:
 		move.w	(word_D81C).w,d1
 		move.w	#$1C0,d2
 		jsr	(DMA_WriteData).w
-		move.l	#$40000010,(vdp_control_port).l
+		writeVSRAM 0
 		move.l	(word_CDDE).w,(vdp_data_port).l
 		jsr	(DMAToCRAM).w
 		jsr	(sub_C9DE).l
@@ -5770,7 +5771,7 @@ loc_80E0:
 		move.w	#$8F02,(vdp_control_port).l
 		move.w	#$8F02,(v_vdp_increment).w
 		moveq	#0,d0
-		move.l	#$40000000,(vdp_control_port).l
+		writeVRAM 0
 		move.w	#bytesToXcnt($10000,16),d1
 
 loc_810E:
@@ -5779,7 +5780,7 @@ loc_810E:
 		move.l	d0,(a0)
 		move.l	d0,(a0)
 		dbf	d1,loc_810E
-		move.l	#$40000010,(vdp_control_port).l
+		writeVSRAM 0
 		move.l	(word_CDDE).w,(vdp_data_port).l
 		clr.w	(v_subgamemode).w
 		addq.w	#1,(word_D836).w
@@ -6677,11 +6678,11 @@ PAL_PrimaryColours:
 		even
 
 Level_VDPSettings:
-		dc.w $8230
-		dc.w $832C
-		dc.w $8407
-		dc.w $8578
-		dc.w $8D34
+		dc.w $8200+vram_fg>>10
+		dc.w $8300+vram_window_field>>10
+		dc.w $8400+vram_bg>>13
+		dc.w $8500+vram_sprtbl>>9
+		dc.w $8D00+vram_hscroll_lvl>>10
 		dc.w $9001
 		dc.w $8730
 		dc.w $8B00
@@ -6917,15 +6918,15 @@ Level_LoadObjectArt:
 		beq.s	.exit
 		disable_ints
 		lea	(ARTNEM_Springs).l,a0
-		move.l	#$40E00002,(vdp_control_port).l
+		writeVRAM $407*tile_size
 		jsr	(NemDec).w
 		disable_ints
 		lea	(ARTNEM_SpikesVer).l,a0
-		move.l	#$7EE00001,(vdp_control_port).l
+		writeVRAM $3F7*tile_size
 		jsr	(NemDec).w
 		disable_ints
 		lea	(ARTNEM_SpikesHoz).l,a0
-		move.l	#$77E00001,(vdp_control_port).l
+		writeVRAM $3BF*tile_size
 		jsr	(NemDec).w
 
 .exit:
@@ -6959,11 +6960,11 @@ locret_8CB8:
 		rts
 ; ---------------------------------------------------------------------------
 word_8CBA:
-		dc.w $407*$20
+		dc.w $407*tile_size
 		dc.l ARTNEM_Springs
-		dc.w $3F7*$20
+		dc.w $3F7*tile_size
 		dc.l ARTNEM_SpikesVer
-		dc.w $3BF*$20
+		dc.w $3BF*tile_size
 		dc.l ARTNEM_SpikesHoz
 		dc.w -1
 
@@ -7045,15 +7046,15 @@ LevelSelect_Init:
 		move.w	#$C000,d3
 		jsr	(sub_86E).w
 		lea	ARTNEM_MenuSelectorBorder(pc),a0
-		move.l	#$4C000000,(vdp_control_port).l
+		writeVRAM $60*tile_size
 		jsr	(NemDec).w
 		move.l	#$42000003,d0
 		lea	MAPUNC_SelectMenu_1(pc),a1
-		moveq	#$27,d1
-		moveq	#3,d2
+		moveq	#40-1,d1
+		moveq	#4-1,d2
 		move.w	#0,d3
 		jsr	(MapScreen).w
-		move.l	#$78000003,(vdp_control_port).l
+		writeVRAM vram_sprtbl_title
 		move.l	#$1000001,(vdp_data_port).l
 		move.l	#$1E00A8,(vdp_data_port).l
 		move.l	#$A00F00,(vdp_data_port).l
@@ -7093,19 +7094,19 @@ loc_8EE0:
 		lea	MAPUNC_SelectMenu_2(pc),a1
 		lsl.w	#4,d0
 		adda.w	d0,a1
-		move.l	#$65080003,d0
-		moveq	#7,d1
-		moveq	#0,d2
+		writeVRAM vram_bg+$508,d0
+		moveq	#8-1,d1
+		moveq	#1-1,d2
 		move.w	#0,d3
 		jsr	(MapScreen).w
 		move.w	(word_D834).w,d1
 		cmpi.w	#7,d1
 		bcc.s	loc_8F3A
 		move.w	#$100,(word_D820).w
-		move.l	#$66100003,d0
+		writeVRAM vram_bg+$610,d0
 		lea	MAPUNC_SelectMenu_3(pc),a1
-		moveq	#$F,d1
-		moveq	#5,d2
+		moveq	#16-1,d1
+		moveq	#6-1,d2
 		move.w	#0,d3
 		jsr	(MapScreen).w
 		move.w	#$80,(word_D820).w
@@ -7116,21 +7117,21 @@ loc_8F3A:
 		cmpi.w	#9,d1
 		bcc.s	loc_8F84
 		moveq	#0,d0
-		move.l	#$66100003,(vdp_control_port).l
+		writeVRAM vram_bg+$610
 		move.w	#bytesToLcnt($600),d1
 
 loc_8F50:
 		move.l	d0,(vdp_data_port).l
 		dbf	d1,loc_8F50
-		move.l	#$6B100003,d0
+		writeVRAM vram_bg+$B10,d0
 		lea	MAPUNC_SelectMenu_4(pc),a1
-		moveq	#$F,d1
-		moveq	#0,d2
+		moveq	#16-1,d1
+		moveq	#1-1,d2
 		move.w	#0,d3
 		jsr	(MapScreen).w
-		move.l	#$6A100003,d0
-		moveq	#$F,d1
-		moveq	#0,d2
+		writeVRAM vram_bg+$A10,d0
+		moveq	#16-1,d1
+		moveq	#1-1,d2
 		move.w	#0,d3
 		jsr	(MapScreen).w
 		bra.s	loc_8FCA
@@ -7138,16 +7139,16 @@ loc_8F50:
 
 loc_8F84:
 		moveq	#0,d0
-		move.l	#$66100003,(vdp_control_port).l
+		writeVRAM vram_bg+$610
 		move.w	#$17F,d1
 
 loc_8F94:
 		move.l	d0,(vdp_data_port).l
 		dbf	d1,loc_8F94
-		move.l	#$6B100003,d0
+		writeVRAM vram_bg+$B10,d0
 		lea	MAPUNC_SelectMenu_5(pc),a1
-		moveq	#$F,d1
-		moveq	#0,d2
+		moveq	#16-1,d1
+		moveq	#1-1,d2
 		move.w	#0,d3
 		jsr	(MapScreen).w
 		bra.s	loc_8FCA
@@ -7218,11 +7219,11 @@ LevelSelect_PlayLevel:
 
 loc_903C:
 		movem.l	d0-a6,-(sp)
-		move.l	#$7C000003,(vdp_control_port).l
+		writeVRAM vram_hscroll_title
 		move.w	(word_D830).w,d0
 		neg.w	d0
 		move.w	d0,(vdp_data_port).l
-		move.l	#$78000003,(vdp_control_port).l
+		writeVRAM vram_sprtbl_title
 		move.w	(word_D832).w,(vdp_data_port).l
 		jsr	(ReadCtrlInput).w
 		move.b	(unk_C93C).w,d0
@@ -7264,19 +7265,19 @@ ARTNEM_MenuSelectorBorder:
 		binclude	"artnem/Menu Select Border.nem" ; Selector art for Select Menu screen
 		even
 MAPUNC_SelectMenu_1:
-		binclude	"Uncompressed/MapuncSelectMenu01.bin" ; Uncompressed mappings for the select menu (Top W? numbers that scroll)
+		binclude	"tilemaps/MapuncSelectMenu01.bin" ; tilemaps for the select menu (Top W? numbers that scroll)
 		even
 MAPUNC_SelectMenu_2:
-		binclude	"Uncompressed/MapuncSelectMenu02.bin" ; Uncompressed mappings for the select menu (World ? words)
+		binclude	"tilemaps/MapuncSelectMenu02.bin" ; tilemaps for the select menu (World ? words)
 		even
 MAPUNC_SelectMenu_3:
-		binclude	"Uncompressed/MapuncSelectMenu03.bin" ; Uncompressed mappings for the select menu (Attraction	LV.? words)
+		binclude	"tilemaps/MapuncSelectMenu03.bin" ; tilemaps for the select menu (Attraction	LV.? words)
 		even
 MAPUNC_SelectMenu_4:
-		binclude	"Uncompressed/MapuncSelectMenu04.bin" ; Uncompressed mappings for the select menu (Field/Attraction words)
+		binclude	"tilemaps/MapuncSelectMenu04.bin" ; tilemaps for the select menu (Field/Attraction words)
 		even
 MAPUNC_SelectMenu_5:
-		binclude	"Uncompressed/MapuncSelectMenu05.bin" ; Uncompressed mappings for the select menu (Special Stage word)
+		binclude	"tilemaps/MapuncSelectMenu05.bin" ; tilemaps for the select menu (Special Stage word)
 		even
 ; ---------------------------------------------------------------------------
 
@@ -7306,13 +7307,13 @@ OptionSoundTest_Main:
 		moveq	#0,d2
 		move.w	#$C000,d3
 		jsr	(sub_86E).w
-		move.l	#$44200003,d0
+		writeVRAM vram_fg+$420,d0
 		lea	OptionText(pc),a1
 		moveq	#bytesToWcnt(OptionText_End-OptionText),d1
 		moveq	#0,d2
 		move.w	#0,d3
 		jsr	(MapScreen).w
-		move.l	#$78000003,(vdp_control_port).l
+		writeVRAM vram_sprtbl_title
 		move.l	#0,(vdp_data_port).l
 		move.l	#0,(vdp_data_port).l
 		move.w	#bgm_First-1,(v_menu_soundid).w
@@ -7368,7 +7369,7 @@ loc_94A8:
 
 loc_94B4:
 		movem.l	d0-a6,-(sp)
-		move.l	#$78000003,(vdp_control_port).l
+		writeVRAM vram_sprtbl_title
 		move.w	(word_D832).w,(vdp_data_port).l
 		jsr	(ReadCtrlInput).w
 		move.b	(unk_C93C).w,d0
@@ -8622,7 +8623,7 @@ loc_9FAC:
 		move.w	#$8B00,(vdp_control_port).l
 		move.w	#$8B00,(word_C9CE).w
 		moveq	#0,d0
-		move.l	#$40000010,(vdp_control_port).l
+		writeVSRAM 0
 		move.l	d0,(vdp_data_port).l
 		moveq	#0,d1
 		move.w	(word_D81C).w,d1
@@ -8647,7 +8648,7 @@ loc_9FFA:
 		move.b	#0,$1E(a1)
 
 loc_A014:
-		move.l	#$40000010,(vdp_control_port).l
+		writeVSRAM 0
 		move.w	$10(a1),(vdp_data_port).l
 		move.w	(word_CA2E).w,(vdp_data_port).l
 		moveq	#0,d0
@@ -8675,7 +8676,7 @@ loc_A062:
 		move.b	#0,$1E(a1)
 
 loc_A07C:
-		move.l	#$40000010,(vdp_control_port).l
+		writeVSRAM 0
 		move.w	$10(a1),(vdp_data_port).l
 		move.w	(word_CA2E).w,(vdp_data_port).l
 		rts
@@ -8691,7 +8692,7 @@ loc_A098:
 loc_A0B2:
 		lea	(word_CDDE).w,a3
 		lea	(vdp_data_port).l,a4
-		move.l	#$40000010,(vdp_control_port).l
+		writeVSRAM 0
 		bsr.w	sub_A14E
 		moveq	#0,d0
 		move.w	(word_D81C).w,d0
@@ -8720,7 +8721,7 @@ loc_A0FE:
 loc_A118:
 		lea	(word_CDDE).w,a3
 		lea	(vdp_data_port).l,a4
-		move.l	#$40000010,(vdp_control_port).l
+		writeVSRAM 0
 		bsr.w	sub_A14E
 		rts
 ; ---------------------------------------------------------------------------
@@ -17666,10 +17667,10 @@ loc_F00E:
 loc_F0DE:
 		disable_ints
 		move.l	#ArtUnc_HUD,d0
-		move.w	#$500*$20,d1
+		move.w	#$500*tile_size,d1
 		move.w	#$800,d2
 		jsr	(DMA_WriteData).w
-		move.l	#$7F000003,(vdp_control_port).l
+		writeVRAM $7F8*tile_size
 		move.l	#$DDDDDDDD,d0
 		moveq	#bytesToLcnt($100),d1
 
