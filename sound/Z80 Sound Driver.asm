@@ -8,8 +8,8 @@
 FixDriverBugs = FixBugs
 
 ; If 0, no optimisations are made, resulting in a driver size of exactly 1216 bytes.
-; If 1, size optimisations are made, resulting in a driver size of approximately 11A6 bytes.
-; If 2, speed optimisations are made, resulting in a driver size of approximately 11BA bytes.
+; If 1, size optimisations are made, resulting in a driver size of approximately 119E bytes.
+; If 2, speed optimisations are made, resulting in a driver size of approximately 11B3 bytes.
 OptimiseDriver = 0
 
 ; ===========================================================================
@@ -2021,8 +2021,13 @@ DoSoundQueue:
 loc_8E0:
 		ld	a, (de)
 		ld	c, a
+	if OptimiseDriver
+		or	a
+		jp	p, loc_905
+	else
 		bit	7, a
 		jr	z, loc_905
+	endif
 		sub	bgm_Last-1
 		jp	c, loc_90B
 		sub	1Ah
