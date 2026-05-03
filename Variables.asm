@@ -45,7 +45,7 @@ word_C944:	ds.w 1
 word_C946:	ds.w 1
 			ds.b $70
 word_C9B8:	ds.w 1
-word_C9BA:	ds.w 1
+v_vdp81_ctrl:	ds.w 1
 			ds.b $12
 word_C9CE:	ds.w 1
 			ds.b 2

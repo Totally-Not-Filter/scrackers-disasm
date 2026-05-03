@@ -110,6 +110,51 @@ enable_ints:	macro
 		move.w	#$2300,sr
 		endm
 
+; ---------------------------------------------------------------------------
+; Enable DMA macro
+; ---------------------------------------------------------------------------
+
+enable_dma:	macro controlport=(vdp_control_port).l
+		ori.w	#$8114,(v_vdp81_ctrl).w	; set bit 4 (DMA)
+		move.w	(v_vdp81_ctrl).w,controlport
+		endm
+
+; ---------------------------------------------------------------------------
+; Disable DMA macro
+; ---------------------------------------------------------------------------
+
+disable_dma:	macro controlport=(vdp_control_port).l
+		andi.w	#$FFEF,(v_vdp81_ctrl).w	; clear bit 4 (DMA)
+		move.w	(v_vdp81_ctrl).w,controlport
+		endm
+
+; ---------------------------------------------------------------------------
+; Enable vertical interrupts macro
+; ---------------------------------------------------------------------------
+
+enable_vints:	macro controlport=(vdp_control_port).l
+		ori.w	#$8124,(v_vdp81_ctrl).w	; set bit 5 (vint)
+		move.w	(v_vdp81_ctrl).w,controlport
+		endm
+
+; ---------------------------------------------------------------------------
+; Enable display macro
+; ---------------------------------------------------------------------------
+
+enable_display:	macro controlport=(vdp_control_port).l
+		ori.w	#$8144,(v_vdp81_ctrl).w	; set bit 6 (display)
+		move.w	(v_vdp81_ctrl).w,controlport
+		endm
+
+; ---------------------------------------------------------------------------
+; Disable display macro
+; ---------------------------------------------------------------------------
+
+disable_display:	macro controlport=(vdp_control_port).l
+		andi.w	#$81BC,(v_vdp81_ctrl).w	; clear bit 6 (display)
+		move.w	(v_vdp81_ctrl).w,controlport
+		endm
+
 ; function to make a little-endian 16-bit pointer for the Z80 sound driver
 z80_ptr function x,(x)<<8&$FF00|(x)>>8&$7F|$80
 

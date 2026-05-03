@@ -426,8 +426,7 @@ DMAToCRAM:
 		move.w	#$8F02,(vdp_control_port).l	; set VDP Increment
 		move.w	#$8F02,(v_vdp_increment).w
 		lea	(vdp_control_port).l,a0		; load VDP address port to a0
-		ori.w	#$8114,(word_C9BA).w
-		move.w	(word_C9BA).w,(a0)
+		enable_dma (a0)
 		lea	DMAValues(pc),a1		; load VDP values address to a1
 		move.w	(a1)+,(a0)			; dump DMA values to VDP
 		move.w	(a1),(a0)
@@ -443,8 +442,7 @@ DMAToCRAM:
 		move.w	#$C000,(a0)
 		move.w	#$80,-(sp)
 		move.w	(sp)+,(a0)
-		andi.w	#$FFEF,(word_C9BA).w
-		move.w	(word_C9BA).w,(a0)
+		disable_dma (a0)
 		startZ80
 		writeCRAM 0	; set VDP in CRAM write mode
 		move.w	(v_pal).w,-4(a0)		; move colour value in ram to VDP
@@ -466,7 +464,7 @@ VDPSetup_02:
 		moveq	#0,d3				; clear d3
 		stopZ80
 		waitZ80
-		move.w	(word_C9BA).w,d0
+		move.w	(v_vdp81_ctrl).w,d0
 		bset	#4,d0
 		move.w	d0,(a4)
 		move.w	#$8F02,(vdp_control_port).l	; set VDP Increment
@@ -505,7 +503,7 @@ loc_506:
 
 loc_542:
 		dbf	d7,loc_506
-		move.w	(word_C9BA).w,d1
+		move.w	(v_vdp81_ctrl).w,d1
 		bclr	#4,d1
 		move.w	d1,(a4)
 		startZ80
@@ -625,7 +623,7 @@ sub_626:
 		lea	(vdp_control_port).l,a0
 		stopZ80
 		waitZ80
-		move.w	(word_C9BA).w,d4
+		move.w	(v_vdp81_ctrl).w,d4
 		bset	#4,d4
 		move.w	d4,(a0)
 		move.w	#$8F02,(vdp_control_port).l
@@ -659,7 +657,7 @@ sub_626:
 		move.w	d1,(a0)
 		movea.l	d6,a1
 		move.w	(a1),-4(a0)			; points to vdp_data_port
-		move.w	(word_C9BA).w,d4
+		move.w	(v_vdp81_ctrl).w,d4
 		bclr	#4,d4
 		move.w	d4,(a0)
 		startZ80
@@ -4191,10 +4189,8 @@ loc_64AA:
 		move.w	(word_FFC4).w,d0
 		andi.w	#4,d0
 		move.w	d0,(word_FAC8).w
-		ori.w	#$8124,(word_C9BA).w
-		move.w	(word_C9BA).w,(vdp_control_port).l
-		ori.w	#$8144,(word_C9BA).w
-		move.w	(word_C9BA).w,(vdp_control_port).l
+		enable_vints
+		enable_display
 		addq.w	#4,(v_subgamemode).w		; increase sega screen mode
 
 loc_64F2:
@@ -4774,7 +4770,7 @@ Sega_MainAnimation:
 
 loc_69D2:
 		move.w	#$8164,(vdp_control_port).l
-		move.w	#$8164,(word_C9BA).w
+		move.w	#$8164,(v_vdp81_ctrl).w
 		bsr.w	SegaScrn_CheckRegion
 		lea	(unk_0200&$FFFFFF+$80).l,a0
 		bra.s	loc_6A02
@@ -5069,7 +5065,7 @@ sub_6CF0:
 
 loc_6CFC:
 		move.w	#$8164,(vdp_control_port).l
-		move.w	#$8164,(word_C9BA).w
+		move.w	#$8164,(v_vdp81_ctrl).w
 		subi.w	#$10,(word_CA5E).w
 		subi.w	#$10,(word_CA60).w
 		subq.w	#1,(word_FAC6).w
@@ -5548,8 +5544,7 @@ Fields:
 		lea	$20(a1),a1
 		movem.l	(a0)+,d0-d7
 		movem.l	d0-d7,(a1)
-		andi.w	#$81BC,(word_C9BA).w
-		move.w	(word_C9BA).w,(vdp_control_port).l
+		disable_display
 		jsr	(Field_LoadArt).l
 		jsr	(sub_15D0).w
 		move.w	#5,(word_D83C).w
@@ -5559,8 +5554,7 @@ Fields:
 		jsr	(Load_Field_Players).l ; Load Field Player Objects
 		jsr	(sub_D1E0).l
 		jsr	(sub_FA44).l
-		ori.w	#$8144,(word_C9BA).w
-		move.w	(word_C9BA).w,(vdp_control_port).l
+		enable_display
 		bra.w	Fields_MainLoop
 ; ===========================================================================
 
@@ -6636,8 +6630,7 @@ loc_88D2:
 		move.w	#0,(a0)
 		bsr.w	sub_F45C
 		bsr.w	sub_FA44
-		andi.w	#$81BC,(word_C9BA).w
-		move.w	(word_C9BA).w,(vdp_control_port).l
+		disable_display
 		clr.l	(word_D82C).w
 		jsr	(sub_9514).l
 		bsr.w	sub_8BFE
@@ -6667,8 +6660,7 @@ loc_8968:
 		bsr.w	sub_F58C
 
 loc_896C:
-		ori.w	#$8144,(word_C9BA).w
-		move.w	(word_C9BA).w,(vdp_control_port).l
+		enable_display
 		bsr.w	sub_F4FE
 		jsr	(sub_F94A).l
 		bra.w	Level_MainLoop
