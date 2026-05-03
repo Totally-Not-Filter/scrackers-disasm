@@ -105,9 +105,7 @@ zVoiceTblPtr:	ds.w 1
 zSFXVoiceTblPtr:	ds.w 1
 zSFXTempoDivider:	ds.b 1
 zDACIndex:	ds.b 1
-	ds.b 1
-	ds.b 1
-	ds.b 1
+	ds.b 3
 
 ; Now starts song and SFX z80 RAM
 ; Max number of music channels: 6 FM + 3 PSG or 1 DAC + 5 FM + 3 PSG
@@ -180,28 +178,6 @@ bankswitch macro
 	endif
 	endm
 
-bankswitch2 macro addr68k
-	if OptimiseDriver
-		ld	hl,zBankRegister+1
-.cnt	:= 0
-		rept 9
-			; this is either ld (hl),h or ld (hl),l
-			db 74h|(((addr68k)&(1<<(15+.cnt)))<>0)
-.cnt		:= .cnt+1
-		endm
-	else
-		ld	hl,zBankRegister
-		xor	a	; a = 0
-		ld	e,1	; e = 1
-.cnt	:= 0
-		rept 9
-			; this is either ld (hl),a or ld (hl),e
-			db 73h|((((addr68k)&(1<<(15+.cnt)))=0)<<2)
-.cnt		:= .cnt+1
-		endm
-	endif
-	endm
-
 bankswitchToDAC macro
 	if OptimiseDriver
 		ld	a, (zDACBank)
@@ -220,6 +196,28 @@ bankswitchToMusic macro
 		ld	a, (hl)
 	endif
 		bankswitch
+	endm
+
+bankswitchToSFX macro
+	if OptimiseDriver
+		ld	hl,zBankRegister+1
+.cnt	:= 0
+		rept 9
+			; this is either ld (hl),h or ld (hl),l
+			db 74h|(((SoundBank)&(1<<(15+.cnt)))<>0)
+.cnt		:= .cnt+1
+		endm
+	else
+		ld	hl,zBankRegister
+		xor	a	; a = 0
+		ld	e,1	; e = 1
+.cnt	:= 0
+		rept 9
+			; this is either ld (hl),a or ld (hl),e
+			db 73h|((((SoundBank)&(1<<(15+.cnt)))=0)<<2)
+.cnt		:= .cnt+1
+		endm
+	endif
 	endm
 
 ; macro to make a certain error message clearer should you happen to get it...
@@ -246,7 +244,6 @@ zmake68kBank function addr,(((addr&3F8000h)/zROMWindow))&3Fh
 
 ; Segment type:	Regular
 
-loc_0:
 		di
 	if OptimiseDriver=0
 		di
@@ -402,11 +399,11 @@ InitDriver:
 		ld	sp, zStack
 		ld	c, 0
 
-loc_B7:
+.loop:
 		ld	b, 0
 		djnz	$
 		dec	c
-		jr	nz, loc_B7
+		jr	nz, .loop
 
 		call	StopAllSound
 		ld	a, zmake68kBank(MusicBank)	; get initial music bank
@@ -459,7 +456,7 @@ UpdateAll:
 UpdateSFXTracks:
 		ld	a, 1
 		ld	(zUpdateSound), a		; 01 - SFX Mode
-		bankswitch2 SoundBank
+		bankswitchToSFX
 		ld	ix, zTracksSFXStart
 		ld	b, (zTracksSFXEnd-zTracksSFXStart)/zTrack.len
 		call	TrkUpdateLoop
@@ -1355,8 +1352,6 @@ PlaySoundID:
 		cp	flg_Last+15h			; is the ID after the command flags?
 		jp	nc, StopAllSound		; if so, Stop all sound
 	endif
-
-PlaySnd_Command:
 		sub	flg_First
 		ld	hl, CmdPtrTable
 		rst	ReadPtrTable
@@ -1377,7 +1372,8 @@ FadeInMusic:
 	if FixDriverBugs
 		ld	b, (zTracksSpecSFXEnd-zTracksSpecSFXStart)/zTrack.len
 	else
-		ld	b, 2
+		; Bug: This does an extra track, even though it doesn't exist.
+		ld	b, (zTracksSpecSFXEnd+zTrack.len-zTracksSpecSFXStart)/zTrack.len
 	endif
 		ld	a, 80h
 		ld	(zUpdateSound), a
@@ -1480,7 +1476,6 @@ loc_5E7:
 		call	FinishTrkInit
 		pop	bc
 		djnz	loc_5E7
-; End of function PlaySoundID
 
 ClearSoundID:
 		ld	a, 80h
@@ -1503,7 +1498,7 @@ PSGInitBytes:
 
 PlaySpcSFX:
 		ex	af, af'
-		bankswitch2 SoundBank
+		bankswitchToSFX
 		ex	af, af'
 		sub	spec_First
 		ex	af, af'
@@ -1518,7 +1513,7 @@ PlaySpcSFX:
 
 PlaySFX:
 		ex	af, af'
-		bankswitch2 SoundBank
+		bankswitchToSFX
 		ex	af, af'
 		sub	sfx_First
 		ex	af, af'
@@ -2622,7 +2617,7 @@ loc_C54:
 		call	JumpToInsData
 		call	SendFMIns
 		push	hl
-		bankswitch2 SoundBank
+		bankswitchToSFX
 		pop	hl
 		ld	a, (ix+zTrack.FMVolEnv)
 		or	a

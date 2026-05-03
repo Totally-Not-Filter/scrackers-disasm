@@ -194,7 +194,8 @@ EntryPoint:
 		bra.s	GameProgram
 
 ; ===========================================================================
-SetupValues:	dc.w $8000				; VDP register Start
+SetupValues:
+		dc.w $8000				; VDP register Start
 		dc.w bytesToLcnt(v_ram_end-v_ram_start)		; Repeat times for clearing 68k ram
 		dc.w $100				; VDP register Number increase (Used for Z80 functioning too)
 
@@ -270,7 +271,7 @@ Z80StartupCodeEnd:
 
 		dc.w $8104,$8F02			; Display and increment register values
 		dc.l $C0000000				; VDP CRAM address
-		dc.l $40000010
+		dc.l $40000010				; VDP VSRAM address
 PSGInitValues:	dc.b $9F,$BF,$DF,$FF			; PSG Values
 PSGInitValues_End:
 ; ===========================================================================
