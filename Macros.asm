@@ -24,7 +24,7 @@ writeVRAM:	macro loc,controlport=(vdp_control_port).l
 ; input: 16-bit VRAM address, control port (default is (vdp_control_port).l)
 ; ---------------------------------------------------------------------------
 
-writeCRAM:	macro loc,controlport=(vdp_control_port).l
+writeCRAM:	macro loc=0,controlport=(vdp_control_port).l
 		move.l	#$C0000000+(loc<<16),controlport
 		endm
 
@@ -33,7 +33,7 @@ writeCRAM:	macro loc,controlport=(vdp_control_port).l
 ; input: 16-bit VRAM address, control port (default is (vdp_control_port).l)
 ; ---------------------------------------------------------------------------
 
-writeVSRAM:	macro loc,controlport=(vdp_control_port).l
+writeVSRAM:	macro loc=0,controlport=(vdp_control_port).l
 		move.l	#$40000010+(loc<<16),controlport
 		endm
 
