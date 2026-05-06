@@ -1004,19 +1004,19 @@ ControlInit_Unused:
 ; ---------------------------------------------------------------------------
 
 ReadCtrlInput:
-		lea	(unk_C938).w,a1
+		lea	(v_ctrl_p1).w,a1
 		lea	(port_1_data).l,a0
-		lea	(unk_C936).w,a2
-		bsr.w	sub_9D4
+		lea	(v_ctrl_p1_type).w,a2
+		bsr.w	ReadCtrlPorts
 		lea	(port_2_data).l,a0
-		lea	(unk_C937).w,a2
-		bsr.w	sub_9D4
+		lea	(v_ctrl_p2_type).w,a2
+		bsr.w	ReadCtrlPorts
 		bsr.s	sub_992
 		rts
 
 sub_992:
 		moveq	#7,d0
-		cmpi.b	#7,(unk_C936).w
+		cmpi.b	#7,(v_ctrl_p1_type).w
 		bne.s	loc_9A0
 		subq.w	#4,d0
 		bra.s	loc_9A2
@@ -1025,7 +1025,7 @@ loc_9A0:
 		subq.w	#1,d0
 
 loc_9A2:
-		cmpi.b	#7,(unk_C937).w
+		cmpi.b	#7,(v_ctrl_p2_type).w
 		bne.s	loc_9B0
 		subq.w	#4,d0
 		bcs.s	locret_9D2
@@ -1035,49 +1035,50 @@ loc_9B0:
 		subq.w	#1,d0
 
 loc_9B2:
-		move.b	#$F,(a1)
+		move.b	#$F,ctrl.type(a1)
 		clr.b	1(a1)
 		clr.w	2(a1)
 		clr.l	4(a1)
 		clr.l	8(a1)
 		clr.l	$C(a1)
-		lea	$10(a1),a1
+		lea	ctrl.len(a1),a1
 		dbf	d0,loc_9B2
 
 locret_9D2:
 		rts
 
-sub_9D4:
-		bsr.w	sub_A06
+ReadCtrlPorts:
+		bsr.w	GetCtrlPeripheral
 		move.b	d0,(a2)
 		andi.w	#$E,d0
 		add.w	d0,d0
-		jsr	loc_9E6(pc,d0.w)
+		jsr	.ctrlindex(pc,d0.w)
 		rts
-; ===========================================================================
-loc_9E6:
-		nop
-		rts
-; ---------------------------------------------------------------------------
-		bra.w	loc_A5A
-; ---------------------------------------------------------------------------
-		nop
-		rts
-; ---------------------------------------------------------------------------
-		bra.w	loc_C70
-; ---------------------------------------------------------------------------
-		nop
-		rts
-; ---------------------------------------------------------------------------
-		nop
-		rts
-; ---------------------------------------------------------------------------
-		bra.w	loc_B30
-; ---------------------------------------------------------------------------
-		bra.w	loc_BBA
 ; ===========================================================================
 
-sub_A06:
+.ctrlindex:
+		nop
+		rts						; $00
+; ---------------------------------------------------------------------------
+		bra.w	ReadMouse		; $02
+; ---------------------------------------------------------------------------
+		nop
+		rts						; $04
+; ---------------------------------------------------------------------------
+		bra.w	ReadMultiTap	; $06
+; ---------------------------------------------------------------------------
+		nop
+		rts						; $08
+; ---------------------------------------------------------------------------
+		nop
+		rts						; $0A
+; ---------------------------------------------------------------------------
+		bra.w	ReadCtrlPad		; $0C
+; ---------------------------------------------------------------------------
+		bra.w	InvalidCtrl	; $0E
+; ===========================================================================
+
+GetCtrlPeripheral:
 		stopZ80
 		move.b	#$40,6(a0)
 		move.b	#$40,(a0)
@@ -1088,28 +1089,28 @@ sub_A06:
 		move.b	(a0),d1
 		and.b	d1,d2
 		swap	d1
-		or.b	byte_A4A(pc,d2.w),d0
+		or.b	.nybble(pc,d2.w),d0
 		move.b	#0,(a0)
 		lsl.w	#2,d0
 		moveq	#$F,d2
 		nop
 		move.b	(a0),d1
 		and.b	d1,d2
-		or.b	byte_A4A(pc,d2.w),d0
+		or.b	.nybble(pc,d2.w),d0
 		move.b	#$40,(a0)
 		startZ80
 		rts
 ; ===========================================================================
 
-byte_A4A:
+.nybble:
 		dc.b 0,1,1,1
 		dc.b 2,3,3,3
 		dc.b 2,3,3,3
 		dc.b 2,3,3,3
 ; ===========================================================================
 
-loc_A5A:
-		_move.b	#2,0(a1)
+ReadMouse:
+		_move.b	#2,ctrl.type(a1)
 		move.w	#$FF,d7
 		stopZ80
 		move.b	#$60,6(a0)
@@ -1132,7 +1133,7 @@ loc_A96:
 		rts
 
 loc_AAC:
-		lea	$10(a1),a1
+		lea	ctrl.len(a1),a1
 		move.b	#$60,(a0)
 
 loc_AB4:
@@ -1146,32 +1147,32 @@ sub_ACA:
 		bsr.w	sub_C2E
 		bcs.w	loc_C5C
 		andi.w	#$F,d0
-		move.b	d0,1(a1)
+		move.b	d0,mouse.orientation(a1)
 		bsr.w	sub_C2E
 		bcs.w	loc_C5C
 		andi.w	#$F,d0
-		move.b	d0,2(a1)
+		move.b	d0,mouse.buttons(a1)
 		bsr.w	sub_C2E
 		bcs.w	loc_C5C
 		andi.w	#$F,d0
-		move.b	d0,3(a1)
+		move.b	d0,mouse.x_high(a1)
 		bsr.w	sub_C2E
 		bcs.w	loc_C5C
 		andi.w	#$F,d0
-		move.b	d0,4(a1)
+		move.b	d0,mouse.x_low(a1)
 		bsr.w	sub_C2E
 		bcs.w	loc_C5C
 		andi.w	#$F,d0
-		move.b	d0,5(a1)
+		move.b	d0,mouse.y_high(a1)
 		bsr.w	sub_C2E
 		bcs.w	loc_C5C
 		andi.w	#$F,d0
-		move.b	d0,6(a1)
-		lea	$10(a1),a1
+		move.b	d0,mouse.y_low(a1)
+		lea	mouse.len(a1),a1
 		rts
 ; ===========================================================================
 
-loc_B30:
+ReadCtrlPad:
 		stopZ80
 		move.b	#$40,6(a0)
 		moveq	#2,d3
@@ -1203,7 +1204,7 @@ loc_B6E:
 		swap	d2
 		_move.b	0(a0),d2
 		startZ80
-		_move.b	#1,0(a1)
+		_move.b	#1,ctrl.type(a1)
 		move.w	d1,d0
 		swap	d1
 		asl.b	#2,d0
@@ -1217,21 +1218,21 @@ loc_B6E:
 		not.b	d0
 		andi.w	#$F,d0
 		bsr.w	sub_C1C
-		lea	$10(a1),a1
+		lea	ctrl.len(a1),a1
 		rts
 
-loc_BBA:
-		_move.b	#$F,0(a1)
+InvalidCtrl:
+		_move.b	#$F,ctrl.type(a1)
 		clr.b	1(a1)
 		clr.w	2(a1)
 		clr.l	4(a1)
 		clr.l	8(a1)
 		clr.l	$C(a1)
-		lea	$10(a1),a1
+		lea	ctrl.len(a1),a1
 		rts
 
 loc_BDA:
-		_clr.b	0(a1)
+		_clr.b	ctrl.type(a1)
 		move.b	#$40,6(a0)
 		move.w	d1,d0
 		swap	d1
@@ -1243,24 +1244,24 @@ loc_BDA:
 		or.b	d1,d0
 		not.b	d0
 		bsr.s	sub_C0A
-		lea	$10(a1),a1
+		lea	ctrl.len(a1),a1
 		rts
 
 
 sub_C0A:
-		move.b	4(a1),d1
+		move.b	ctrl.hold_3(a1),d1
 		eor.b	d0,d1
-		move.b	d0,4(a1)
+		move.b	d0,ctrl.hold_3(a1)
 		and.b	d0,d1
-		move.b	d1,5(a1)
+		move.b	d1,ctrl.press_3(a1)
 		rts
 
 sub_C1C:
-		move.b	3(a1),d1
+		move.b	ctrl.hold_6(a1),d1
 		eor.b	d0,d1
-		move.b	d0,3(a1)
+		move.b	d0,ctrl.hold_6(a1)
 		and.b	d0,d1
-		move.b	d1,6(a1)
+		move.b	d1,ctrl.press_6(a1)
 		rts
 
 sub_C2E:
@@ -1299,7 +1300,7 @@ loc_C62:
 		rts
 ; ===========================================================================
 
-loc_C70:
+ReadMultiTap:
 		stopZ80
 		move.b	#$20,(a0)
 		move.b	#$60,6(a0)
@@ -1319,16 +1320,16 @@ loc_C70:
 		bsr.s	loc_C34
 		bcs.w	loc_D10
 		andi.b	#$F,d0
-		move.b	d0,$10(a1)
+		move.b	d0,v_ctrl_p2-v_ctrl_p1(a1)
 		bsr.s	sub_C48
 		bcs.w	loc_D10
 		andi.b	#$F,d0
-		move.b	d0,$20(a1)
+		move.b	d0,v_ctrl_p3-v_ctrl_p1(a1)
 		moveq	#0,d6
 		bsr.w	sub_C2E
 		bcs.w	loc_D10
 		andi.b	#$F,d0
-		move.b	d0,$30(a1)
+		move.b	d0,v_ctrl_p4-v_ctrl_p1(a1)
 		bsr.s	sub_D3A
 		bcs.w	loc_D10
 		bsr.s	sub_D3A
@@ -1347,16 +1348,16 @@ loc_CFA:
 		rts
 
 loc_D10:
-		lea	$10(a1),a1
+		lea	ctrl.len(a1),a1
 
 loc_D14:
-		lea	$10(a1),a1
+		lea	ctrl.len(a1),a1
 
 loc_D18:
-		lea	$10(a1),a1
+		lea	ctrl.len(a1),a1
 
 loc_D1C:
-		lea	$10(a1),a1
+		lea	ctrl.len(a1),a1
 		move.b	#$60,(a0)
 
 loc_D24:
@@ -1368,7 +1369,7 @@ loc_D24:
 
 sub_D3A:
 		moveq	#0,d0
-		move.b	(a1),d0
+		move.b	ctrl.type(a1),d0
 		cmpi.b	#2,d0
 		bhi.s	loc_D58
 		add.w	d0,d0
@@ -1376,9 +1377,9 @@ sub_D3A:
 		jmp	loc_D4C(pc,d0.w)
 ; ===========================================================================
 loc_D4C:
-		bra.w	loc_D98
-		bra.w	loc_D72
-		bra.w	sub_ACA
+		bra.w	loc_D98	; $00
+		bra.w	loc_D72	; $04
+		bra.w	sub_ACA	; $08
 ; ===========================================================================
 
 loc_D58:
@@ -1387,7 +1388,7 @@ loc_D58:
 		clr.l	4(a1)
 		clr.l	8(a1)
 		clr.l	$C(a1)
-		lea	$10(a1),a1
+		lea	ctrl.len(a1),a1
 		rts
 ; ===========================================================================
 
@@ -1402,7 +1403,7 @@ loc_D72:
 		bsr.w	sub_C0A
 		move.b	d2,d0
 		bsr.w	sub_C1C
-		lea	$10(a1),a1
+		lea	ctrl.len(a1),a1
 		rts
 
 loc_D98:
@@ -1410,7 +1411,7 @@ loc_D98:
 		bcs.w	loc_C5C
 		move.b	d1,d0
 		bsr.w	sub_C0A
-		lea	$10(a1),a1
+		lea	ctrl.len(a1),a1
 		rts
 
 sub_DAA:
@@ -4231,7 +4232,7 @@ MultiReturn:
 ; ---------------------------------------------------------------------------
 
 loc_6526:
-		tst.b	(unk_C93C).w
+		tst.b	(v_ctrl_p1+ctrl.hold_3).w
 		bpl.s	Sega_ChooseAnimation
 		move.w	#$14,(v_subgamemode).w
 
@@ -4248,7 +4249,7 @@ Sega_AnimationTable:
 ; ---------------------------------------------------------------------------
 
 SegaPaletteStart:
-		tst.b	(unk_C93C).w
+		tst.b	(v_ctrl_p1+ctrl.hold_3).w
 		bpl.s	.cycling
 		move.w	#$14,(v_subgamemode).w
 
@@ -4276,7 +4277,7 @@ SegaPaletteStart:
 ; ---------------------------------------------------------------------------
 
 SegaPaletteCycle:
-		tst.b	(unk_C93C).w
+		tst.b	(v_ctrl_p1+ctrl.hold_3).w
 		bpl.s	loc_6594
 		move.w	#$14,(v_subgamemode).w
 
@@ -4300,7 +4301,7 @@ loc_6594:
 ; ---------------------------------------------------------------------------
 
 loc_65C6:
-		tst.b	(unk_C93C).w
+		tst.b	(v_ctrl_p1+ctrl.hold_3).w
 		bpl.s	loc_65D2
 		move.w	#$14,(v_subgamemode).w
 
@@ -5409,7 +5410,7 @@ TitleStart:
 .wait:
 		tst.b	(v_lagger).w
 		bpl.s	.wait
-		move.w	(word_C946).w,d0
+		move.w	(v_ctrl_p1+ctrl.var_E).w,d0
 		add.w	(v_titleselect).w,d0
 		bpl.s	loc_74F4
 		moveq	#0,d0
@@ -5424,7 +5425,7 @@ loc_74FC:
 		lsl.w	#4,d0
 		addi.w	#$120,d0	; position on screen
 		move.w	d0,(word_D832).w
-		tst.b	(unk_C93D).w
+		tst.b	(v_ctrl_p1+ctrl.press_3).w
 		bmi.s	TitleStartMenu
 		rts
 ; ---------------------------------------------------------------------------
@@ -5472,14 +5473,14 @@ loc_7576:
 		writeVRAM	vram_sprtbl_title
 		move.w	(word_D832).w,(vdp_data_port).l
 		jsr	(ReadCtrlInput).w
-		move.b	(unk_C93C).w,d0
+		move.b	(v_ctrl_p1+ctrl.hold_3).w,d0
 		bsr.s	sub_75BC
-		move.w	d1,(word_C940).w
-		move.w	d2,(word_C942).w
-		move.b	(unk_C93D).w,d0
+		move.w	d1,(v_ctrl_p1+ctrl.var_8).w
+		move.w	d2,(v_ctrl_p1+ctrl.var_A).w
+		move.b	(v_ctrl_p1+ctrl.press_3).w,d0
 		bsr.s	sub_75BC
-		move.w	d1,(word_C944).w
-		move.w	d2,(word_C946).w
+		move.w	d1,(v_ctrl_p1+ctrl.var_C).w
+		move.w	d2,(v_ctrl_p1+ctrl.var_E).w
 		jsr	(DMAToCRAM).w
 		ori.b	#$80,(v_lagger).w
 		movem.l	(sp)+,d0-a6
@@ -5597,13 +5598,13 @@ Fields_MainLoop:
 
 Field_ReadController:
 		jsr	(ReadCtrlInput).w
-		lea	(unk_C938).w,a3
+		lea	(v_ctrl_p1).w,a3
 		moveq	#0,d1
 		move.b	(byte_D89C).w,d1
 		moveq	#7,d0
-		and.b	3(a3,d1.w),d0
+		and.b	ctrl.hold_6(a3,d1.w),d0
 		sne	d2
-		move.b	4(a3,d1.w),d0
+		move.b	ctrl.hold_3(a3,d1.w),d0
 		move.b	d0,d1
 		andi.b	#$70,d1
 		sne	d1
@@ -5620,14 +5621,14 @@ Field_ReadController:
 		lea	(byte_D89C).w,a4
 		bsr.w	sub_7FB0
 		move.b	(word_FAFE).w,d0
-		lea	(unk_C938).w,a3
+		lea	(v_ctrl_p1).w,a3
 		moveq	#0,d1
 		move.b	(byte_D8AC).w,d1
 		bmi.s	loc_7FA8
 		moveq	#7,d0
-		and.b	3(a3,d1.w),d0
+		and.b	ctrl.hold_6(a3,d1.w),d0
 		sne	d2
-		move.b	4(a3,d1.w),d0
+		move.b	ctrl.hold_3(a3,d1.w),d0
 		move.b	d0,d1
 		andi.b	#$70,d1
 		sne	d1
@@ -5710,7 +5711,7 @@ Vint_Fields:
 Field_PauseGame:
 		tst.b	(byte_D89F).w
 		bpl.w	locret_8194
-		move.b	(unk_C93C).w,d0
+		move.b	(v_ctrl_p1+ctrl.hold_3).w,d0
 		andi.b	#$70,d0
 		cmpi.b	#$70,d0
 		bne.s	loc_8086
@@ -5806,7 +5807,7 @@ loc_814C:
 		jsr	(sub_82B2).l
 		jsr	(BuildSprites).w
 		bsr.w	sub_F374
-		tst.b	(unk_C93D).w
+		tst.b	(v_ctrl_p1+ctrl.press_3).w
 		bpl.w	loc_808A
 		movem.l	(sp)+,d0-a6
 
@@ -6712,7 +6713,7 @@ Level_MainLoop:
 
 Level_ReadController:
 		jsr	(ReadCtrlInput).w
-		lea	(unk_C938).w,a3
+		lea	(v_ctrl_p1).w,a3
 		moveq	#0,d1
 		move.b	(byte_D89C).w,d1
 		moveq	#7,d0
@@ -6735,7 +6736,7 @@ Level_ReadController:
 		lea	(byte_D89C).w,a4
 		bsr.w	sub_8ABC
 		move.b	(word_FAFE).w,d0
-		lea	(unk_C938).w,a3
+		lea	(v_ctrl_p1).w,a3
 		moveq	#0,d1
 		move.b	(byte_D8AC).w,d1
 		bmi.s	loc_8AB4
@@ -6828,7 +6829,7 @@ loc_8B1C:
 Level_PauseGame:
 		tst.b	(byte_D89F).w
 		bpl.w	locret_8BFC
-		move.b	(unk_C93C).w,d0
+		move.b	(v_ctrl_p1+ctrl.hold_3).w,d0
 		andi.b	#$70,d0
 		cmpi.b	#$70,d0
 		bne.s	loc_8BA0
@@ -6865,7 +6866,7 @@ loc_8BA4:
 		jsr	(sub_9514).l
 		jsr	(BuildSprites).w
 		bsr.w	sub_F374
-		tst.b	(unk_C93D).w
+		tst.b	(v_ctrl_p1+ctrl.press_3).w
 		bpl.s	loc_8BA4
 		movem.l	(sp)+,d0-a6
 
@@ -7068,7 +7069,7 @@ LevelSelect_Main:
 .wait:
 		tst.b	(v_lagger).w
 		bpl.s	.wait
-		move.w	(word_C944).w,d0
+		move.w	(v_ctrl_p1+ctrl.var_C).w,d0
 		add.w	(word_D834).w,d0
 		bpl.s	loc_8ED8
 		moveq	#0,d0
@@ -7164,7 +7165,7 @@ loc_8FCA:
 		move.w	(word_D834).w,d1
 		add.w	d1,d1
 		move.w	word_8FB6(pc,d1.w),d1
-		move.w	(word_C946).w,d0
+		move.w	(v_ctrl_p1+ctrl.var_E).w,d0
 		neg.w	d0
 		add.w	(word_D836).w,d0
 		bpl.s	loc_8FE2
@@ -7181,7 +7182,7 @@ loc_8FE8:
 		neg.w	d0
 		addi.w	#$130,d0
 		move.w	d0,(word_D832).w
-		tst.b	(unk_C93D).w
+		tst.b	(v_ctrl_p1+ctrl.press_3).w
 		bmi.s	LevelSelect_PlaySpecial
 		rts
 ; ---------------------------------------------------------------------------
@@ -7219,14 +7220,14 @@ loc_903C:
 		writeVRAM vram_sprtbl_title
 		move.w	(word_D832).w,(vdp_data_port).l
 		jsr	(ReadCtrlInput).w
-		move.b	(unk_C93C).w,d0
+		move.b	(v_ctrl_p1+ctrl.hold_3).w,d0
 		bsr.s	sub_9098
-		move.w	d1,(word_C940).w
-		move.w	d2,(word_C942).w
-		move.b	(unk_C93D).w,d0
+		move.w	d1,(v_ctrl_p1+ctrl.var_8).w
+		move.w	d2,(v_ctrl_p1+ctrl.var_A).w
+		move.b	(v_ctrl_p1+ctrl.press_3).w,d0
 		bsr.s	sub_9098
-		move.w	d1,(word_C944).w
-		move.w	d2,(word_C946).w
+		move.w	d1,(v_ctrl_p1+ctrl.var_C).w
+		move.w	d2,(v_ctrl_p1+ctrl.var_E).w
 		jsr	(DMAToCRAM).w
 		ori.b	#$80,(v_lagger).w
 		movem.l	(sp)+,d0-a6
@@ -7328,9 +7329,9 @@ OptionSoundTest_Exit:
 .wait:
 		tst.b	(v_lagger).w
 		bpl.s	.wait
-		move.w	(word_C944).w,d0
+		move.w	(v_ctrl_p1+ctrl.var_C).w,d0
 		add.b	d0,(v_menu_soundid+1).w
-		move.w	(word_C946).w,d0
+		move.w	(v_ctrl_p1+ctrl.var_E).w,d0
 		lsl.w	#4,d0
 		add.b	d0,(v_menu_soundid+1).w
 		disable_ints
@@ -7339,7 +7340,7 @@ OptionSoundTest_Exit:
 		addi.w	#$820,d1	; position on screen
 		jsr	(sub_5090).l
 		enable_ints
-		move.b	(unk_C93D).w,d0
+		move.b	(v_ctrl_p1+ctrl.press_3).w,d0
 		bpl.s	loc_94A0
 		move.b	#flg_FadeOut,d0
 		jsr	(PlayMusic).l
@@ -7365,14 +7366,14 @@ loc_94B4:
 		writeVRAM vram_sprtbl_title
 		move.w	(word_D832).w,(vdp_data_port).l
 		jsr	(ReadCtrlInput).w
-		move.b	(unk_C93C).w,d0
+		move.b	(v_ctrl_p1+ctrl.hold_3).w,d0
 		bsr.s	sub_94F6
-		move.w	d1,(word_C940).w
-		move.w	d2,(word_C942).w
-		move.b	(unk_C93D).w,d0
+		move.w	d1,(v_ctrl_p1+ctrl.var_8).w
+		move.w	d2,(v_ctrl_p1+ctrl.var_A).w
+		move.b	(v_ctrl_p1+ctrl.press_3).w,d0
 		bsr.s	sub_94F6
-		move.w	d1,(word_C944).w
-		move.w	d2,(word_C946).w
+		move.w	d1,(v_ctrl_p1+ctrl.var_C).w
+		move.w	d2,(v_ctrl_p1+ctrl.var_E).w
 		ori.b	#$80,(v_lagger).w
 		movem.l	(sp)+,d0-a6
 		rte
@@ -18194,7 +18195,7 @@ sub_F538:
 		jsr	(BuildSprites).w
 		tst.b	(byte_FDC2).w
 		beq.s	loc_F562
-		btst	#bitStart,(unk_C93D).w
+		btst	#bitStart,(v_ctrl_p1+ctrl.press_3).w
 		beq.s	sub_F538
 		clr.b	(byte_FDC2).w
 		clr.w	(word_FDC4).w

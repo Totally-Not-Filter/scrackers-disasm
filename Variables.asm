@@ -33,17 +33,13 @@ unk_C82A:	ds.b 6
 unk_C830:	ds.b 2
 v_vdpindex:	ds.l 1
 unk_C836:	ds.b $100
-unk_C936:	ds.b 1
-unk_C937:	ds.b 1
-unk_C938:	ds.l 1
-unk_C93C:	ds.b 1
-unk_C93D:	ds.b 1
-			ds.b 2
-word_C940:	ds.w 1
-word_C942:	ds.w 1
-word_C944:	ds.w 1
-word_C946:	ds.w 1
-			ds.b $70
+v_ctrl_p1_type:	ds.b 1
+v_ctrl_p2_type:	ds.b 1
+v_ctrl_p1:	ctrl
+v_ctrl_p2:	ctrl
+v_ctrl_p3:	ctrl
+v_ctrl_p4:	ctrl
+			ds.b $40
 word_C9B8:	ds.w 1
 v_vdp81_ctrl:	ds.w 1
 			ds.b $12

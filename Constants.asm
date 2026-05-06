@@ -106,6 +106,37 @@ Angle:		ds.b 1
 Inertia:	ds.w 1
 	endstruct
 
+; -------------------------------------------------------------------------
+; Controller data structure
+; -------------------------------------------------------------------------
+
+ctrl struct DOTS
+type		ds.b 1
+			ds.b 2
+hold_6		ds.b 1
+hold_3		ds.b 1
+press_3		ds.b 1
+press_6		ds.b 1
+angle		ds.b 1
+var_8		ds.b 1
+var_9		ds.b 1
+var_A		ds.b 1
+var_B		ds.b 1
+var_C		ds.w 1
+var_E		ds.w 1
+	endstruct
+
+mouse struct DOTS
+			ds.b 1
+orientation	ds.b 1
+buttons		ds.b 1
+x_high		ds.b 1
+x_low		ds.b 1
+y_high		ds.b 1
+y_low		ds.b 1
+			ds.b 9
+	endstruct
+
 ; Background music
 bgm_First:	equ $81
 bgm_Electoria:	equ ((ptr_mus81-MusicIndex)/2)+bgm_First
