@@ -19830,7 +19830,7 @@ ARTUNC_TailsField:
 ; Data Location (000D8000 - 000D9C0F)
 ; Striped out
 ; UnkData_000D8000:
-		binclude	"artunc/Mini Tails (Part 2).bin"
+		binclude	"artunc/Mini Tails (Field).bin"
 		even
 ; ---------------------------------------------------------------------------
 ; Data Location (000D9C10 - 000DA3FF)
