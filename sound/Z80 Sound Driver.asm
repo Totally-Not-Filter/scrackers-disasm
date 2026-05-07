@@ -3396,15 +3396,12 @@ ptr_sndD2:	zmake68kPtrs SoundA3+4000h
 ptr_specend
 
 SndPriorities:
-		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh
-		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh
-		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh
-		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh
-		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh
-		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh
-		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh
-		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh
-		db 7Fh
+		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh		; $81 - $8F
+		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh	; $90 - $9F
+		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh	; $A0 - $AF
+		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh	; $B0 - $BF
+		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh	; $C0 - $CF
+		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh									; $D0 - $D9
 
 DAC_Index:	dw .dac81
 		dw .dac82
@@ -3414,20 +3411,20 @@ DAC_Index:	dw .dac81
 		dw .dac86
 		dw .dac87
 
-DACMeta:	macro location,rate
+DAC_Meta:	macro loc,rate
 		db dpcmLoopCounter(rate)
-		zmake68kBanks location
-		dw location_End-location
-		zmake68kPtrs location
+		zmake68kBanks loc
+		dw loc_End-loc
+		zmake68kPtrs loc
 	endm
 
-.dac81:		DACMeta DAC_Sample1,4700
-.dac82:		DACMeta DAC_Sample2,13500
-.dac83:		DACMeta DAC_Sample3,13500
-.dac84:		DACMeta DAC_Sample3,11250
-.dac85:		DACMeta DAC_Sample3,10500
-.dac86:		DACMeta DAC_Sample4,13500
-.dac87:		DACMeta DAC_Sample5,13500
+.dac81:		DAC_Meta DAC_Sample1,4700
+.dac82:		DAC_Meta DAC_Sample2,13500
+.dac83:		DAC_Meta DAC_Sample3,13500
+.dac84:		DAC_Meta DAC_Sample3,11250
+.dac85:		DAC_Meta DAC_Sample3,10500
+.dac86:		DAC_Meta DAC_Sample4,13500
+.dac87:		DAC_Meta DAC_Sample5,13500
 
 		restore
 		padding	off
