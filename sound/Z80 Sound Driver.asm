@@ -16,53 +16,53 @@ OptimiseDriver = 0
 
 zTrack STRUCT DOTS
 PlaybackControl:	ds.b 1
-VoiceControl:	ds.b 1
-TempoDivider:	ds.b 1
-DataPointerLow:	ds.b 1
+VoiceControl:		ds.b 1
+TempoDivider:		ds.b 1
+DataPointerLow:		ds.b 1
 DataPointerHigh:	ds.b 1
-Transpose:	ds.b 1
-Volume:		ds.b 1
-ModulationCtrl:	ds.b 1
-VoiceIndex:	ds.b 1
-StackPointer:	ds.b 1
-AMSFMSPan:	ds.b 1
+Transpose:			ds.b 1
+Volume:				ds.b 1
+ModulationCtrl:		ds.b 1
+VoiceIndex:			ds.b 1
+StackPointer:		ds.b 1
+AMSFMSPan:			ds.b 1
 DurationTimeout:	ds.b 1
-SavedDuration:	ds.b 1
-FreqLow:		ds.b 1
-FreqHigh:	ds.b 1
-VoiceSongID:	ds.b 1
-Detune:		ds.b 1
-PanAni1:		ds.b 1
-PanAni2:		ds.b 1
-PanAni3:		ds.b 1
-PanAni4:		ds.b 1
-PanAni5: 	ds.b 1
-PanAni6:		ds.b 1
-VolEnv:		ds.b 1
+SavedDuration:		ds.b 1
+FreqLow:			ds.b 1
+FreqHigh:			ds.b 1
+VoiceSongID:		ds.b 1
+Detune:				ds.b 1
+PanAni1:			ds.b 1
+PanAni2:			ds.b 1
+PanAni3:			ds.b 1
+PanAni4:			ds.b 1
+PanAni5: 			ds.b 1
+PanAni6:			ds.b 1
+VolEnv:				ds.b 1
 FMVolEnv:
-HaveSSGEGFlag:	ds.b 1
+HaveSSGEGFlag:		ds.b 1
 FMVolEnvMask:
 SSGEGPointerLow:	ds.b 1
 PSGNoise:
 SSGEGPointerHigh:	ds.b 1
-FeedbackAlgo:	ds.b 1
-TLPtrLow:	ds.b 1
-TLPtrHigh:	ds.b 1
+FeedbackAlgo:		ds.b 1
+TLPtrLow:			ds.b 1
+TLPtrHigh:			ds.b 1
 NoteFillTimeout:	ds.b 1
-NoteFillMaster:	ds.b 1
+NoteFillMaster:		ds.b 1
 ModulationPtrLow:	ds.b 1
 ModulationPtrHigh:	ds.b 1
 ModulationValLow:
-ModEnvSens:	ds.b 1
+ModEnvSens:			ds.b 1
 ModulationValHigh:	ds.b 1
-ModulationWait:	ds.b 1
-ModEnvIndex:	ds.b 1
+ModulationWait:		ds.b 1
+ModEnvIndex:		ds.b 1
 ModulationDelta:	ds.b 1
 ModulationSteps:	ds.b 1
-LoopCounters:	ds.w 1
-VoicesLow:	ds.b 1
-VoicesHigh:	ds.b 1
-		ds.b 4
+LoopCounters:		ds.w 1
+VoicesLow:			ds.b 1
+VoicesHigh:			ds.b 1
+	ds.b 4
 zTrack ENDSTRUCT
 
 	phase $1C00
@@ -2318,10 +2318,10 @@ cfE3_SilenceTrk:
 cfE4_PanAnim:
 		push	ix
 		pop	hl
-		ld	bc, 11h
+		ld	bc, zTrack.PanAni1
 		add	hl, bc
 		ex	de, hl
-		ld	bc, 5
+		ld	bc, zTrack.PanAni6-zTrack.PanAni1
 		ldir
 		ld	a, 1
 		ld	(de), a

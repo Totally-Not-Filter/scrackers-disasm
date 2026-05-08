@@ -2014,7 +2014,7 @@ loc_1616:
 ; Sprite building routine
 ; ---------------------------------------------------------------------------
 
-; d0 = ?
+; d0 = object (?)
 ; d2 = x position
 ; d3 = y position
 ; d4 = vram
@@ -3279,14 +3279,14 @@ sub_41AA:
 		movem.l	d1-d5,-(sp)
 		sub.w	d1,d3
 		beq.s	loc_4204
-		smi	d0
+		smi.b	d0
 		bpl.s	loc_41B8
 		neg.w	d3
 
 loc_41B8:
 		sub.w	d2,d4
 		beq.s	loc_4216
-		smi	d5
+		smi.b	d5
 		bpl.s	loc_41C2
 		neg.w	d4
 
@@ -3331,7 +3331,7 @@ loc_41FC:
 
 loc_4204:
 		sub.w	d2,d4
-		smi	d0
+		smi.b	d0
 		andi.w	#$80,d0
 		addi.w	#$40,d0
 		movem.l	(sp)+,d1-d5
@@ -8966,7 +8966,7 @@ loc_A2E4:
 
 loc_A2F0:
 		btst	#3,$25(a6)
-		sne	d0
+		sne.b	d0
 		andi.b	#8,d0
 		move.b	d0,$20(a6)
 		move.b	#$A,(byte_FAE8).w
@@ -9131,7 +9131,7 @@ loc_A45A:
 		neg.b	d0
 		lsr.w	#4,d0
 		btst	#3,d0
-		sne	d1
+		sne.b	d1
 		andi.w	#6,d0
 		add.w	d2,d0
 		move.w	d0,$26(a6)	; handles sonic's movement animation when going right
@@ -9147,7 +9147,7 @@ loc_A488:
 		neg.b	d0
 		lsr.w	#4,d0
 		btst	#3,d0
-		sne	d1
+		sne.b	d1
 		andi.w	#6,d0
 		add.w	d2,d0
 		move.w	d0,$26(a6)
@@ -9159,7 +9159,7 @@ loc_A488:
 
 loc_A4B4:
 		btst	#3,$25(a6)
-		sne	d0
+		sne.b	d0
 		not.b	d0
 		andi.b	#8,d0
 		move.b	d0,$20(a6)
@@ -9461,7 +9461,7 @@ loc_A79A:
 
 loc_A7A6:
 		btst	#3,$25(a6)
-		sne	d0
+		sne.b	d0
 		andi.b	#8,d0
 		move.b	d0,$20(a6)
 		move.l	#$1C0000,$26(a6)
@@ -9536,7 +9536,7 @@ loc_A830:
 		neg.b	d0
 		lsr.w	#4,d0
 		btst	#3,d0
-		sne	d1
+		sne.b	d1
 		andi.w	#6,d0
 		add.w	d2,d0
 		move.w	d0,$26(a6)
@@ -9552,7 +9552,7 @@ loc_A85E:
 		neg.b	d0
 		lsr.w	#4,d0
 		btst	#3,d0
-		sne	d1
+		sne.b	d1
 		andi.w	#6,d0
 		add.w	d2,d0
 		move.w	d0,$26(a6)
@@ -9564,7 +9564,7 @@ loc_A85E:
 
 loc_A88A:
 		btst	#3,$25(a6)
-		sne	d0
+		sne.b	d0
 		not.b	d0
 		andi.b	#8,d0
 		move.b	d0,$20(a6)
@@ -9906,7 +9906,7 @@ loc_ABAA:
 
 loc_ABB6:
 		btst	#3,$25(a6)
-		sne	d0
+		sne.b	d0
 		andi.b	#8,d0
 		move.b	d0,$20(a6)
 		move.b	#$A,(byte_FAE8).w
@@ -10057,7 +10057,7 @@ loc_AD0C:
 		neg.b	d0
 		lsr.w	#4,d0
 		btst	#3,d0
-		sne	d1
+		sne.b	d1
 		andi.w	#6,d0
 		add.w	d2,d0
 		move.w	d0,$26(a6)
@@ -10073,7 +10073,7 @@ loc_AD3A:
 		neg.b	d0
 		lsr.w	#4,d0
 		btst	#3,d0
-		sne	d1
+		sne.b	d1
 		andi.w	#6,d0
 		add.w	d2,d0
 		move.w	d0,$26(a6)
@@ -10085,7 +10085,7 @@ loc_AD3A:
 
 loc_AD66:
 		btst	#3,$25(a6)
-		sne	d0
+		sne.b	d0
 		not.b	d0
 		andi.b	#8,d0
 		move.b	d0,$20(a6)
@@ -10382,7 +10382,7 @@ loc_B048:
 
 loc_B054:
 		btst	#3,$25(a6)
-		sne	d0
+		sne.b	d0
 		andi.b	#8,d0
 		move.b	d0,$20(a6)
 		move.l	#$1C0000,$26(a6)
@@ -10457,7 +10457,7 @@ loc_B0DE:
 		neg.b	d0
 		lsr.w	#4,d0
 		btst	#3,d0
-		sne	d1
+		sne.b	d1
 		andi.w	#6,d0
 		add.w	d2,d0
 		move.w	d0,$26(a6)
@@ -10473,7 +10473,7 @@ loc_B10C:
 		neg.b	d0
 		lsr.w	#4,d0
 		btst	#3,d0
-		sne	d1
+		sne.b	d1
 		andi.w	#6,d0
 		add.w	d2,d0
 		move.w	d0,$26(a6)
@@ -10485,7 +10485,7 @@ loc_B10C:
 
 loc_B138:
 		btst	#3,$25(a6)
-		sne	d0
+		sne.b	d0
 		not.b	d0
 		andi.b	#8,d0
 		move.b	d0,$20(a6)
@@ -10865,8 +10865,8 @@ loc_B47C:
 ; ---------------------------------------------------------------------------
 
 loc_B492:
-		moveq	#$FFFFFFF5,d0
-		moveq	#$FFFFFFFA,d1
+		moveq	#-$B,d0
+		moveq	#-6,d1
 		bsr.w	sub_CA82
 		move.w	#$14,$26(a6)
 		rts
@@ -11054,11 +11054,11 @@ loc_B5C0:
 
 sub_B5F0:
 		ori.w	#$80,4(a6)
-		moveq	#$FFFFFFF2,d0
-		moveq	#$FFFFFFF3,d1
+		moveq	#-$E,d0
+		moveq	#-$D,d1
 		btst	#0,$28(a5)
 		beq.s	loc_B604
-		moveq	#$FFFFFFF1,d0
+		moveq	#-$F,d0
 
 loc_B604:
 		bsr.w	sub_CA82
@@ -11069,11 +11069,11 @@ loc_B604:
 sub_B610:
 		ori.w	#$80,4(a6)
 		moveq	#-2,d0
-		moveq	#$FFFFFFF6,d1
+		moveq	#-$A,d1
 		btst	#0,$28(a5)
 		beq.s	loc_B626
 		moveq	#-3,d0
-		moveq	#$FFFFFFF7,d1
+		moveq	#-9,d1
 
 loc_B626:
 		bsr.w	sub_CA82
@@ -11083,11 +11083,11 @@ loc_B626:
 
 sub_B632:
 		ori.w	#$80,4(a6)
-		moveq	#$FFFFFFF3,d0
+		moveq	#-$D,d0
 		moveq	#-8,d1
 		btst	#0,$28(a5)
 		beq.s	loc_B646
-		moveq	#$FFFFFFF9,d1
+		moveq	#-7,d1
 
 loc_B646:
 		bsr.w	sub_CA82
@@ -11098,11 +11098,11 @@ loc_B646:
 sub_B652:
 		ori.w	#$80,4(a6)
 		moveq	#-3,d0
-		moveq	#$FFFFFFF4,d1
+		moveq	#-$C,d1
 		btst	#0,$28(a5)
 		beq.s	loc_B668
 		moveq	#-2,d0
-		moveq	#$FFFFFFF5,d1
+		moveq	#-$B,d1
 
 loc_B668:
 		bsr.w	sub_CA82
@@ -11117,8 +11117,8 @@ loc_B674:
 
 sub_B67C:
 		ori.w	#$80,4(a6)
-		moveq	#$FFFFFFEA,d0
-		moveq	#$FFFFFFF4,d1
+		moveq	#-$16,d0
+		moveq	#-$C,d1
 		bsr.w	sub_CA82
 		moveq	#0,d0
 		move.b	$28(a5),d0
@@ -11363,14 +11363,14 @@ sub_B874:
 		cmpi.b	#2,$28(a5)
 		bne.s	loc_B892
 		moveq	#$FFFFFFF9,d0
-		moveq	#$FFFFFFF6,d1
+		moveq	#-$A,d1
 		bsr.w	sub_CA82
 		move.w	#$64,$26(a6)
 		rts
 ; ---------------------------------------------------------------------------
 
 loc_B892:
-		moveq	#$FFFFFFF4,d0
+		moveq	#-$C,d0
 		moveq	#$FFFFFFEE,d1
 		bsr.w	sub_CA82
 		move.w	#$5C,$26(a6)
@@ -11631,7 +11631,7 @@ loc_BA8C:
 
 sub_BA94:
 		ori.w	#$80,4(a6)
-		moveq	#$FFFFFFF4,d0
+		moveq	#-$C,d0
 		cmpi.b	#$14,$28(a5)
 		bcs.s	loc_BAA6
 		subq.w	#1,d0
@@ -11775,7 +11775,7 @@ loc_BBB2:
 
 sub_BBBA:
 		ori.w	#$80,4(a6)
-		moveq	#$FFFFFFF4,d0
+		moveq	#-$C,d0
 		moveq	#$FFFFFFEE,d1
 		bsr.w	sub_CA82
 		moveq	#0,d0
@@ -13183,7 +13183,7 @@ loc_C76C:
 		movea.w	(word_D864).w,a0
 		move.w	8(a6),d0
 		sub.w	8(a0),d0
-		smi	d0
+		smi.b	d0
 		ext.w	d0
 		ori.w	#1,d0
 		add.w	d0,obj.Xpos(a6)
@@ -13207,10 +13207,10 @@ loc_C7D6:
 
 loc_C7E0:
 		lea	CharacterDataTable_Levels(pc,d0.w),a3
-		movea.l	(a3),a0
-		movea.l	$20(a3),a1
-		movea.l	$40(a3),a2
-		movea.l	$60(a3),a3
+		movea.l	CharacterAniTable_Levels-CharacterDataTable_Levels(a3),a0
+		movea.l	CharacterPLCMapTable_Levels-CharacterDataTable_Levels(a3),a1
+		movea.l	CharacterPLCTable_Levels-CharacterDataTable_Levels(a3),a2
+		movea.l	CharacterMapTable_Levels-CharacterDataTable_Levels(a3),a3
 		move.w	$26(a6),d0			; load animation frame number?
 		adda.w	(a0,d0.w),a0
 		moveq	#0,d1
@@ -13247,6 +13247,8 @@ loc_C832:
 ; ---------------------------------------------------------------------------
 
 CharacterDataTable_Levels:
+
+CharacterAniTable_Levels:
         dc.l ANI_Sonic
 		dc.l ANI_Tails
 		dc.l 0
@@ -13255,6 +13257,8 @@ CharacterDataTable_Levels:
 		dc.l 0
 		dc.l 0
 		dc.l 0
+
+CharacterPLCMapTable_Levels:
 		dc.l PLCMAP_Sonic_MainIndex
 		dc.l PLCMAP_Tails_MainIndex
 		dc.l 0
@@ -13263,6 +13267,8 @@ CharacterDataTable_Levels:
 		dc.l 0
 		dc.l 0
 		dc.l 0
+
+CharacterPLCTable_Levels:
 		dc.l PLC_Sonic
 		dc.l PLC_Tails
 		dc.l 0
@@ -13271,6 +13277,8 @@ CharacterDataTable_Levels:
 		dc.l 0
 		dc.l 0
 		dc.l 0
+
+CharacterMapTable_Levels:
 		dc.l Map_Sonic
 		dc.l MAP_Tails
 		dc.l 0
@@ -14421,6 +14429,7 @@ loc_CFD0:
 		dc.b   2
 		dc.b   4
 		dc.b   6
+		even
 
 unk_D164:
 		dc.b   8
@@ -14455,6 +14464,7 @@ unk_D164:
 		dc.b $42
 		dc.b $44
 		dc.b $46
+		even
 
 unk_D184:
 		dc.b $48
@@ -14549,6 +14559,7 @@ unk_D184:
 		dc.b $FA
 		dc.b $FC
 		dc.b $FE
+		even
 
 ; =============== S U B	R O U T	I N E =======================================
 ; star tether
@@ -14640,7 +14651,7 @@ Spring_Right_Red:
 		bclr	d0,$28(a6)
 		beq.s	loc_D2D6
 		move.l	#Map_SpringLR,obj.Map(a6)
-		move.w	#$407,$20(a6)
+		move.w	#$407,obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#8,$22(a6)
 		move.b	#$10,$23(a6)
@@ -14717,7 +14728,7 @@ Spring_Left_Red:
 		bclr	d0,$28(a6)
 		beq.s	loc_D3C2
 		move.l	#Map_SpringLR,obj.Map(a6)
-		move.w	#$C07,$20(a6)
+		move.w	#$C07,obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#8,$22(a6)
 		move.b	#$10,$23(a6)
@@ -14796,7 +14807,7 @@ Spring_Up_Red:
 		bclr	d0,$28(a6)
 		beq.s	loc_D4B2
 		move.l	#Map_SpringUp,obj.Map(a6)
-		move.w	#$407,$20(a6)
+		move.w	#$407,obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$10,$22(a6)
 		move.b	#8,$23(a6)
@@ -14875,7 +14886,7 @@ Spring_Down_Red:
 		bclr	d0,$28(a6)
 		beq.s	loc_D5A2
 		move.l	#Map_SpringUp,obj.Map(a6)
-		move.w	#$1407,$20(a6)
+		move.w	#$1407,obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$10,$22(a6)
 		move.b	#8,$23(a6)
@@ -14951,7 +14962,7 @@ Spring_Diagonal_Up_Right_Red:
 		bclr	d0,$28(a6)
 		beq.s	loc_D68E
 		move.l	#Map_SpringAngUp,obj.Map(a6)
-		move.w	#$407,$20(a6)
+		move.w	#$407,obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$C,$22(a6)
 		move.b	#$C,$23(a6)
@@ -15038,7 +15049,7 @@ Spring_Diagonal_Up_Left_Red:
 		bclr	d0,$28(a6)
 		beq.s	loc_D79E
 		move.l	#Map_SpringAngUp,obj.Map(a6)
-		move.w	#$C07,$20(a6)
+		move.w	#$C07,obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$C,$22(a6)
 		move.b	#$C,$23(a6)
@@ -15127,7 +15138,7 @@ Spring_Diagonal_Down_Right_Red:
 		bclr	d0,$28(a6)
 		beq.s	loc_D8B2
 		move.l	#Map_SpringAngUp,obj.Map(a6)
-		move.w	#$1407,$20(a6)
+		move.w	#$1407,obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$C,$22(a6)
 		move.b	#$C,$23(a6)
@@ -15212,7 +15223,7 @@ Spring_Diagonal_Down_Left_Red:
 		bclr	d0,$28(a6)
 		beq.s	loc_D9BE
 		move.l	#Map_SpringAngUp,obj.Map(a6)
-		move.w	#$1C07,$20(a6)
+		move.w	#$1C07,obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$C,$22(a6)
 		move.b	#$C,$23(a6)
@@ -15299,7 +15310,7 @@ Spring_Right_Yellow:
 		bclr	d0,$28(a6)
 		beq.s	loc_DACE
 		move.l	#Map_SpringLR,obj.Map(a6)
-		move.w	#$2407,$20(a6)
+		move.w	#$2407,obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#8,$22(a6)
 		move.b	#$10,$23(a6)
@@ -15377,7 +15388,7 @@ Spring_Left_Yellow:
 		bclr	d0,$28(a6)
 		beq.s	loc_DBBA
 		move.l	#Map_SpringLR,obj.Map(a6)		; mappings to load for object
-		move.w	#$2C07,$20(a6)
+		move.w	#$2C07,obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#8,$22(a6)
 		move.b	#$10,$23(a6)
@@ -15456,7 +15467,7 @@ Spring_Up_Yellow:
 		bclr	d0,$28(a6)
 		beq.s	loc_DCAA
 		move.l	#Map_SpringUp,obj.Map(a6)
-		move.w	#$2407,$20(a6)
+		move.w	#$2407,obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$10,$22(a6)
 		move.b	#8,$23(a6)
@@ -15535,7 +15546,7 @@ Spring_Down_Yellow:
 		bclr	d0,$28(a6)
 		beq.s	loc_DD9A
 		move.l	#Map_SpringUp,obj.Map(a6)
-		move.w	#$3407,$20(a6)
+		move.w	#$3407,obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$10,$22(a6)
 		move.b	#8,$23(a6)
@@ -15612,7 +15623,7 @@ Spring_Diagonal_Up_Right_Yellow:
 		bclr	d0,$28(a6)
 		beq.s	loc_DE86
 		move.l	#Map_SpringAngUp,obj.Map(a6)
-		move.w	#$2407,$20(a6)
+		move.w	#$2407,obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$C,$22(a6)
 		move.b	#$C,$23(a6)
@@ -15699,7 +15710,7 @@ Spring_Diagonal_Up_Left_Yellow:
 		bclr	d0,$28(a6)
 		beq.s	loc_DF96
 		move.l	#Map_SpringAngUp,obj.Map(a6)
-		move.w	#$2C07,$20(a6)
+		move.w	#$2C07,obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$C,$22(a6)
 		move.b	#$C,$23(a6)
@@ -15788,7 +15799,7 @@ Spring_Diagonal_Down_Right_Yellow:
 		bclr	d0,$28(a6)
 		beq.s	loc_E0AA
 		move.l	#Map_SpringAngUp,obj.Map(a6)
-		move.w	#$3407,$20(a6)
+		move.w	#$3407,obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$C,$22(a6)
 		move.b	#$C,$23(a6)
@@ -15873,7 +15884,7 @@ Spring_Diagonal_Down_Left_Yellow:
 		bclr	d0,$28(a6)
 		beq.s	loc_E1B6
 		move.l	#Map_SpringAngUp,obj.Map(a6)
-		move.w	#$3C07,$20(a6)
+		move.w	#$3C07,obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$C,$22(a6)
 		move.b	#$C,$23(a6)
@@ -16308,7 +16319,7 @@ Spikes_Up:
 		bclr	d0,$28(a6)
 		beq.s	loc_E526
 		move.l	#Map_SpikesUpLrg,obj.Map(a6)
-		move.w	#$23BF,$20(a6)
+		move.w	#$23BF,obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$10,$22(a6)
 		move.b	#$10,$23(a6)
@@ -16369,7 +16380,7 @@ Spikes_Down:
 		bclr	d0,$28(a6)
 		beq.s	loc_E5CE
 		move.l	#Map_SpikesUpLrg,obj.Map(a6)
-		move.w	#$33BF,$20(a6)
+		move.w	#$33BF,obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$10,$22(a6)
 		move.b	#$10,$23(a6)
@@ -16430,7 +16441,7 @@ Spikes_Right:
 		bclr	d0,$28(a6)
 		beq.s	loc_E676
 		move.l	#Map_SpikesLR,obj.Map(a6)
-		move.w	#$23BF,$20(a6)
+		move.w	#$23BF,obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$10,$22(a6)
 		move.b	#$10,$23(a6)
@@ -16491,7 +16502,7 @@ Spikes_Left:
 		bclr	d0,$28(a6)
 		beq.s	loc_E71E
 		move.l	#Map_SpikesLR,obj.Map(a6)
-		move.w	#$2BBF,$20(a6)
+		move.w	#$2BBF,obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$10,$22(a6)
 		move.b	#$10,$23(a6)
@@ -16552,7 +16563,7 @@ Spring_Diagonal_Up_Right:
 		bclr	d0,$28(a6)
 		beq.s	loc_E7C6
 		move.l	#Map_SpikesAng,obj.Map(a6)
-		move.w	#$2BBF,$20(a6)
+		move.w	#$2BBF,obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$C,$22(a6)
 		move.b	#$C,$23(a6)
@@ -16613,7 +16624,7 @@ Spring_Diagonal_Up_Left:
 		bclr	d0,$28(a6)
 		beq.s	loc_E86E
 		move.l	#Map_SpikesAng,obj.Map(a6)
-		move.w	#$23BF,$20(a6)
+		move.w	#$23BF,obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$C,$22(a6)
 		move.b	#$C,$23(a6)
@@ -16674,7 +16685,7 @@ Spring_Diagonal_Down_Right:
 		bclr	d0,$28(a6)
 		beq.s	loc_E916
 		move.l	#Map_SpikesAng,obj.Map(a6)
-		move.w	#$3BBF,$20(a6)
+		move.w	#$3BBF,obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$C,$22(a6)
 		move.b	#$C,$23(a6)
@@ -16735,7 +16746,7 @@ Spring_Diagonal_Down_Left:
 		bclr	d0,$28(a6)
 		beq.s	loc_E9BE
 		move.l	#Map_SpikesAng,obj.Map(a6)
-		move.w	#$33BF,$20(a6)
+		move.w	#$33BF,obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$C,$22(a6)
 		move.b	#$C,$23(a6)
