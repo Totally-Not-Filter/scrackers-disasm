@@ -31,7 +31,9 @@ SonicDriverVer = 3 ; Tell SMPS2ASM that we are targetting Sonic 3's sound driver
 ; Sonic Crackers Disassembly
 ; ---------------------------------------------------------------------------
 
-RomStart:
+StartOfROM:
+Vectors:
+SystemStackVector:
 		dc.l v_systemstack&$FFFFFF
 		dc.l EntryPoint
 		dc.l ErrorTrap
@@ -105,8 +107,8 @@ RomStart:
 		dc.b "GM XXXXXXXX-XX"
 Checksum:	dc.w 0
 		dc.b "J               "
-ROM_Start:	dc.l RomStart
-ROM_Finish:	dc.l (EndofROM*2)-1
+ROM_Start:	dc.l StartOfROM
+ROM_Finish:	dc.l (EndOfROM*2)-1
 		dc.l v_ram_start&$FFFFFF
 		dc.l (v_ram_end-1)&$FFFFFF
 		dc.l $20202020
@@ -3447,14 +3449,14 @@ sub_42CE:
 		moveq	#0,d2
 		sub.w	d1,d3
 		beq.s	loc_433E
-		smi	d0
+		smi.b	d0
 		bpl.s	loc_42E4
 		neg.w	d3
 
 loc_42E4:
 		sub.w	d2,d4
 		beq.s	loc_4356
-		smi	d5
+		smi.b	d5
 		bpl.s	loc_42EE
 		neg.w	d4
 
@@ -3504,7 +3506,7 @@ loc_4330:
 
 loc_433E:
 		sub.w	d2,d4
-		smi	d2
+		smi.b	d2
 		andi.w	#$80,d2
 		addi.w	#$40,d2
 		movem.l	(sp)+,d0-d1/d3-d5
@@ -4260,13 +4262,13 @@ SegaPaletteStart:
 .cycling:
 		subq.w	#1,(word_FAC4).w
 		bne.s	MultiReturn
-		moveq	#$3F,d0
-		moveq	#$3F,d1
+		moveq	#64-1,d0
+		moveq	#64-1,d1
 		moveq	#0,d2
 		move.w	(word_D816).w,d3
 		jsr	(sub_86E).w
-		moveq	#$3F,d0
-		moveq	#$3F,d1
+		moveq	#64-1,d0
+		moveq	#64-1,d1
 		moveq	#0,d2
 		move.w	(word_D818).w,d3
 		jsr	(sub_86E).w
@@ -4305,8 +4307,8 @@ loc_6594:
 ; ---------------------------------------------------------------------------
 
 loc_65C6:
-		tst.b	(v_ctrl_p1+ctrl.hold_3).w
-		bpl.s	loc_65D2
+		tst.b	(v_ctrl_p1+ctrl.hold_3).w	; is the start button held?
+		bpl.s	loc_65D2	; if not, branch
 		move.w	#$14,(v_subgamemode).w
 
 loc_65D2:
@@ -4317,7 +4319,7 @@ loc_65D2:
 		bne.w	MultiReturn
 		move.w	#id_Title,(v_gamemode).w	; set screen mode to title screen
 		clr.l	(v_subgamemode).w		; clear sub mode
-		movea.l	(RomStart).w,sp			; set stack pointer
+		movea.l	(SystemStackVector).w,sp	; set stack pointer
 		jmp	(MAINPROG).w			; jump to the main game loop
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -4330,7 +4332,7 @@ Sega_GotoTitle:
 		bne.w	MultiReturn
 		move.w	#id_Title,(v_gamemode).w
 		clr.l	(v_subgamemode).w
-		movea.l	(RomStart).w,sp
+		movea.l	(SystemStackVector).w,sp
 		jmp	(MAINPROG).w
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -4674,7 +4676,7 @@ loc_68BA:
 		moveq	#$80-1,d6
 
 loc_68EE:
-		moveq	#8-1,d7
+		moveq	#bytesToLcnt($20),d7
 
 loc_68F0:
 		move.w	(a0)+,d0
@@ -4692,7 +4694,7 @@ loc_68F0:
 		move.l	d0,(a1)+
 		move.l	d0,$1C(a1)
 		dbf	d7,loc_68F0
-		lea	$20(a1),a1
+		lea	tile_size(a1),a1
 		dbf	d6,loc_68EE
 		lea	(unk_0A00&$FFFFFF).l,a0
 		lea	(unk_2A00&$FFFFFF).l,a1
@@ -5109,13 +5111,13 @@ loc_6D38:
 loc_6D6E:
 		bsr.w	SegaScrn_CheckRegion
 		disable_ints
-		moveq	#$3F,d0
-		moveq	#$3F,d1
+		moveq	#64-1,d0
+		moveq	#64-1,d1
 		moveq	#0,d2
 		move.w	(word_D816).w,d3
 		jsr	(sub_86E).w
-		moveq	#$3F,d0
-		moveq	#$3F,d1
+		moveq	#64-1,d0
+		moveq	#64-1,d1
 		moveq	#0,d2
 		move.w	(word_D818).w,d3
 		jsr	(sub_86E).w
@@ -5346,13 +5348,13 @@ TitleLoad_Continue:
 		move.l	#0,(vdp_data_port).l
 		writeVSRAM
 		move.l	#0,(vdp_data_port).l
-		moveq	#$3F,d0
-		moveq	#$3F,d1
+		moveq	#64-1,d0
+		moveq	#64-1,d1
 		moveq	#0,d2
 		move.w	#$C000,d3
 		jsr	(sub_86E).w
-		moveq	#$3F,d0
-		moveq	#$3F,d1
+		moveq	#64-1,d0
+		moveq	#64-1,d1
 		moveq	#0,d2
 		move.w	#$E000,d3
 		jsr	(sub_86E).w
@@ -5688,6 +5690,7 @@ byte_8000:
 		dc.b $80,$A0,$60,$A0
 		dc.b 0,$E0,$20,$E0
 		dc.b $80,$A0,$60,$A0
+		even
 ; ---------------------------------------------------------------------------
 
 Vint_Fields:
@@ -5771,7 +5774,7 @@ loc_80E0:
 		move.w	#$8F02,(vdp_control_port).l
 		move.w	#$8F02,(v_vdp_increment).w
 		moveq	#0,d0
-		writeVRAM 0
+		writeVRAM
 		move.w	#bytesToXcnt($10000,16),d1
 
 loc_810E:
@@ -5790,7 +5793,7 @@ loc_810E:
 
 .gotolevel:
 		move.w	#id_Level,(v_gamemode).w
-		movea.l	(RomStart).w,sp
+		movea.l	(SystemStackVector).w,sp
 		jmp	(MAINPROG).w
 ; ---------------------------------------------------------------------------
 
@@ -5967,7 +5970,7 @@ nullsub_1:
 ; =============== S U B	R O U T	I N E =======================================
 
 
-sub_82B2:		; Field_PauseGame+116
+sub_82B2:
 		move.w	(word_D830).w,d0
 		bpl.s	loc_82BA
 		moveq	#0,d0
@@ -6526,10 +6529,10 @@ loc_8748:
 
 loc_8752:
 		lea	CharacterDataTable(pc,d0.w),a3
-		movea.l	(a3),a0
-		movea.l	$20(a3),a1
-		movea.l	$40(a3),a2
-		movea.l	$60(a3),a3
+		movea.l	CharacterAniTable-CharacterDataTable(a3),a0
+		movea.l	CharacterPLCMapTable-CharacterDataTable(a3),a1
+		movea.l	CharacterPLCTable-CharacterDataTable(a3),a2
+		movea.l	CharacterMapTable-CharacterDataTable(a3),a3
 		move.w	$26(a6),d0
 		adda.w	(a0,d0.w),a0
 		moveq	#0,d1
@@ -6568,6 +6571,8 @@ loc_87A4:
 ; ---------------------------------------------------------------------------
 
 CharacterDataTable:
+
+CharacterAniTable:
 		dc.l ANI_SonicFields
 		dc.l ANI_TailsFields
 		dc.l 0
@@ -6576,6 +6581,8 @@ CharacterDataTable:
 		dc.l 0
 		dc.l 0
 		dc.l 0
+
+CharacterPLCMapTable:
 		dc.l PLCMAP_SonicFields_MainIndex
 		dc.l PLCMAP_TailsFields_MainIndex
 		dc.l 0
@@ -6584,6 +6591,8 @@ CharacterDataTable:
 		dc.l 0
 		dc.l 0
 		dc.l 0
+
+CharacterPLCTable:
 		dc.l PLC_SonicFields
 		dc.l PLC_TailsFields
 		dc.l 0
@@ -6592,6 +6601,8 @@ CharacterDataTable:
 		dc.l 0
 		dc.l 0
 		dc.l 0
+
+CharacterMapTable:
 		dc.l Map_SonicFields
 		dc.l Map_TailsFields
 		dc.l 0
@@ -8200,17 +8211,17 @@ SSZ_ArtLocs:
 		dc.l ARTNEM_SSZ8x8_BG
 
 SSZ_FG_StartLocCam:
-		dc.w $0000		; Start X scroll
-		dc.w $00D0		; Start Y scroll
+		dc.w 0		; Start X scroll
+		dc.w $D0		; Start Y scroll
 		dc.b $80		; H scroll base
 		dc.b $10		; H scroll param
 		dc.b $80		; V scroll base
-		dc.b $0C		; V scroll param
-		dc.w $0800/$20	; VRAM destination
+		dc.b $C		; V scroll param
+		dc.w $800/$20	; VRAM destination
 		dc.w $7EC0		; Max X display area
-		dc.w $0000		; Min X display area
-		dc.w $0520		; Max Y display area
-		dc.w $0000		; Min Y display area
+		dc.w 0		; Min X display area
+		dc.w $520		; Max Y display area
+		dc.w 0		; Min Y display area
 
 SSZ_MapFGLocs:
 		dc.l MAPENI_SSZ16x16_FG
@@ -8219,17 +8230,17 @@ SSZ_MapFGLocs:
 		dc.l COL_SSZPrimary
 
 SSZ_BG_StartLocCam:
-		dc.w $0000		; Start X scroll
-		dc.w $0054		; Start Y scroll
-		dc.b $04		; H scroll base
-		dc.b $08		; H scroll param
-		dc.b $04		; V scroll base
-		dc.b $06		; V scroll param
+		dc.w 0		; Start X scroll
+		dc.w $54		; Start Y scroll
+		dc.b 4		; H scroll base
+		dc.b 8		; H scroll param
+		dc.b 4		; V scroll base
+		dc.b 6		; V scroll param
 		dc.w $6660/$20	; VRAM destination
-		dc.w $00C0		; Max X display area
-		dc.w $0000		; Min X display area
-		dc.w $0220		; Max Y display area
-		dc.w $0000		; Min Y display area
+		dc.w $C0		; Max X display area
+		dc.w 0		; Min X display area
+		dc.w $220		; Max Y display area
+		dc.w 0		; Min Y display area
 
 SSZ_MapBGLocs:
 		dc.l MAPENI_SSZ16x16_BG
@@ -8240,22 +8251,23 @@ PAL_SpeedSliderZone:
 		binclude	"Palettes/PalSpeedSliderZone.bin"
 		even
 ; ---------------------------------------------------------------------------
+
 TTZ_ArtLocs:
 		dc.l ARTNEM_TTZ8x8_FG
 		dc.l ARTNEM_TTZ8x8_BG
 
 TTZ_FG_StartLocCam:
-		dc.w $0015		; Start X scroll
-		dc.w $0DE0		; Start Y scroll
+		dc.w $15		; Start X scroll
+		dc.w $DE0		; Start Y scroll
 		dc.b $10		; H scroll base
 		dc.b $20		; H scroll param
 		dc.b $10		; V scroll base
 		dc.b $20		; V scroll param
-		dc.w $0800/$20	; VRAM destination
-		dc.w $06C0		; Max X display area
-		dc.w $0000		; Min X display area
-		dc.w $0F20		; Max Y display area
-		dc.w $0000		; Min Y display area
+		dc.w $800/$20	; VRAM destination
+		dc.w $6C0		; Max X display area
+		dc.w 0		; Min X display area
+		dc.w $F20		; Max Y display area
+		dc.w 0		; Min Y display area
 
 TTZ_MapFGLocs:
 		dc.l MAPENI_TTZ16x16_FG
@@ -8264,17 +8276,17 @@ TTZ_MapFGLocs:
 		dc.l COL_TTZPrimary
 
 TTZ_BG_StartLocCam:
-		dc.w $0030		; Start X scroll
-		dc.w $0A60		; Start Y scroll
+		dc.w $30		; Start X scroll
+		dc.w $A60		; Start Y scroll
 		dc.b $10		; H scroll base
 		dc.b $20		; H scroll param
-		dc.b $0C		; V scroll base
+		dc.b $C		; V scroll base
 		dc.b $18		; V scroll param
 		dc.w $2DE0/$20	; VRAM destination
-		dc.w $04C0		; Max X display area
-		dc.w $0000		; Min X display area
-		dc.w $0B20		; Max Y display area
-		dc.w $0000		; Min Y display area
+		dc.w $4C0		; Max X display area
+		dc.w 0		; Min X display area
+		dc.w $B20		; Max Y display area
+		dc.w 0		; Min Y display area
 
 TTZ_MapBGLocs:
 		dc.l MAPENI_TTZ16x16_BG
@@ -8318,7 +8330,7 @@ sub_9D30:
 ; usage:
 ;	lea	(source).l,a2
 ;	move.l	#destination,$28(a0)
-;	move.w	#arttile,$1C(a0)
+;	move.w	#art_tile,$1C(a0)
 ;	bsr.w	DecEniMapLocs
 ; ---------------------------------------------------------------------------
 
@@ -8514,16 +8526,16 @@ sub_9EF8:
 		move.w	(word_D830).w,d1
 		sub.w	d0,d1
 		blt.s	loc_9F14
-		cmpi.w	#$10,d1
+		cmpi.w	#16,d1
 		ble.s	loc_9F1E
-		move.w	#$10,d1
+		move.w	#16,d1
 		bra.s	loc_9F1E
 ; ---------------------------------------------------------------------------
 
 loc_9F14:
-		cmpi.w	#-$10,d1
+		cmpi.w	#-16,d1
 		bgt.s	loc_9F1E
-		move.w	#-$10,d1
+		move.w	#-16,d1
 
 loc_9F1E:
 		add.w	d1,d0
@@ -8552,16 +8564,16 @@ sub_9F3A:
 		move.w	(word_D832).w,d1
 		sub.w	d0,d1
 		blt.s	loc_9F56
-		cmpi.w	#$10,d1
+		cmpi.w	#16,d1
 		ble.s	loc_9F60
-		move.w	#$10,d1
+		move.w	#16,d1
 		bra.s	loc_9F60
 ; ---------------------------------------------------------------------------
 
 loc_9F56:
-		cmpi.w	#-$10,d1
+		cmpi.w	#-16,d1
 		bgt.s	loc_9F60
-		move.w	#-$10,d1
+		move.w	#-16,d1
 
 loc_9F60:
 		add.w	d1,d0
@@ -17096,7 +17108,7 @@ GameOver:
 		move.w	d0,(word_D834).w
 		clr.w	(word_D836).w
 		move.w	#id_Field,(v_gamemode).w	; change game mode to Field
-		movea.l	(RomStart).w,sp			; set the stack pointer
+		movea.l	(SystemStackVector).w,sp	; set the stack pointer
 		jmp	(MAINPROG).w			; jump to the main game loop
 ; ---------------------------------------------------------------------------
 
@@ -17217,6 +17229,7 @@ unk_ECE6:
 		dc.b $95
 		dc.b $97
 		dc.b $99
+		even
 
 ; =============== S U B	R O U T	I N E =======================================
 
@@ -17540,7 +17553,7 @@ sub_EFD4:
 		move.l	#0,$24(a0)
 		lea	loc_F00E(pc),a1
 		lea	(lword_D9F2).w,a2
-		move.w	#bytesToWcnt($D0),d0
+		move.w	#bytesToWcnt(loc_F00E_End-loc_F00E),d0
 
 loc_EFF8:
 		move.w	(a1)+,(a2)+			; dump sprites
@@ -17663,6 +17676,7 @@ loc_F00E:
 		dc.w $700
 		dc.w $C7F8
 		dc.w $80
+loc_F00E_End:
 ; ---------------------------------------------------------------------------
 
 loc_F0DE:
@@ -17831,21 +17845,21 @@ sub_F238:
 		move.w	#bytesToXcnt($100,$10),d7
 
 loc_F244:
-		move.w	#$FFFF,(a0)+
-		move.w	#$FFFF,(a0)+
-		move.w	#$FFFF,(a0)+
-		move.w	#$FFFF,(a0)+
-		move.w	#$FFFF,(a0)+
-		move.w	#$FFFF,(a0)+
-		move.w	#$FFFF,(a0)+
-		move.w	#$FFFF,(a0)+
+		move.w	#-1,(a0)+
+		move.w	#-1,(a0)+
+		move.w	#-1,(a0)+
+		move.w	#-1,(a0)+
+		move.w	#-1,(a0)+
+		move.w	#-1,(a0)+
+		move.w	#-1,(a0)+
+		move.w	#-1,(a0)+
 		dbf	d7,loc_F244
 		movea.l	(lword_D8EC).w,a0
 		lea	(unk_D8F2).w,a1
 
 loc_F270:
 		move.w	(a0),d0
-		cmpi.w	#$FFFF,d0
+		cmpi.w	#-1,d0
 		beq.s	locret_F284
 		move.b	#2,(a1)+
 		adda.l	#8,a0
@@ -18743,112 +18757,112 @@ loc_FA4C:
 ; ---------------------------------------------------------------------------
 
 UnkReps:
-		dc.w $0022				; number of uncompressed art files to read
-		dc.w $0000				; VRAM location
+		dc.w $22				; number of uncompressed art files to read
+		dc.w 0				; VRAM location
 		dc.l AniArt_Hud1to9_Sym			; "0" Hud	; location of Art
-		dc.w $0020				; size of Art
-		dc.w $0080
+		dc.w $20				; size of Art
+		dc.w $80
 		dc.l AniArt_Hud1to9_Sym+$40		; "1" Hud
-		dc.w $0020
-		dc.w $0100
+		dc.w $20
+		dc.w $100
 		dc.l AniArt_Hud1to9_Sym+$80		; "2" Hud
-		dc.w $0020
-		dc.w $0180
+		dc.w $20
+		dc.w $180
 		dc.l AniArt_Hud1to9_Sym+$C0		; "3" Hud
-		dc.w $0020
-		dc.w $0200
+		dc.w $20
+		dc.w $200
 		dc.l AniArt_Hud1to9_Sym+$100		; "4" Hud
-		dc.w $0020
-		dc.w $0280
+		dc.w $20
+		dc.w $280
 		dc.l AniArt_Hud1to9_Sym+$140		; "5" Hud
-		dc.w $0020
-		dc.w $0300
+		dc.w $20
+		dc.w $300
 		dc.l AniArt_Hud1to9_Sym+$180		; "6" Hud
-		dc.w $0020
-		dc.w $0380
+		dc.w $20
+		dc.w $380
 		dc.l AniArt_Hud1to9_Sym+$1C0		; "7" Hud
-		dc.w $0020
-		dc.w $0400
+		dc.w $20
+		dc.w $400
 		dc.l AniArt_Hud1to9_Sym+$200		; "8" Hud
-		dc.w $0020
-		dc.w $0480
+		dc.w $20
+		dc.w $480
 		dc.l AniArt_Hud1to9_Sym+$240		; "9" Hud
-		dc.w $0020
-		dc.w $0500
+		dc.w $20
+		dc.w $500
 		dc.l AniArt_Hud1to9_Sym+$280		; "!" Hud (Unused)
-		dc.w $0020
-		dc.w $0580
+		dc.w $20
+		dc.w $580
 		dc.l AniArt_Hud1to9_Sym+$2C0		; """ (Minute/Second Symbol)
-		dc.w $0020
-		dc.w $0600
+		dc.w $20
+		dc.w $600
 		dc.l AniArt_MiliSymbol			; "" (Second/Mili-Second Symbol)
-		dc.w $0020
-		dc.w $0680
+		dc.w $20
+		dc.w $680
 		dc.l AniArt_RingSprites+$1C0		; Ring Sprite (Frame 3)
-		dc.w $0020
-		dc.w $0700
+		dc.w $20
+		dc.w $700
 		dc.l AniArt_SLTime			; "/TIME" (Unused)
-		dc.w $0020
-		dc.w $0780
+		dc.w $20
+		dc.w $780
 		dc.l ARTUNC_TTZAnimatedTurbineBG5	; animated turbine (Frame 8)
-		dc.w $0020
-		dc.w $0800
+		dc.w $20
+		dc.w $800
 		dc.l ARTUNC_TTZAnimatedTurbineBG7	; animated turbine (Frame 7)
-		dc.w $0020
-		dc.w $0880
+		dc.w $20
+		dc.w $880
 		dc.l ARTUNC_TTZAnimatedTurbineBG6	; animated turbine (Frame 6)
-		dc.w $0020
-		dc.w $0900
+		dc.w $20
+		dc.w $900
 		dc.l AniArt_RingSprites+$80		; 5 Point Stars (Unused)
-		dc.w $0020
-		dc.w $0840
+		dc.w $20
+		dc.w $840
 		dc.l AniArt_Tether			; Tether (Frame 1)
-		dc.w $0010
-		dc.w $08C0
+		dc.w $10
+		dc.w $8C0
 		dc.l AniArt_Tether+$20			; Tether (Frame 2)
-		dc.w $0010
-		dc.w $0940
+		dc.w $10
+		dc.w $940
 		dc.l AniArt_Tether+$40			; Tether (Frame 3)
-		dc.w $0010
-		dc.w $09C0
+		dc.w $10
+		dc.w $9C0
 		dc.l AniArt_Tether+$60			; Tether (Frame 4)
-		dc.w $0010
-		dc.w $0980
+		dc.w $10
+		dc.w $980
 		dc.l AniArt_MultiStars			; Vertical Star (Frame 1) (Unused)
-		dc.w $0020
-		dc.w $0A00
+		dc.w $20
+		dc.w $A00
 		dc.l AniArt_MultiStars+$40		; Horizontal Star (Frame 1) Vertical Star (Frame 2) (Unused)
-		dc.w $0020
-		dc.w $0A80
+		dc.w $20
+		dc.w $A80
 		dc.l AniArt_MultiStars+$C0		; Horizontal Star (Frame 2) (Unused) Chain? (Unused)
-		dc.w $0040
-		dc.w $0B00
+		dc.w $40
+		dc.w $B00
 		dc.l AniArt_MultiStars+$140		; Vertical and Horizontal White Star (Unused)
-		dc.w $0040
-		dc.w $0B80
+		dc.w $40
+		dc.w $B80
 		dc.l AniArt_MultiStars+$1C0		; More Chain Pieces? (Unused)
-		dc.w $0040
-		dc.w $0C00
+		dc.w $40
+		dc.w $C00
 		dc.l AniArt_MultiStars+$240		; Vertical and Horizontal White Star (Exact same design as the one before) (Unused)
-		dc.w $0040
-		dc.w $0C80
+		dc.w $40
+		dc.w $C80
 		dc.l AniArt_MultiStars+$2C0		; Vertical and Horizontal White Star (More Sparkly) (Unused)
-		dc.w $0040
-		dc.w $0D00
+		dc.w $40
+		dc.w $D00
 		dc.l AniArt_MultiStars+$340		; Centre of Night Sky Styled Star (Unused)
-		dc.w $0040
-		dc.w $0D80
+		dc.w $40
+		dc.w $D80
 		dc.l AniArt_MultiStars+$3C0		; Edges of Night Sky Styled Star (Unused)
-		dc.w $0040
-		dc.w $0E00
+		dc.w $40
+		dc.w $E00
 		dc.l AniArt_RingSprites+$C0		; Ring Sprite (Frame 1)
-		dc.w $0040
-		dc.w $0E80
+		dc.w $40
+		dc.w $E80
 		dc.l AniArt_RingSprites+$140		; Ring Sprite (Frame 2)
-		dc.w $0040
-		dc.w $0F00
+		dc.w $40
+		dc.w $F00
 		dc.l AniArt_RingSprites			; Stars (Ring Collect)
-		dc.w $0040
+		dc.w $40
 ; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -18953,6 +18967,7 @@ Music86:	include	"Sound/Music/Mus86 - Game Over.asm"
 ; Striped out
 ; UnkData_00016000:
 		binclude	"UnknownCodes/UnknownData_00016000.bin"
+		even
 ; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -18981,7 +18996,6 @@ SoundAC:	include	"Sound/SFX/SndAC.asm"
 SoundAD:	include	"Sound/SFX/SndAD.asm"
 SoundAE:	include	"Sound/SFX/SndAE.asm"
 SoundAF:	include	"Sound/SFX/SndAF.asm"
-		even
 		finishBank
 ; ---------------------------------------------------------------------------
 ; ===========================================================================
@@ -19934,5 +19948,5 @@ ARTUNC_TailsField:
 		dc.b $FF
 	endif
 
-EndofROM:
+EndOfROM:
 		END
