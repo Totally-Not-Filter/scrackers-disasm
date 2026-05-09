@@ -17562,16 +17562,16 @@ sub_EFD4:
 		bmi.w	loc_F0DE
 		move.w	#0,4(a0)
 		move.l	#0,$24(a0)
-		lea	loc_F00E(pc),a1
+		lea	HUD_Elements(pc),a1
 		lea	(lword_D9F2).w,a2
-		move.w	#bytesToWcnt(loc_F00E_End-loc_F00E),d0
+		move.w	#bytesToWcnt(HUD_Elements_End-HUD_Elements),d0
 
 loc_EFF8:
 		move.w	(a1)+,(a2)+			; dump sprites
 		dbf	d0,loc_EFF8			; repeat til all sprites are dumped
 ; ---------------------------------------------------------------------------
 ; The black bar that appears on the left side when pausing, only disappears
-; when unpaused and the leve is SSZ, this routine below makes sure of it so
+; when unpaused and the level is SSZ, this routine below makes sure of it so
 ; it's intentional, but not sure "why".
 ; ---------------------------------------------------------------------------
 		tst.w	(word_D834).w			; is World/Zone ID SSZ?
@@ -17582,114 +17582,164 @@ loc_F00A:
 		bra.w	loc_F0DE
 ; ---------------------------------------------------------------------------
 
-loc_F00E:
+HUD_Elements:
+		; TIME
 		dc.w $90
 		dc.w $D01
-		dc.w $A514
+		dc.w $514+$A<<12
 		dc.w $98
+
+		; ATTA
 		dc.w $90
 		dc.w $D02
-		dc.w $A528
+		dc.w $528+$A<<12
 		dc.w $C0
+
+		; CK
 		dc.w $90
 		dc.w $503
-		dc.w $A530
+		dc.w $530+$A<<12
 		dc.w $E0
+
+		; Minute Digit
 		dc.w $90
 		dc.w $104
-		dc.w $A500
+		dc.w $500+$A<<12
 		dc.w $F8
+
+		; Minutes Sign
 		dc.w $90
 		dc.w 5
-		dc.w $A54A
+		dc.w $54A+$A<<12
 		dc.w $100
+
+		; Seconds Digit 1
 		dc.w $90
 		dc.w $106
-		dc.w $A500
+		dc.w $500+$A<<12
 		dc.w $108
+
+		; Seconds Digit 2
 		dc.w $90
 		dc.w $107
-		dc.w $A500
+		dc.w $500+$A<<12
 		dc.w $110
+
+		; Seconds Sign
 		dc.w $90
 		dc.w 8
-		dc.w $A54B
+		dc.w $54B+$A<<12
 		dc.w $118
+
+		; Milliseconds Digit 1
 		dc.w $90
 		dc.w $109
-		dc.w $A500
+		dc.w $500+$A<<12
 		dc.w $120
+
+		; Milliseconds Digit 2
 		dc.w $90
 		dc.w $10A
-		dc.w $A500
+		dc.w $500+$A<<12
 		dc.w $128
+HUD_Time_Attack_Numbers_End:
+
+HUD_Rings_Text:
+		; RING
 		dc.w $A0
 		dc.w $D0B
-		dc.w $A534
+		dc.w $534+$A<<12
 		dc.w $98
+
+		; S
 		dc.w $A0
 		dc.w $10C
-		dc.w $A53C
+		dc.w $53C+$A<<12
 		dc.w $B8
+HUD_Rings_Text_End:
+
+HUD_Rings_Numbers:
+		; 0
 		dc.w $A0
 		dc.w $10D
-		dc.w $A500
+		dc.w $500+$A<<12
 		dc.w $D8
+
+		; /
 		dc.w $A0
 		dc.w $10E
-		dc.w $A570
+		dc.w $570+$A<<12
 		dc.w $E4
+
+		; 1
 		dc.w $A0
 		dc.w $10F
-		dc.w $A502
+		dc.w $502+$A<<12
 		dc.w $F0
+
+		; 0
 		dc.w $A0
 		dc.w $110
-		dc.w $A500
+		dc.w $500+$A<<12
 		dc.w $F8
+
+		; 0
 		dc.w $A0
 		dc.w $100
-		dc.w $A500
+		dc.w $500+$A<<12
 		dc.w $100
+HUD_Rings_Numbers_End:
+
+HUD_Pause_Text:
+		; PAUS
 		dc.w $D0
 		dc.w $D12
-		dc.w $A54C
+		dc.w $54C+$A<<12
 		dc.w $EC
+
+		; E
 		dc.w $D0
 		dc.w $113
-		dc.w $A554
+		dc.w $554+$A<<12
 		dc.w $10C
-		dc.w $80
-		dc.w $714
+HUD_Pause_Text_End:
 
 HUD_Pause_Black_Bar:
-		dc.w $C7F8
 		dc.w $80
+		dc.w $714
+		dc.w $7F8+$C<<12
+		dc.w $80
+
 		dc.w $A0
 		dc.w $715
-		dc.w $C7F8
+		dc.w $7F8+$C<<12
 		dc.w $80
+
 		dc.w $C0
 		dc.w $716
-		dc.w $C7F8
+		dc.w $7F8+$C<<12
 		dc.w $80
+
 		dc.w $E0
 		dc.w $717
-		dc.w $C7F8
+		dc.w $7F8+$C<<12
 		dc.w $80
+
 		dc.w $100
 		dc.w $718
-		dc.w $C7F8
+		dc.w $7F8+$C<<12
 		dc.w $80
+
 		dc.w $120
 		dc.w $719
-		dc.w $C7F8
+		dc.w $7F8+$C<<12
 		dc.w $80
+
 		dc.w $140
 		dc.w $700
-		dc.w $C7F8
+		dc.w $7F8+$C<<12
 		dc.w $80
-loc_F00E_End:
+HUD_Elements_End:
 ; ---------------------------------------------------------------------------
 
 loc_F0DE:
