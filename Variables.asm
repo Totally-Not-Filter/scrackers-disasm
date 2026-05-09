@@ -194,16 +194,16 @@ lword_D8EC:	ds.l 1
 unk_D8F2:	ds.b $100
 v_spritetable:	ds.w 80*4
 
-v_timeattack_flash:	equ v_spritetable+((HUD_Time_Attack_Text+4)-HUD_Elements)
+v_timeattack_flash:		equ v_spritetable+((HUD_Time_Attack_Text+4)-HUD_Elements)
 v_timeattack_flash_2:	equ v_spritetable+((HUD_Time_Attack_Text+$C)-HUD_Elements)
 v_timeattack_flash_3:	equ v_spritetable+((HUD_Time_Attack_Text+$14)-HUD_Elements)
-v_timeattack_m:	equ v_spritetable+((HUD_Time_Attack_Numbers+4)-HUD_Elements)
-v_timeattack_s:	equ v_spritetable+((HUD_Time_Attack_Numbers+$14)-HUD_Elements)
-v_timeattack_s_2:	equ v_spritetable+((HUD_Time_Attack_Numbers+$1C)-HUD_Elements)
-v_timeattack_ms:	equ v_spritetable+((HUD_Time_Attack_Numbers+$2C)-HUD_Elements)
-v_timeattack_ms_2:	equ v_spritetable+((HUD_Time_Attack_Numbers+$34)-HUD_Elements)
-byte_DA75:	equ v_spritetable+((HUD_Rings_Numbers+$23)-HUD_Elements)
-byte_DA85:	equ v_spritetable+((HUD_Pause_Text+$B)-HUD_Elements)
+v_timeattack_m:			equ v_spritetable+((HUD_Time_Attack_Numbers+4)-HUD_Elements)
+v_timeattack_s:			equ v_spritetable+((HUD_Time_Attack_Numbers+$14)-HUD_Elements)
+v_timeattack_s_2:		equ v_spritetable+((HUD_Time_Attack_Numbers+$1C)-HUD_Elements)
+v_timeattack_ms:		equ v_spritetable+((HUD_Time_Attack_Numbers+$2C)-HUD_Elements)
+v_timeattack_ms_2:		equ v_spritetable+((HUD_Time_Attack_Numbers+$34)-HUD_Elements)
+byte_DA75:				equ v_spritetable+((HUD_Rings_Numbers+$23)-HUD_Elements)
+byte_DA85:				equ v_spritetable+((HUD_Pause_Text+$B)-HUD_Elements)
 
 			ds.b $138E
 
