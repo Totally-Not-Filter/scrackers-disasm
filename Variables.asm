@@ -192,27 +192,21 @@ word_D8EA:	ds.w 1
 lword_D8EC:	ds.l 1
 			ds.b 2
 unk_D8F2:	ds.b $100
-lword_D9F2:	ds.l 1
-lword_D9F6:	ds.l 1
-			ds.b 4
-word_D9FE:	ds.w 1
-			ds.b 6
-word_DA06:	ds.w 1
-			ds.b 6
-word_DA0E:	ds.w 1
-			ds.b $E
-word_DA1E:	ds.w 1
-			ds.b 6
-word_DA26:	ds.w 1
-			ds.b $E
-word_DA36:	ds.w 1
-			ds.b 6
-word_DA3E:	ds.w 1
-			ds.b $35
-byte_DA75:	ds.b 1
-			ds.b $F
-byte_DA85:	ds.b 1
-			ds.b $157A
+v_spritetable:	ds.w 80*4
+
+v_timeattack_flash:	equ v_spritetable+((HUD_Time_Attack_Text+4)-HUD_Elements)
+v_timeattack_flash_2:	equ v_spritetable+((HUD_Time_Attack_Text+$C)-HUD_Elements)
+v_timeattack_flash_3:	equ v_spritetable+((HUD_Time_Attack_Text+$14)-HUD_Elements)
+v_timeattack_m:	equ v_spritetable+((HUD_Time_Attack_Numbers+4)-HUD_Elements)
+v_timeattack_s:	equ v_spritetable+((HUD_Time_Attack_Numbers+$14)-HUD_Elements)
+v_timeattack_s_2:	equ v_spritetable+((HUD_Time_Attack_Numbers+$1C)-HUD_Elements)
+v_timeattack_ms:	equ v_spritetable+((HUD_Time_Attack_Numbers+$2C)-HUD_Elements)
+v_timeattack_ms_2:	equ v_spritetable+((HUD_Time_Attack_Numbers+$34)-HUD_Elements)
+byte_DA75:	equ v_spritetable+((HUD_Rings_Numbers+$23)-HUD_Elements)
+byte_DA85:	equ v_spritetable+((HUD_Pause_Text+$B)-HUD_Elements)
+
+			ds.b $138E
+
 word_F000:	ds.w 1
 			ds.b $9BE
 word_F9C0:	ds.b $10

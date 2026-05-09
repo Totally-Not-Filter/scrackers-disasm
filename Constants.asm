@@ -100,7 +100,12 @@ Map:		ds.l 1				; mappings address (4 bytes)
 VelX:		ds.l 1				; x velocity (4 bytes)
 VelY:		ds.l 1				; y velocity (4 bytes)
 VRAM:		ds.w 1				; object video ram location (2 bytes)
-			ds.b 8
+			ds.b 2
+
+HUDTime:
+			ds.b 2
+			ds.b 2
+			ds.b 2
 Angle:		ds.b 1
 			ds.b 1
 Inertia:	ds.w 1

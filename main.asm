@@ -2002,8 +2002,8 @@ loc_1616:
 		move.l	d0,(a0)+
 		move.l	d0,(a0)+
 		dbf	d1,loc_1616
-		move.l	d0,(lword_D9F2).w
-		move.l	d0,(lword_D9F6).w
+		move.l	d0,(v_spritetable).w
+		move.l	d0,(v_spritetable+4).w
 		move.w	#3,(word_D83C).w
 		move.w	#$F,(word_D840).w
 		move.w	#$1F,(word_D844).w
@@ -2021,7 +2021,7 @@ loc_1616:
 ; d5 = sprite limit
 ; d6 = sprite count
 ; a3 = sprite mappings
-; a4 = ?
+; a4 = sprite table
 ; a5 = sprite table buffer end
 ; a6 = sprite table buffer start
 
@@ -2030,7 +2030,7 @@ BuildSprites:
 		moveq	#0,d6
 		lea	(v_spritetablebuffer_end).w,a5
 		moveq	#80-1,d5	; sprite limit
-		lea	(lword_D9F2).w,a4
+		lea	(v_spritetable).w,a4
 
 loc_1650:
 		move.l	(a4)+,d0
@@ -4122,7 +4122,7 @@ Z80_Driver_End:
 ; subroutine to save BGM number to Z80 to play music
 ; ---------------------------------------------------------------------------
 
-PlayMusic:
+QueueSound:
 		stopZ80
 		waitZ80
 		move.b	d0,(z80_ram+zSoundQueue0).l	; save BGM number to Z80
@@ -5543,7 +5543,7 @@ Fields:
 		lea	Fields_VDPSettings(pc),a0
 		jsr	(SetupVDPUsingTable).w
 		move.b	#bgm_Electoria,d0		; load BGM 81
-		jsr	(PlayMusic).l			; Play BGM
+		jsr	(QueueSound).l			; Play BGM
 		lea	PAL_PrimaryColours_Field(pc),a0	; load primary Field palettes address to a0
 		lea	(v_pal).w,a1
 		movem.l	(a0)+,d0-d7
@@ -6635,7 +6635,7 @@ Levels:
 		addi.w	#bgm_Walkin,d0
 
 loc_88C2:
-		jsr	(PlayMusic).l
+		jsr	(QueueSound).l
 		lea	PAL_PrimaryColours(pc),a1
 		lea	(v_pal).w,a0
 		moveq	#bytesToLcnt($40),d1
@@ -7361,7 +7361,7 @@ OptionSoundTest_Exit:
 		move.b	(v_ctrl_p1+ctrl.press_3).w,d0
 		bpl.s	loc_94A0
 		move.b	#flg_FadeOut,d0
-		jsr	(PlayMusic).l
+		jsr	(QueueSound).l
 		move.w	#id_Title,(v_gamemode).w
 		clr.l	(v_subgamemode).w
 		rts
@@ -7375,7 +7375,7 @@ loc_94A0:
 
 loc_94A8:
 		move.w	(v_menu_soundid).w,d0
-		jsr	(PlayMusic).l
+		jsr	(QueueSound).l
 		rts
 ; ---------------------------------------------------------------------------
 
@@ -16043,6 +16043,7 @@ Scattering_Rings_Mappings:
 		dc.b 5,$F8
 		dc.w $25F0
 		dc.b $F8,$FF
+		even
 
 		nop	; padding
 
@@ -16050,6 +16051,7 @@ Scattering_Rings_Mappings:
 		dc.b 5,$F8
 		dc.w $25F4
 		dc.b $F8,$FF
+		even
 
 		nop	; padding
 
@@ -16057,6 +16059,7 @@ Scattering_Rings_Mappings:
 		dc.b 1,$F8
 		dc.w $25B4
 		dc.b $FC,$FF
+		even
 
 		nop	; padding
 
@@ -16064,6 +16067,7 @@ Scattering_Rings_Mappings:
 		dc.b 5,$F8
 		dc.w $2DF4
 		dc.b $F8,$FF
+		even
 ; ---------------------------------------------------------------------------
 
 Obj2C:
@@ -16088,6 +16092,7 @@ word_E376:
 		dc.b $F,$F0
 		dc.w $8001
 		dc.b $F0,$FF
+		even
 ; ---------------------------------------------------------------------------
 
 loc_E37C:
@@ -17091,18 +17096,18 @@ Goto_GameOver:
 SomethingCheckTime:
 		tst.w	$26(a6)
 		bne.s	Goto_GameOver
-		move.w	$24(a6),d7
+		move.w	obj.HUDTime(a6),d7
 		addq.w	#1,d7
-		cmpi.w	#$2D00,d7
-		bhi.s	GameOver
+		cmpi.w	#180<<6,d7	; is the timer at 3 minutes?
+		bhi.s	GameOver	; if higher than 3 minutes, branch
 		tst.w	(word_D834).w
 		bne.s	loc_EC62
-		cmpi.w	#$F00,d7
-		bls.s	loc_EC62
+		cmpi.w	#60<<6,d7	; is the timer at 1 minute?
+		bls.s	loc_EC62	; if lower than 1 minute, branch
 
 GameOver:
 		move.b	#bgm_GameOver,d0
-		jsr	(PlayMusic).l
+		jsr	(QueueSound).l
 		move.w	#$300,d0			; this basically performs a spinlock for 12 seconds
 
 .loop:
@@ -17124,52 +17129,52 @@ GameOver:
 ; ---------------------------------------------------------------------------
 
 loc_EC62:
-		move.w	d7,$24(a6)
+		move.w	d7,obj.HUDTime(a6)
 		move.w	#$A500,d6
 		move.w	d7,d0
-		lsr.w	#6,d0
+		lsr.w	#6,d0	; bit shift right by 6 (divide by 64)
 		ext.l	d0
-		divu.w	#10,d0
+		divu.w	#10,d0	; divide by 10
 		swap	d0
 		move.b	d0,d6
 		add.b	d6,d6
-		move.w	d6,(word_DA26).w
+		move.w	d6,(v_timeattack_s_2).w
 		swap	d0
 		ext.l	d0
-		divu.w	#6,d0
+		divu.w	#6,d0	; divide by 6
 		move.b	d0,d6
 		add.b	d6,d6
-		move.w	d6,(word_DA0E).w
+		move.w	d6,(v_timeattack_m).w
 		swap	d0
 		move.b	d0,d6
 		add.b	d6,d6
-		move.w	d6,(word_DA1E).w
+		move.w	d6,(v_timeattack_s).w
 		move.w	d7,d0
 		andi.w	#$3F,d0
 		move.b	unk_ECE6(pc,d0.w),d0
 		move.b	d0,d6
 		lsr.b	#4,d6
 		add.b	d6,d6
-		move.w	d6,(word_DA36).w
+		move.w	d6,(v_timeattack_ms).w
 		move.b	d0,d6
 		andi.b	#$F,d6
 		add.b	d6,d6
-		move.w	d6,(word_DA3E).w
-		move.w	$24(a6),d0
-		cmpi.w	#$2580,d0
-		bcc.s	loc_ECCE
+		move.w	d6,(v_timeattack_ms_2).w
+		move.w	obj.HUDTime(a6),d0
+		cmpi.w	#150<<6,d0	; is the timer at 2.5 minutes?
+		bcc.s	loc_ECCE	; if greater than, branch
 		tst.w	(word_D834).w
 		bne.s	locret_ECE4
-		cmpi.w	#$780,d0
-		bcs.s	locret_ECE4
+		cmpi.w	#30<<6,d0	; is the timer at 30 seconds?
+		bcs.s	locret_ECE4	; if lower than, branch
 
 loc_ECCE:
-		andi.w	#$F,d0
-		bne.s	locret_ECE4
-		move.w	#$2000,d0
-		eor.w	d0,(lword_D9F6).w
-		eor.w	d0,(word_D9FE).w
-		eor.w	d0,(word_DA06).w
+		andi.w	#$F,d0		; is this a 16th of a frame?
+		bne.s	locret_ECE4	; if not, branch
+		move.w	#$2000,d0	; xor bit 12 with $A to cycle between palettes
+		eor.w	d0,(v_timeattack_flash).w
+		eor.w	d0,(v_timeattack_flash_2).w
+		eor.w	d0,(v_timeattack_flash_3).w
 
 locret_ECE4:
 		rts
@@ -17563,7 +17568,7 @@ sub_EFD4:
 		move.w	#0,4(a0)
 		move.l	#0,$24(a0)
 		lea	HUD_Elements(pc),a1
-		lea	(lword_D9F2).w,a2
+		lea	(v_spritetable).w,a2
 		move.w	#bytesToWcnt(HUD_Elements_End-HUD_Elements),d0
 
 loc_EFF8:
@@ -17583,24 +17588,28 @@ loc_F00A:
 ; ---------------------------------------------------------------------------
 
 HUD_Elements:
-		; TIME
+
+HUD_Time_Attack_Text:
+		; "TIME"
 		dc.w $90
 		dc.w $D01
 		dc.w $514+$A<<12
 		dc.w $98
 
-		; ATTA
+		; "ATTA"
 		dc.w $90
 		dc.w $D02
 		dc.w $528+$A<<12
 		dc.w $C0
 
-		; CK
+		; "CK"
 		dc.w $90
 		dc.w $503
 		dc.w $530+$A<<12
 		dc.w $E0
+HUD_Time_Attack_Text_End:
 
+HUD_Time_Attack_Numbers:
 		; Minute Digit
 		dc.w $90
 		dc.w $104
@@ -17645,13 +17654,13 @@ HUD_Elements:
 HUD_Time_Attack_Numbers_End:
 
 HUD_Rings_Text:
-		; RING
+		; "RING"
 		dc.w $A0
 		dc.w $D0B
 		dc.w $534+$A<<12
 		dc.w $98
 
-		; S
+		; "S"
 		dc.w $A0
 		dc.w $10C
 		dc.w $53C+$A<<12
@@ -17691,13 +17700,13 @@ HUD_Rings_Numbers:
 HUD_Rings_Numbers_End:
 
 HUD_Pause_Text:
-		; PAUS
+		; "PAUS"
 		dc.w $D0
 		dc.w $D12
 		dc.w $54C+$A<<12
 		dc.w $EC
 
-		; E
+		; "E"
 		dc.w $D0
 		dc.w $113
 		dc.w $554+$A<<12
