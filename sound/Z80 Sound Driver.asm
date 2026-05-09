@@ -28,6 +28,7 @@ StackPointer:		ds.b 1
 AMSFMSPan:			ds.b 1
 DurationTimeout:	ds.b 1
 SavedDuration:		ds.b 1
+SavedDAC:
 FreqLow:			ds.b 1
 FreqHigh:			ds.b 1
 VoiceSongID:		ds.b 1
@@ -56,13 +57,14 @@ ModulationValLow:
 ModEnvSens:			ds.b 1
 ModulationValHigh:	ds.b 1
 ModulationWait:		ds.b 1
+ModulationSpeed:
 ModEnvIndex:		ds.b 1
 ModulationDelta:	ds.b 1
 ModulationSteps:	ds.b 1
 LoopCounters:		ds.w 1
 VoicesLow:			ds.b 1
 VoicesHigh:			ds.b 1
-	ds.b 4
+Stack_top:			ds.b 4
 zTrack ENDSTRUCT
 
 	phase $1C00
@@ -2143,10 +2145,10 @@ loc_A07:
 		or	a
 		jp	m, loc_A16
 		dec	de
-		ld	a, (ix+zTrack.FreqLow)
+		ld	a, (ix+zTrack.SavedDAC)
 
 loc_A16:
-		ld	(ix+zTrack.FreqLow), a
+		ld	(ix+zTrack.SavedDAC), a
 		or	a
 		jp	p, loc_A3E
 		push	de

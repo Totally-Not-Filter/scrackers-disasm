@@ -17661,6 +17661,8 @@ loc_F00E:
 		dc.w $10C
 		dc.w $80
 		dc.w $714
+
+HUD_Pause_Black_Bar:
 		dc.w $C7F8
 		dc.w $80
 		dc.w $A0
