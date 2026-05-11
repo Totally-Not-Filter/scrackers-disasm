@@ -5,6 +5,8 @@
 ; Full disassembly and documentation by Filter
 ; ---------------------------------------------------------------------------
 
+z80_SoundDriverStart:
+
 FixDriverBugs = FixBugs
 
 ; If 0, no optimisations are made, resulting in a driver size of exactly 1216 bytes.
@@ -67,7 +69,7 @@ VoicesHigh:			ds.b 1
 Stack_top:			ds.b 4
 zTrack ENDSTRUCT
 
-	phase $1C00
+		phase $1C00
 zDataStart:
 					ds.b 4	; unused
 zMusicBank:			ds.b 1
@@ -141,14 +143,17 @@ zSpecSFX_FM3:	zTrack
 zTracksSpecSFXEnd:
 
 zTempVariablesEnd:
-	dephase
-	!org	Z80_Driver
+		dephase
+		!org z80_SoundDriverStart
+
+Z80_SoundDriver:
+		org Z80_SoundDriver+Size_of_Snd_driver_guess
 
 		save
-		phase	0				; set Z80 location to 0
-		cpu z80					; use Z80 cpu
-		listing purecode			; add to listing file
-
+		!org 0	; z80 Align, handled by the build process
+		cpu z80
+		listing purecode
+; ---------------------------------------------------------------------------
 zDAC_Status	=	1FFDh
 zDAC_Sample	=	1FFFh
 zStack		=	2000h
@@ -159,6 +164,11 @@ zYM2612_D1	=	4003h
 zBankRegister	=	6000h
 zPSG		=	7F11h
 zROMWindow	=	8000h
+; ---------------------------------------------------------------------------
+
+; ===========================================================================
+; Macros
+; ===========================================================================
 
 bankswitch macro
 		; Hardcoded to only support 6-bit bank values.
@@ -3429,5 +3439,5 @@ DAC_Meta:	macro loc,rate
 .dac87:		DAC_Meta DAC_Sample5,13500
 
 		restore
-		padding	off
-		dephase					; reset to 68K location
+		padding off
+		!org Z80_SoundDriver+Size_of_Snd_driver_guess	; The assembler still thinks we're in Z80 memory, so use an 'org' to switch back to the cartridge

@@ -1,3 +1,8 @@
+; Constants
+
+; Sound driver approximate size guess
+Size_of_Snd_driver_guess:	equ $1216
+
 ; Universal VRAM addresses
 vram_window:	equ $B000
 vram_fg:	equ $C000
