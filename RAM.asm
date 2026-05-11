@@ -1,8 +1,8 @@
 
 	phase	ramaddr($FFFF0000)
-v_ram_start:	ds.b $200
+ram_start:	ds.b $200
 
-v_systemstack:
+systemstack:
 unk_0200:	ds.b $200
 unk_0400:	ds.b $200
 unk_0600:	ds.b $200
@@ -11,16 +11,16 @@ unk_0A00:	ds.b $102
 unk_0B02:	ds.b $82
 unk_0B84:	ds.b $102
 unk_0C86:	ds.b $82
-v_lvldatabuffer:
-v_lvldata16x16:
+lvldatabuffer:
+lvldata16x16:
 			ds.b $340*8	; blocks
-v_lvldata128x128:
+lvldata128x128:
 			ds.b $100*128	; chunks
-v_lvldatalayout:
+lvldatalayout:
 			ds.b $600	; layouts
-v_lvldatabuffer_end:
+lvldatabuffer_end:
 
-unk_2A00:	= v_lvldata128x128+$2F8
+unk_2A00:	= lvldata128x128+$2F8
 
 unk_AD08:	ds.b $1004
 			ds.b $AF4
@@ -31,26 +31,26 @@ unk_C81E:	ds.b 6
 unk_C824:	ds.b 6
 unk_C82A:	ds.b 6
 unk_C830:	ds.b 2
-v_vdpindex:	ds.l 1
+vdpindex:	ds.l 1
 unk_C836:	ds.b $100
-v_ctrl_p1_type:	ds.b 1
-v_ctrl_p2_type:	ds.b 1
-v_ctrl_p1:	ctrl
-v_ctrl_p2:	ctrl
-v_ctrl_p3:	ctrl
-v_ctrl_p4:	ctrl
+ctrl_p1_type:	ds.b 1
+ctrl_p2_type:	ds.b 1
+ctrl_p1:	ctrl
+ctrl_p2:	ctrl
+ctrl_p3:	ctrl
+ctrl_p4:	ctrl
 			ds.b $40
 word_C9B8:	ds.w 1
-v_vdp81_ctrl:	ds.w 1
+vdp81_ctrl:	ds.w 1
 			ds.b $12
 word_C9CE:	ds.w 1
 			ds.b 2
 word_C9D2:	ds.w 1
 			ds.b 2
-v_vdp_increment:	ds.w 1
+vdp_increment:	ds.w 1
 word_C9D8:	ds.w 1
-v_window_x:	ds.w 1
-v_window_y:	ds.w 1
+window_x:	ds.w 1
+window_y:	ds.w 1
 word_C9DE:	ds.w 1
 			ds.b 4
 byte_C9E4:	ds.b 1
@@ -78,12 +78,12 @@ word_CDDE:	ds.w 1
 word_CDE0:	ds.w 1
 byte_CDE1:	= word_CDE0+1
 			ds.b $382
-v_spritetablebuffer:	ds.b $280
-v_spritetablebuffer_end:
-v_pal:		ds.b $80	; ($80 bytes)
-v_pal_end:
-v_unk_pal:	ds.b $80
-v_unk_pal_end:
+spritetablebuffer:	ds.b $280
+spritetablebuffer_end:
+pal:		ds.b $80	; ($80 bytes)
+pal_end:
+unk_pal:	ds.b $80
+unk_pal_end:
 byte_D4E4:	ds.b 1
 byte_D4E5:	ds.b 1
 byte_D4E6:	ds.b 1
@@ -97,20 +97,20 @@ byte_D4EE:	ds.b 1
 			ds.b 1
 lword_D4F0:	ds.l 1
 lword_D4F4:	ds.l 1
-v_dmaqueueindex:	ds.b 2+$A0
+dmaqueueindex:	ds.b 2+$A0
 
-v_ngfx_buffer:	ds.b $200	; ($200 bytes)
+ngfx_buffer:	ds.b $200	; ($200 bytes)
 
-v_plc_buffer:	ds.b 6*16	; (6*16 bytes)
-v_plc_buffer_end:
-v_plc_ptrnemcode:	ds.l 1
-v_plc_repeatcount:	ds.l 1
-v_plc_paletteindex:	ds.l 1
-v_plc_previousrow:	ds.l 1
-v_plc_dataword:	ds.l 1
-v_plc_shiftvalue:	ds.l 1
-v_plc_patternsleft:	ds.w 1
-v_plc_framepatternsleft:	ds.w 1
+plc_buffer:	ds.b 6*16	; (6*16 bytes)
+plc_buffer_end:
+plc_ptrnemcode:	ds.l 1
+plc_repeatcount:	ds.l 1
+plc_paletteindex:	ds.l 1
+plc_previousrow:	ds.l 1
+plc_dataword:	ds.l 1
+plc_shiftvalue:	ds.l 1
+plc_patternsleft:	ds.w 1
+plc_framepatternsleft:	ds.w 1
 
 word_D816:	ds.w 1
 word_D818:	ds.w 1
@@ -119,13 +119,13 @@ word_D81C:	ds.w 1
 word_D81E:	ds.w 1
 word_D820:	ds.w 1
 
-v_gamemode:	ds.w 1	; (2 bytes)
-v_subgamemode:	ds.w 1
+gamemode:	ds.w 1	; (2 bytes)
+subgamemode:	ds.w 1
 
-v_titleselect:	ds.w 1
+titleselect:	ds.w 1
 			ds.b 2
 
-v_menu_soundid:	ds.w 1
+menu_soundid:	ds.w 1
 
 word_D82C:	ds.w 1
 			ds.b 2
@@ -156,8 +156,8 @@ word_D85C:	ds.w 1
 word_D862:	ds.w 1
 word_D864:	ds.w 1
 
-v_sonic:	ds.w 1
-v_tails:	ds.w 1
+sonic:	ds.w 1
+tails:	ds.w 1
 			ds.b $10
 byte_D87A:	ds.b 1
 			ds.b 1
@@ -192,18 +192,18 @@ word_D8EA:	ds.w 1
 lword_D8EC:	ds.l 1
 			ds.b 2
 unk_D8F2:	ds.b $100
-v_spritetable:	ds.w 80*4
+spritetable:	ds.w 80*4
 
-v_timeattack_flash:		equ v_spritetable+((HUD_Time_Attack_Text+4)-HUD_Elements)
-v_timeattack_flash_2:	equ v_spritetable+((HUD_Time_Attack_Text+$C)-HUD_Elements)
-v_timeattack_flash_3:	equ v_spritetable+((HUD_Time_Attack_Text+$14)-HUD_Elements)
-v_timeattack_m:			equ v_spritetable+((HUD_Time_Attack_Numbers+4)-HUD_Elements)
-v_timeattack_s:			equ v_spritetable+((HUD_Time_Attack_Numbers+$14)-HUD_Elements)
-v_timeattack_s_2:		equ v_spritetable+((HUD_Time_Attack_Numbers+$1C)-HUD_Elements)
-v_timeattack_ms:		equ v_spritetable+((HUD_Time_Attack_Numbers+$2C)-HUD_Elements)
-v_timeattack_ms_2:		equ v_spritetable+((HUD_Time_Attack_Numbers+$34)-HUD_Elements)
-byte_DA75:				equ v_spritetable+((HUD_Rings_Numbers+$23)-HUD_Elements)
-byte_DA85:				equ v_spritetable+((HUD_Pause_Text+$B)-HUD_Elements)
+timeattack_flash:		equ spritetable+((HUD_Time_Attack_Text+4)-HUD_Elements)
+timeattack_flash_2:		equ spritetable+((HUD_Time_Attack_Text+$C)-HUD_Elements)
+timeattack_flash_3:		equ spritetable+((HUD_Time_Attack_Text+$14)-HUD_Elements)
+timeattack_m:			equ spritetable+((HUD_Time_Attack_Numbers+4)-HUD_Elements)
+timeattack_s:			equ spritetable+((HUD_Time_Attack_Numbers+$14)-HUD_Elements)
+timeattack_s_2:			equ spritetable+((HUD_Time_Attack_Numbers+$1C)-HUD_Elements)
+timeattack_ms:			equ spritetable+((HUD_Time_Attack_Numbers+$2C)-HUD_Elements)
+timeattack_ms_2:		equ spritetable+((HUD_Time_Attack_Numbers+$34)-HUD_Elements)
+byte_DA75:				equ spritetable+((HUD_Rings_Numbers+$23)-HUD_Elements)
+byte_DA85:				equ spritetable+((HUD_Pause_Text+$B)-HUD_Elements)
 
 			ds.b $138E
 
@@ -248,11 +248,11 @@ word_FDCA:	ds.w 1
 word_FDCC:	ds.w 1
 word_FDCE:	ds.w 1
 			ds.b $1F0
-v_text:		ds.l 1
+text:		ds.l 1
 word_FFC4:	ds.w 1
 			ds.b 3
-v_lagger:	ds.b 1
+lagger:		ds.b 1
 			ds.b $36
-v_ram_end:
+ram_end:
 	dephase
 	!org 0

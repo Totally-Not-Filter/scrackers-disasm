@@ -24,7 +24,7 @@ SonicDriverVer = 3 ; Tell SMPS2ASM that we are targetting Sonic 3's sound driver
 	include "MacroSetup.asm"
 	include "Macros.asm"
 	include "Constants.asm"
-	include "Variables.asm"
+	include "RAM.asm"
 
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -34,7 +34,7 @@ SonicDriverVer = 3 ; Tell SMPS2ASM that we are targetting Sonic 3's sound driver
 StartOfROM:
 Vectors:
 SystemStackVector:
-		dc.l v_systemstack&$FFFFFF
+		dc.l systemstack&$FFFFFF
 		dc.l EntryPoint
 		dc.l ErrorTrap
 		dc.l ErrorTrap
@@ -109,8 +109,8 @@ Checksum:	dc.w 0
 		dc.b "J               "
 ROM_Start:	dc.l StartOfROM
 ROM_Finish:	dc.l (EndOfROM*2)-1
-		dc.l v_ram_start&$FFFFFF
-		dc.l (v_ram_end-1)&$FFFFFF
+		dc.l ram_start&$FFFFFF
+		dc.l (ram_end-1)&$FFFFFF
 		dc.l $20202020
 		dc.l $20202020
 		dc.l $20202020
@@ -198,7 +198,7 @@ EntryPoint:
 ; ===========================================================================
 SetupValues:
 		dc.w $8000				; VDP register Start
-		dc.w bytesToLcnt(v_ram_end-v_ram_start)		; Repeat times for clearing 68k ram
+		dc.w bytesToLcnt(ram_end-ram_start)		; Repeat times for clearing 68k ram
 		dc.w $100				; VDP register Number increase (Used for Z80 functioning too)
 
 		dc.l z80_ram				; Z80 Ram start
@@ -283,7 +283,7 @@ PSGInitValues_End:
 
 GameProgram:
 		tst.w	(vdp_control_port).l
-		lea	(v_text).w,a0
+		lea	(text).w,a0
 		move.l	(a0),d0
 		cmpi.l	#"SEGA",d0
 		bne.s	loc_326
@@ -343,7 +343,7 @@ loc_36E:
 		bne.s	.waitfordma			; if not, wait until it's finished
 		lea	(vdp_data_port).l,a0
 		move.w	#$8F02,(vdp_control_port).l
-		move.w	#$8F02,(v_vdp_increment).w
+		move.w	#$8F02,(vdp_increment).w
 
 		moveq	#0,d0				; clear d0
 		writeVRAM 0	; set VDP in VRAM write mode
@@ -426,7 +426,7 @@ DMAToCRAM:
 		stopZ80
 		waitZ80
 		move.w	#$8F02,(vdp_control_port).l	; set VDP Increment
-		move.w	#$8F02,(v_vdp_increment).w
+		move.w	#$8F02,(vdp_increment).w
 		lea	(vdp_control_port).l,a0		; load VDP address port to a0
 		enable_dma (a0)
 		lea	DMAValues(pc),a1		; load VDP values address to a1
@@ -447,14 +447,14 @@ DMAToCRAM:
 		disable_dma (a0)
 		startZ80
 		writeCRAM	; set VDP in CRAM write mode
-		move.w	(v_pal).w,-4(a0)		; move colour value in ram to VDP
+		move.w	(pal).w,-4(a0)		; move colour value in ram to VDP
 		rts
 ; ===========================================================================
 
 DMAValues:
-		dc.w $9300+(v_pal_end-v_pal)/2	; DMA Transfer Size (Lower and Upper bytes, in order: XX00, 00XX)
+		dc.w $9300+(pal_end-pal)/2	; DMA Transfer Size (Lower and Upper bytes, in order: XX00, 00XX)
 		dc.w $9400
-		dc.l (v_pal&$FFFFFF)/2			; DMA Transfer Source (7FE9F2 x 2 = FFD3E4)
+		dc.l (pal&$FFFFFF)/2			; DMA Transfer Source (7FE9F2 x 2 = FFD3E4)
 DMAValues_End:
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -466,12 +466,12 @@ VDPSetup_02:
 		moveq	#0,d3				; clear d3
 		stopZ80
 		waitZ80
-		move.w	(v_vdp81_ctrl).w,d0
+		move.w	(vdp81_ctrl).w,d0
 		bset	#4,d0
 		move.w	d0,(a4)
 		move.w	#$8F02,(vdp_control_port).l	; set VDP Increment
-		move.w	#$8F02,(v_vdp_increment).w
-		lea	(v_dmaqueueindex).w,a1
+		move.w	#$8F02,(vdp_increment).w
+		lea	(dmaqueueindex).w,a1
 		move.w	(a1)+,d7			; load repeat times to d7
 		bra.s	loc_542
 
@@ -505,11 +505,11 @@ loc_506:
 
 loc_542:
 		dbf	d7,loc_506
-		move.w	(v_vdp81_ctrl).w,d1
+		move.w	(vdp81_ctrl).w,d1
 		bclr	#4,d1
 		move.w	d1,(a4)
 		startZ80
-		clr.w	(v_dmaqueueindex).w
+		clr.w	(dmaqueueindex).w
 		rts
 ; ===========================================================================
 
@@ -553,7 +553,7 @@ sub_568:
 
 sub_5A6:
 		moveq	#0,d3
-		lea	(v_dmaqueueindex).w,a0
+		lea	(dmaqueueindex).w,a0
 		move.w	(a0)+,d3
 		cmpi.w	#$10,d3
 		bcs.s	loc_5B6
@@ -579,7 +579,7 @@ loc_5C0:
 		ori.w	#$4000,d1
 		swap	d1
 		move.l	d1,(a0)
-		addq.w	#1,(v_dmaqueueindex).w
+		addq.w	#1,(dmaqueueindex).w
 		rts
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -625,11 +625,11 @@ sub_626:
 		lea	(vdp_control_port).l,a0
 		stopZ80
 		waitZ80
-		move.w	(v_vdp81_ctrl).w,d4
+		move.w	(vdp81_ctrl).w,d4
 		bset	#4,d4
 		move.w	d4,(a0)
 		move.w	#$8F02,(vdp_control_port).l
-		move.w	#$8F02,(v_vdp_increment).w
+		move.w	#$8F02,(vdp_increment).w
 		move.w	d2,d4
 		move.w	#$9300,d5
 		move.b	d4,d5
@@ -659,7 +659,7 @@ sub_626:
 		move.w	d1,(a0)
 		movea.l	d6,a1
 		move.w	(a1),-4(a0)			; points to vdp_data_port
-		move.w	(v_vdp81_ctrl).w,d4
+		move.w	(vdp81_ctrl).w,d4
 		bclr	#4,d4
 		move.w	d4,(a0)
 		startZ80
@@ -692,8 +692,8 @@ locret_6FC:
 		rts
 
 sub_6FE:
-		lea	(v_pal).w,a0
-		move.w	#(v_pal_end-v_pal)/2,d3
+		lea	(pal).w,a0
+		move.w	#(pal_end-pal)/2,d3
 		subq.w	#1,d3
 
 .loop:
@@ -749,10 +749,10 @@ locret_76C:
 		rts
 
 sub_76E:
-		lea	(v_pal).w,a0
-		lea	(v_unk_pal).w,a1
+		lea	(pal).w,a0
+		lea	(unk_pal).w,a1
 		move.w	(word_D4EA).w,d2
-		move.w	#bytesToWcnt(v_pal_end-v_pal),d7
+		move.w	#bytesToWcnt(pal_end-pal),d7
 
 loc_77E:
 		move.w	(a1)+,d0
@@ -1006,19 +1006,19 @@ ControlInit_Unused:
 ; ---------------------------------------------------------------------------
 
 ReadCtrlInput:
-		lea	(v_ctrl_p1).w,a1
+		lea	(ctrl_p1).w,a1
 		lea	(port_1_data).l,a0
-		lea	(v_ctrl_p1_type).w,a2
+		lea	(ctrl_p1_type).w,a2
 		bsr.w	ReadCtrlPorts
 		lea	(port_2_data).l,a0
-		lea	(v_ctrl_p2_type).w,a2
+		lea	(ctrl_p2_type).w,a2
 		bsr.w	ReadCtrlPorts
 		bsr.s	sub_992
 		rts
 
 sub_992:
 		moveq	#7,d0
-		cmpi.b	#7,(v_ctrl_p1_type).w
+		cmpi.b	#7,(ctrl_p1_type).w
 		bne.s	loc_9A0
 		subq.w	#4,d0
 		bra.s	loc_9A2
@@ -1027,7 +1027,7 @@ loc_9A0:
 		subq.w	#1,d0
 
 loc_9A2:
-		cmpi.b	#7,(v_ctrl_p2_type).w
+		cmpi.b	#7,(ctrl_p2_type).w
 		bne.s	loc_9B0
 		subq.w	#4,d0
 		bcs.s	locret_9D2
@@ -1322,16 +1322,16 @@ ReadMultiTap:
 		bsr.s	loc_C34
 		bcs.w	loc_D10
 		andi.b	#$F,d0
-		move.b	d0,v_ctrl_p2-v_ctrl_p1(a1)
+		move.b	d0,ctrl_p2-ctrl_p1(a1)
 		bsr.s	sub_C48
 		bcs.w	loc_D10
 		andi.b	#$F,d0
-		move.b	d0,v_ctrl_p3-v_ctrl_p1(a1)
+		move.b	d0,ctrl_p3-ctrl_p1(a1)
 		moveq	#0,d6
 		bsr.w	sub_C2E
 		bcs.w	loc_D10
 		andi.b	#$F,d0
-		move.b	d0,v_ctrl_p4-v_ctrl_p1(a1)
+		move.b	d0,ctrl_p4-ctrl_p1(a1)
 		bsr.s	sub_D3A
 		bcs.w	loc_D10
 		bsr.s	sub_D3A
@@ -1438,7 +1438,7 @@ sub_DAA:
 ; ---------------------------------------------------------------------------
 
 ;LoadPLC:
-		lea	(v_plc_buffer).w,a1
+		lea	(plc_buffer).w,a1
 
 loc_EF8:
 		tst.l	(a1)
@@ -1461,7 +1461,7 @@ locret_F0C:
 
 ;NewPLC:
 		bsr.s	ClearPLC
-		lea	(v_plc_buffer).w,a1
+		lea	(plc_buffer).w,a1
 		move.w	(a0)+,d0
 		bmi.s	locret_F20
 
@@ -1475,8 +1475,8 @@ locret_F20:
 ; ===========================================================================
 
 ClearPLC:
-		lea	(v_plc_buffer).w,a1
-		moveq	#bytesToXcnt(v_plc_buffer_end-v_plc_buffer,6),d0
+		lea	(plc_buffer).w,a1
+		moveq	#bytesToXcnt(plc_buffer_end-plc_buffer,6),d0
 
 .loop:
 		clr.l	(a1)+
@@ -1486,55 +1486,55 @@ ClearPLC:
 ; ===========================================================================
 
 ;RunPLC:
-		tst.l	(v_plc_buffer).w
+		tst.l	(plc_buffer).w
 		beq.s	locret_F84
-		tst.w	(v_plc_patternsleft).w
+		tst.w	(plc_patternsleft).w
 		bne.s	locret_F84
-		movea.l	(v_plc_buffer).w,a0
+		movea.l	(plc_buffer).w,a0
 		lea	NemPCD_WriteRowToVDP(pc),a3
-		lea	(v_ngfx_buffer).w,a1
+		lea	(ngfx_buffer).w,a1
 		move.w	(a0)+,d2
 		bpl.s	loc_F52
 		adda.w	#NemPCD_WriteRowToVDP_XOR-NemPCD_WriteRowToVDP,a3
 
 loc_F52:
 		andi.w	#$7FFF,d2
-		move.w	d2,(v_plc_patternsleft).w
+		move.w	d2,(plc_patternsleft).w
 		bsr.w	NemDec_BuildCodeTable
 		move.b	(a0)+,d5
 		asl.w	#8,d5
 		move.b	(a0)+,d5
 		moveq	#$10,d6
 		moveq	#0,d0
-		move.l	a0,(v_plc_buffer).w
-		move.l	a3,(v_plc_shiftvalue).w
-		move.l	d0,(v_plc_ptrnemcode).w
-		move.l	d0,(v_plc_repeatcount).w
-		move.l	d0,(v_plc_paletteindex).w
-		move.l	d5,(v_plc_previousrow).w
-		move.l	d6,(v_plc_dataword).w
+		move.l	a0,(plc_buffer).w
+		move.l	a3,(plc_shiftvalue).w
+		move.l	d0,(plc_ptrnemcode).w
+		move.l	d0,(plc_repeatcount).w
+		move.l	d0,(plc_paletteindex).w
+		move.l	d5,(plc_previousrow).w
+		move.l	d6,(plc_dataword).w
 
 locret_F84:
 		rts
 ; ===========================================================================
 
 ;ProcessDPLC:
-		tst.w	(v_plc_patternsleft).w
+		tst.w	(plc_patternsleft).w
 		beq.w	locret_101E
-		move.w	#6,(v_plc_framepatternsleft).w
+		move.w	#6,(plc_framepatternsleft).w
 		moveq	#0,d0
-		move.w	(v_plc_buffer+4).w,d0
-		addi.w	#$C0,(v_plc_buffer+4).w
+		move.w	(plc_buffer+4).w,d0
+		addi.w	#$C0,(plc_buffer+4).w
 		bra.s	loc_FBA
 ; ===========================================================================
 
 ;ProcessDPLC2:
-		tst.w	(v_plc_patternsleft).w
+		tst.w	(plc_patternsleft).w
 		beq.s	locret_101E
-		move.w	#3,(v_plc_framepatternsleft).w
+		move.w	#3,(plc_framepatternsleft).w
 		moveq	#0,d0
-		move.w	(v_plc_buffer+4).w,d0
-		addi.w	#$60,(v_plc_buffer+4).w
+		move.w	(plc_buffer+4).w,d0
+		addi.w	#$60,(plc_buffer+4).w
 
 loc_FBA:
 		lea	(vdp_control_port).l,a4
@@ -1544,37 +1544,37 @@ loc_FBA:
 		swap	d0
 		move.l	d0,(a4)
 		subq.w	#4,a4
-		movea.l	(v_plc_buffer).w,a0
-		move.l	(v_plc_ptrnemcode).w,d0
-		move.l	(v_plc_repeatcount).w,d1
-		move.l	(v_plc_paletteindex).w,d2
-		move.l	(v_plc_previousrow).w,d5
-		move.l	(v_plc_dataword).w,d6
-		movea.l	(v_plc_shiftvalue).w,a3
-		lea	(v_ngfx_buffer).w,a1
+		movea.l	(plc_buffer).w,a0
+		move.l	(plc_ptrnemcode).w,d0
+		move.l	(plc_repeatcount).w,d1
+		move.l	(plc_paletteindex).w,d2
+		move.l	(plc_previousrow).w,d5
+		move.l	(plc_dataword).w,d6
+		movea.l	(plc_shiftvalue).w,a3
+		lea	(ngfx_buffer).w,a1
 
 loc_FEE:
 		movea.w	#8,a5
 		bsr.w	NemPCD_NewRow
-		subq.w	#1,(v_plc_patternsleft).w
+		subq.w	#1,(plc_patternsleft).w
 		beq.s	ProcessDPLC_Pop
-		subq.w	#1,(v_plc_framepatternsleft).w
+		subq.w	#1,(plc_framepatternsleft).w
 		bne.s	loc_FEE
-		move.l	a0,(v_plc_buffer).w
-		move.l	d0,(v_plc_ptrnemcode).w
-		move.l	d1,(v_plc_repeatcount).w
-		move.l	d2,(v_plc_paletteindex).w
-		move.l	d5,(v_plc_previousrow).w
-		move.l	d6,(v_plc_dataword).w
-		move.l	a3,(v_plc_shiftvalue).w
+		move.l	a0,(plc_buffer).w
+		move.l	d0,(plc_ptrnemcode).w
+		move.l	d1,(plc_repeatcount).w
+		move.l	d2,(plc_paletteindex).w
+		move.l	d5,(plc_previousrow).w
+		move.l	d6,(plc_dataword).w
+		move.l	a3,(plc_shiftvalue).w
 
 locret_101E:
 		rts
 ; ===========================================================================
 
 ProcessDPLC_Pop:
-		lea	(v_plc_buffer).w,a0
-		moveq	#bytesToLcnt(v_plc_buffer_end-v_plc_buffer-6),d0
+		lea	(plc_buffer).w,a0
+		moveq	#bytesToLcnt(plc_buffer_end-plc_buffer-6),d0
 
 loc_1026:
 		move.l	6(a0),(a0)+
@@ -1862,7 +1862,7 @@ sub_14E4:
 		beq.w	loc_1570
 		move.w	#0,(a4)+
 		move.w	#$8F80,(vdp_control_port).l
-		move.w	#$8F80,(v_vdp_increment).w
+		move.w	#$8F80,(vdp_increment).w
 		move.w	d0,d1
 		moveq	#$F,d7
 		moveq	#0,d6
@@ -1910,7 +1910,7 @@ loc_155C:
 		move.l	(a4)+,(a2)
 		dbf	d7,loc_155C
 		move.w	#$8F02,(vdp_control_port).l
-		move.w	#$8F02,(v_vdp_increment).w
+		move.w	#$8F02,(vdp_increment).w
 
 loc_1570:
 		move.w	(a3),d0
@@ -1995,15 +1995,15 @@ loc_1600:
 		movea.l	a1,a0
 		dbf	d7,loc_1600
 		clr.w	-$40(a0)
-		lea	(v_spritetablebuffer).w,a0
-		moveq	#bytesToXcnt(v_spritetablebuffer_end-v_spritetablebuffer,8),d1
+		lea	(spritetablebuffer).w,a0
+		moveq	#bytesToXcnt(spritetablebuffer_end-spritetablebuffer,8),d1
 
 loc_1616:
 		move.l	d0,(a0)+
 		move.l	d0,(a0)+
 		dbf	d1,loc_1616
-		move.l	d0,(v_spritetable).w
-		move.l	d0,(v_spritetable+4).w
+		move.l	d0,(spritetable).w
+		move.l	d0,(spritetable+4).w
 		move.w	#3,(word_D83C).w
 		move.w	#$F,(word_D840).w
 		move.w	#$1F,(word_D844).w
@@ -2026,11 +2026,11 @@ loc_1616:
 ; a6 = sprite table buffer start
 
 BuildSprites:
-		lea	(v_spritetablebuffer).w,a6
+		lea	(spritetablebuffer).w,a6
 		moveq	#0,d6
-		lea	(v_spritetablebuffer_end).w,a5
+		lea	(spritetablebuffer_end).w,a5
 		moveq	#80-1,d5	; sprite limit
-		lea	(v_spritetable).w,a4
+		lea	(spritetable).w,a4
 
 loc_1650:
 		move.l	(a4)+,d0
@@ -3885,7 +3885,7 @@ PAL_Unknown_2:	binclude	"Palettes/PalUnknown02.bin"
 ; ---------------------------------------------------------------------------
 
 MAINPROG:
-		move.w	(v_gamemode).w,d0
+		move.w	(gamemode).w,d0
 		andi.w	#$78,d0
 		jsr	GameModeArray(pc,d0.w)		; run through correct mode routine
 		bra.s	MAINPROG			; loop
@@ -4136,7 +4136,7 @@ QueueSound:
 SegaScreen:
 		pea	(a0)
 		lea	loc_6EB4(pc),a0
-		move.l	a0,(v_vdpindex).w
+		move.l	a0,(vdpindex).w
 		movem.l	(sp)+,a0				; this could be improved by using "movea.l	(sp)+,a0"
 		jsr	(SoundDriverLoad).l		; load the Z80 Sound Driver
 		lea	SegaScreen_VDPSettings(pc),a0
@@ -4172,7 +4172,7 @@ SegaContin:
 		move.w	(word_D818).w,d3
 		jsr	(sub_86E).w
 		lea	PAL_Segalogo(pc),a0		; load Sega Palette address to a0
-		lea	(v_pal).w,a1
+		lea	(pal).w,a1
 		movem.l	(a0)+,d0-d7
 		movem.l	d0-d7,(a1)
 		lea	$20(a1),a1
@@ -4181,7 +4181,7 @@ SegaContin:
 		bsr.w	Sega_MapTiles
 		move.l	#$F01,d0
 		moveq	#1,d1
-		lea	(v_spritetablebuffer).w,a0
+		lea	(spritetablebuffer).w,a0
 		moveq	#bytesToXcnt($38,8),d7
 
 loc_64AA:
@@ -4198,16 +4198,16 @@ loc_64AA:
 		move.w	d0,(word_FAC8).w
 		enable_vints
 		enable_display
-		addq.w	#4,(v_subgamemode).w		; increase sega screen mode
+		addq.w	#4,(subgamemode).w		; increase sega screen mode
 
 loc_64F2:
 		pea	(loc_64F2).l
-		bclr	#7,(v_lagger).w
+		bclr	#7,(lagger).w
 
 .wait:
-		tst.b	(v_lagger).w
+		tst.b	(lagger).w
 		bpl.s	.wait
-		move.w	(v_subgamemode).w,d0		; load sub mode to d0
+		move.w	(subgamemode).w,d0		; load sub mode to d0
 		jmp	SegaSubArray(pc,d0.w)		; jump to correct sub mode routine
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -4238,9 +4238,9 @@ MultiReturn:
 ; ---------------------------------------------------------------------------
 
 loc_6526:
-		tst.b	(v_ctrl_p1+ctrl.hold_3).w	; is start button held?
+		tst.b	(ctrl_p1+ctrl.hold_3).w	; is start button held?
 		bpl.s	Sega_ChooseAnimation	; if not, branch
-		move.w	#$14,(v_subgamemode).w	; go to title
+		move.w	#$14,(subgamemode).w	; go to title
 
 Sega_ChooseAnimation:
 		move.w	(word_FAC8).w,d0
@@ -4255,9 +4255,9 @@ Sega_AnimationTable:
 ; ---------------------------------------------------------------------------
 
 SegaPaletteStart:
-		tst.b	(v_ctrl_p1+ctrl.hold_3).w
+		tst.b	(ctrl_p1+ctrl.hold_3).w
 		bpl.s	.cycling
-		move.w	#$14,(v_subgamemode).w
+		move.w	#$14,(subgamemode).w
 
 .cycling:
 		subq.w	#1,(word_FAC4).w
@@ -4273,9 +4273,9 @@ SegaPaletteStart:
 		move.w	(word_D818).w,d3
 		jsr	(sub_86E).w
 		move.w	#0,(word_FAC4).w		; clear colour number
-		move.w	(v_pal+4).w,(word_FAC6).w	; save first colour to storage
-		move.w	#cWhite,(v_pal+4).w		; save white to colour palette
-		addq.w	#4,(v_subgamemode).w		; increase sub mode
+		move.w	(pal+4).w,(word_FAC6).w	; save first colour to storage
+		move.w	#cWhite,(pal+4).w		; save white to colour palette
+		addq.w	#4,(subgamemode).w		; increase sub mode
 		rts
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -4283,12 +4283,12 @@ SegaPaletteStart:
 ; ---------------------------------------------------------------------------
 
 SegaPaletteCycle:
-		tst.b	(v_ctrl_p1+ctrl.hold_3).w
+		tst.b	(ctrl_p1+ctrl.hold_3).w
 		bpl.s	loc_6594
-		move.w	#$14,(v_subgamemode).w
+		move.w	#$14,(subgamemode).w
 
 loc_6594:
-		lea	(v_pal+4).w,a0		; load palette address to a0
+		lea	(pal+4).w,a0		; load palette address to a0
 		move.w	(word_FAC4).w,d0		; load current colour number to d0
 		add.w	d0,d0				; double it
 		adda.w	d0,a0				; add to colour palette location
@@ -4299,7 +4299,7 @@ loc_6594:
 		cmpi.w	#$C,(word_FAC4).w		; has colour number finished at C?
 		bne.w	MultiReturn			; if not, branch to return
 		move.w	#$40,(word_FAC4).w		; set colour number to 40
-		addq.w	#4,(v_subgamemode).w		; increase sub mode
+		addq.w	#4,(subgamemode).w		; increase sub mode
 		rts
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -4307,9 +4307,9 @@ loc_6594:
 ; ---------------------------------------------------------------------------
 
 loc_65C6:
-		tst.b	(v_ctrl_p1+ctrl.hold_3).w	; is the start button held?
+		tst.b	(ctrl_p1+ctrl.hold_3).w	; is the start button held?
 		bpl.s	loc_65D2	; if not, branch
-		move.w	#$14,(v_subgamemode).w
+		move.w	#$14,(subgamemode).w
 
 loc_65D2:
 		subq.w	#1,(word_FAC4).w		; minus 1 from colour number
@@ -4317,8 +4317,8 @@ loc_65D2:
 		moveq	#1,d0
 		jsr	(PaletteFadeOut).w
 		bne.w	MultiReturn
-		move.w	#id_Title,(v_gamemode).w	; set screen mode to title screen
-		clr.l	(v_subgamemode).w		; clear sub mode
+		move.w	#id_Title,(gamemode).w	; set screen mode to title screen
+		clr.l	(subgamemode).w		; clear sub mode
 		movea.l	(SystemStackVector).w,sp	; set stack pointer
 		jmp	(MAINPROG).w			; jump to the main game loop
 ; ===========================================================================
@@ -4330,8 +4330,8 @@ Sega_GotoTitle:
 		moveq	#1,d0
 		jsr	(PaletteFadeOut).w
 		bne.w	MultiReturn
-		move.w	#id_Title,(v_gamemode).w
-		clr.l	(v_subgamemode).w
+		move.w	#id_Title,(gamemode).w
+		clr.l	(subgamemode).w
 		movea.l	(SystemStackVector).w,sp
 		jmp	(MAINPROG).w
 ; ===========================================================================
@@ -4343,7 +4343,7 @@ SegaScrn_CheckRegion:
 		move.b	(region_version).l,d0		; load Z80 version number
 		rol.b	#2,d0				; roll left 2 bits
 		andi.w	#2,d0				; get only the original 1st bit that was in version number
-		move.w	SegaTM_Palette(pc,d0.w),(v_pal+$1E).w	; color a specific part of the palette depending on if you have a domestic or overseas model
+		move.w	SegaTM_Palette(pc,d0.w),(pal+$1E).w	; color a specific part of the palette depending on if you have a domestic or overseas model
 		rts
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -4777,7 +4777,7 @@ Sega_MainAnimation:
 
 loc_69D2:
 		move.w	#$8164,(vdp_control_port).l
-		move.w	#$8164,(v_vdp81_ctrl).w
+		move.w	#$8164,(vdp81_ctrl).w
 		bsr.w	SegaScrn_CheckRegion
 		lea	(unk_0200&$FFFFFF+$80).l,a0
 		bra.s	loc_6A02
@@ -4798,7 +4798,7 @@ loc_69FC:
 
 loc_6A02:
 		move.w	#8,(word_FAC6).w
-		lea	(v_spritetablebuffer).w,a1
+		lea	(spritetablebuffer).w,a1
 		clr.l	(a1)+
 		move.w	#$FFA0,(word_CA5E).w
 		move.w	#$FFA0,(word_CA60).w
@@ -4831,7 +4831,7 @@ loc_6A4E:
 
 loc_6A54:
 		move.w	#4,(word_FAC6).w
-		lea	(v_spritetablebuffer).w,a1
+		lea	(spritetablebuffer).w,a1
 		clr.l	(a1)+
 		move.w	#$FFA0,(word_CA5E).w
 		move.w	#$FFA0,(word_CA60).w
@@ -4868,7 +4868,7 @@ loc_6AAC:
 
 loc_6AB6:
 		move.w	#4,(word_FAC6).w
-		lea	(v_spritetablebuffer).w,a1
+		lea	(spritetablebuffer).w,a1
 		clr.l	(a1)+
 		move.w	d0,(word_CA5E).w
 		move.w	d0,(word_CA60).w
@@ -4909,7 +4909,7 @@ loc_6B0C:
 		move.w	#$A0,(word_CA60).w
 		move.w	#$118,(word_CDDE).w
 		move.w	#$114,(word_CDE0).w
-		lea	(v_spritetablebuffer).w,a0
+		lea	(spritetablebuffer).w,a0
 		move.l	#$C80F01,(a0)+
 		move.w	d7,(a0)+
 		move.w	d0,(a0)+
@@ -4933,25 +4933,25 @@ loc_6B0C:
 
 loc_6B70:
 		move.l	#$4000EF,d7
-		lea	(v_spritetablebuffer+$20).w,a0
+		lea	(spritetablebuffer+$20).w,a0
 		bra.s	loc_6B9E
 ; ---------------------------------------------------------------------------
 
 loc_6B7C:
 		move.l	#$500105,d7
-		lea	(v_spritetablebuffer+$28).w,a0
+		lea	(spritetablebuffer+$28).w,a0
 		bra.s	loc_6B9E
 ; ---------------------------------------------------------------------------
 
 loc_6B88:
 		move.l	#$60011B,d7
-		lea	(v_spritetablebuffer+$30).w,a0
+		lea	(spritetablebuffer+$30).w,a0
 		bra.s	loc_6B9E
 ; ---------------------------------------------------------------------------
 
 loc_6B94:
 		move.l	#$700135,d7
-		lea	(v_spritetablebuffer+$38).w,a0
+		lea	(spritetablebuffer+$38).w,a0
 
 loc_6B9E:
 		move.w	#4,(word_FAC6).w
@@ -4962,7 +4962,7 @@ loc_6B9E:
 		move.w	#$D8,(a0)+
 		addq.l	#2,a0
 		move.l	d7,(a0)
-		lea	(v_spritetablebuffer).w,a0
+		lea	(spritetablebuffer).w,a0
 		clr.w	(a0)
 		addq.l	#8,a0
 		clr.w	(a0)
@@ -4974,7 +4974,7 @@ loc_6B9E:
 ; ---------------------------------------------------------------------------
 
 loc_6BD8:
-		lea	(v_spritetablebuffer).w,a0
+		lea	(spritetablebuffer).w,a0
 		move.l	$20(a0),d0
 		move.b	3(a0),d0
 		move.l	d0,(a0)+
@@ -4992,7 +4992,7 @@ loc_6BD8:
 		move.l	d0,(a0)+
 		move.l	$20(a0),(a0)
 		move.w	#$10,(word_FAC4).w
-		addq.w	#4,(v_subgamemode).w
+		addq.w	#4,(subgamemode).w
 		rts
 ; ---------------------------------------------------------------------------
 
@@ -5072,7 +5072,7 @@ sub_6CF0:
 
 loc_6CFC:
 		move.w	#$8164,(vdp_control_port).l
-		move.w	#$8164,(v_vdp81_ctrl).w
+		move.w	#$8164,(vdp81_ctrl).w
 		subi.w	#$10,(word_CA5E).w
 		subi.w	#$10,(word_CA60).w
 		subq.w	#1,(word_FAC6).w
@@ -5123,7 +5123,7 @@ loc_6D6E:
 		jsr	(sub_86E).w
 		enable_ints
 		lea	(dword_6DBC).l,a0
-		lea	(v_spritetablebuffer).w,a1
+		lea	(spritetablebuffer).w,a1
 	rept 8
 		move.l	(a0)+,(a1)+
 	endr
@@ -5143,10 +5143,10 @@ dword_6DBC:
 ; ---------------------------------------------------------------------------
 
 loc_6DDC:
-		addq.w	#8,(v_spritetablebuffer+6).w
-		addq.w	#8,(v_spritetablebuffer+$E).w
-		addq.w	#8,(v_spritetablebuffer+$16).w
-		addq.w	#8,(v_spritetablebuffer+$1E).w
+		addq.w	#8,(spritetablebuffer+6).w
+		addq.w	#8,(spritetablebuffer+$E).w
+		addq.w	#8,(spritetablebuffer+$16).w
+		addq.w	#8,(spritetablebuffer+$1E).w
 		subq.w	#1,(word_FAC6).w
 		bne.s	locret_6DFC
 		addq.w	#4,(word_FAC4).w
@@ -5166,7 +5166,7 @@ loc_6DFE:
 		andi.w	#$1C,d0
 		lea	(byte_6E46).l,a0
 		adda.w	d0,a0
-		lea	(v_spritetablebuffer+6).w,a1
+		lea	(spritetablebuffer+6).w,a1
 		move.b	(a0)+,d0
 		ext.w	d0
 		add.w	d0,(a1)
@@ -5200,7 +5200,7 @@ byte_6E46:
 ; ---------------------------------------------------------------------------
 
 loc_6E66:
-		lea	(v_spritetablebuffer+$20).w,a0
+		lea	(spritetablebuffer+$20).w,a0
 		move.l	-$20(a0),d0
 		move.b	3(a0),d0
 		move.l	d0,(a0)+
@@ -5219,14 +5219,14 @@ loc_6E66:
 		move.l	-$20(a0),(a0)
 		move.b	#4,-$21(a0)
 		move.w	#$10,(word_FAC4).w
-		addq.w	#4,(v_subgamemode).w
+		addq.w	#4,(subgamemode).w
 		rts
 ; ---------------------------------------------------------------------------
 
 loc_6EB4:
 		movem.l	d0-a6,-(sp)
 		jsr	(ReadCtrlInput).w
-		move.l	#v_spritetablebuffer,d0
+		move.l	#spritetablebuffer,d0
 		move.w	(word_D81A).w,d1
 		move.w	#$140,d2
 		jsr	(DMA_WriteData).w
@@ -5247,7 +5247,7 @@ loc_6EB4:
 		add.w	(word_FFC4).w,d0
 		addq.w	#1,d0
 		move.w	d0,(word_FFC4).w
-		ori.b	#$80,(v_lagger).w
+		ori.b	#$80,(lagger).w
 		addq.w	#1,(word_F000).w
 		movem.l	(sp)+,d0-a6
 		rte
@@ -5299,7 +5299,7 @@ ARTCRA_SegaLogo:
 ; ---------------------------------------------------------------------------
 
 TitleScreen:
-		move.w	(v_subgamemode).w,d0		; load sub mode to d0
+		move.w	(subgamemode).w,d0		; load sub mode to d0
 		jmp	.submodes(pc,d0.w)	; run code depending on index
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -5314,7 +5314,7 @@ TitleScreen:
 TitleLoad:
 		pea	(a0)
 		lea	loc_7576(pc),a0
-		move.l	a0,(v_vdpindex).w
+		move.l	a0,(vdpindex).w
 		movem.l	(sp)+,a0				; this could be improved by using "movea.l	(sp)+,a0"
 		disable_ints
 		lea	TitleScreen_VDPSettings(pc),a0
@@ -5384,7 +5384,7 @@ TitleLoad_Continue:
 		jsr	(MapScreen).w			; map it on screen correctly
 		move.w	#$80,(word_D820).w
 		lea	PAL_MainMenus(pc),a0
-		lea	(v_pal).w,a1
+		lea	(pal).w,a1
 		moveq	#bytesToLcnt($40),d0
 
 .loadpalette:
@@ -5399,10 +5399,10 @@ TitleLoad_Continue:
 		move.l	#(">")<<16+$D0,(vdp_data_port).l	; load '>' symbol and x position
 		charset
 
-		clr.w	(v_titleselect).w
+		clr.w	(titleselect).w
 		clr.w	(word_D832).w
 		enable_ints				; set the stack register
-		addq.w	#4,(v_subgamemode).w		; increase sub mode
+		addq.w	#4,(subgamemode).w		; increase sub mode
 		rts
 ; ===========================================================================
 
@@ -5411,13 +5411,13 @@ PAL_MainMenus:	binclude	"Palettes/PalMainMenus.bin"
 ; ===========================================================================
 
 TitleStart:
-		bclr	#7,(v_lagger).w
+		bclr	#7,(lagger).w
 
 .wait:
-		tst.b	(v_lagger).w
+		tst.b	(lagger).w
 		bpl.s	.wait
-		move.w	(v_ctrl_p1+ctrl.var_E).w,d0
-		add.w	(v_titleselect).w,d0
+		move.w	(ctrl_p1+ctrl.var_E).w,d0
+		add.w	(titleselect).w,d0
 		bpl.s	loc_74F4
 		moveq	#0,d0
 
@@ -5427,19 +5427,19 @@ loc_74F4:
 		moveq	#3,d0	; force selection 3
 
 loc_74FC:
-		move.w	d0,(v_titleselect).w
+		move.w	d0,(titleselect).w
 		lsl.w	#4,d0
 		addi.w	#$120,d0	; position on screen
 		move.w	d0,(word_D832).w
-		tst.b	(v_ctrl_p1+ctrl.press_3).w
+		tst.b	(ctrl_p1+ctrl.press_3).w
 		bmi.s	TitleStartMenu
 		rts
 ; ---------------------------------------------------------------------------
 
 TitleStartMenu:
 		clr.w	(word_D83A).w	; reset time of day for all levels
-		clr.w	(v_subgamemode).w
-		move.w	(v_titleselect).w,d0
+		clr.w	(subgamemode).w
+		move.w	(titleselect).w,d0
 		beq.s	TitleScrn_PlayLevel
 		cmpi.w	#1,d0
 		bne.s	TitleScrn_ToOption
@@ -5447,7 +5447,7 @@ TitleStartMenu:
 TitleScrn_PlayLevel:
 		move.w	#1,(word_D834).w
 		move.w	#1,(word_D836).w
-		move.w	#id_Level,(v_gamemode).w
+		move.w	#id_Level,(gamemode).w
 		move.b	#0,(byte_D89C).w
 		tst.w	d0
 		bne.s	loc_754A
@@ -5461,16 +5461,16 @@ loc_754A:
 ; ---------------------------------------------------------------------------
 
 TitleScrn_ToOption:
-		cmpi.w	#2,(v_titleselect).w
+		cmpi.w	#2,(titleselect).w
 		bne.s	TitleScrn_ToLevSel
-		move.w	#id_Options,(v_gamemode).w
+		move.w	#id_Options,(gamemode).w
 		rts
 ; ---------------------------------------------------------------------------
 
 TitleScrn_ToLevSel:
 		move.b	#0,(byte_D89C).w
 		move.b	#$FF,(byte_D8AC).w
-		move.w	#id_LevelSelect,(v_gamemode).w
+		move.w	#id_LevelSelect,(gamemode).w
 		rts
 ; ---------------------------------------------------------------------------
 
@@ -5479,16 +5479,16 @@ loc_7576:
 		writeVRAM	vram_sprtbl_title
 		move.w	(word_D832).w,(vdp_data_port).l
 		jsr	(ReadCtrlInput).w
-		move.b	(v_ctrl_p1+ctrl.hold_3).w,d0
+		move.b	(ctrl_p1+ctrl.hold_3).w,d0
 		bsr.s	sub_75BC
-		move.w	d1,(v_ctrl_p1+ctrl.var_8).w
-		move.w	d2,(v_ctrl_p1+ctrl.var_A).w
-		move.b	(v_ctrl_p1+ctrl.press_3).w,d0
+		move.w	d1,(ctrl_p1+ctrl.var_8).w
+		move.w	d2,(ctrl_p1+ctrl.var_A).w
+		move.b	(ctrl_p1+ctrl.press_3).w,d0
 		bsr.s	sub_75BC
-		move.w	d1,(v_ctrl_p1+ctrl.var_C).w
-		move.w	d2,(v_ctrl_p1+ctrl.var_E).w
+		move.w	d1,(ctrl_p1+ctrl.var_C).w
+		move.w	d2,(ctrl_p1+ctrl.var_E).w
 		jsr	(DMAToCRAM).w
-		ori.b	#$80,(v_lagger).w
+		ori.b	#$80,(lagger).w
 		movem.l	(sp)+,d0-a6
 		rte
 
@@ -5538,14 +5538,14 @@ MAPUNC_TitleMenu_3:
 Fields:
 		pea	(a0)
 		lea	Vint_Fields(pc),a0
-		move.l	a0,(v_vdpindex).w
+		move.l	a0,(vdpindex).w
 		movem.l	(sp)+,a0				; this could be improved by using "movea.l	(sp)+,a0"
 		lea	Fields_VDPSettings(pc),a0
 		jsr	(SetupVDPUsingTable).w
 		move.b	#bgm_Electoria,d0		; load BGM 81
 		jsr	(QueueSound).l			; Play BGM
 		lea	PAL_PrimaryColours_Field(pc),a0	; load primary Field palettes address to a0
-		lea	(v_pal).w,a1
+		lea	(pal).w,a1
 		movem.l	(a0)+,d0-d7
 		movem.l	d0-d7,(a1)
 		lea	$20(a1),a1
@@ -5584,10 +5584,10 @@ Fields_VDPSettings:
 
 Fields_MainLoop:
 		pea	(Fields_MainLoop).l
-		bclr	#7,(v_lagger).w
+		bclr	#7,(lagger).w
 
 .wait:
-		tst.b	(v_lagger).w			; I think these act like a lagger, removing them...
+		tst.b	(lagger).w			; I think these act like a lagger, removing them...
 		bpl.s	.wait				; ...causes the fields to run extremely fast
 		bsr.w	sub_F390
 		jsr	(Field_ReadController).l
@@ -5604,7 +5604,7 @@ Fields_MainLoop:
 
 Field_ReadController:
 		jsr	(ReadCtrlInput).w
-		lea	(v_ctrl_p1).w,a3
+		lea	(ctrl_p1).w,a3
 		moveq	#0,d1
 		move.b	(byte_D89C).w,d1
 		moveq	#7,d0
@@ -5627,7 +5627,7 @@ Field_ReadController:
 		lea	(byte_D89C).w,a4
 		bsr.w	sub_7FB0
 		move.b	(word_FAFE).w,d0
-		lea	(v_ctrl_p1).w,a3
+		lea	(ctrl_p1).w,a3
 		moveq	#0,d1
 		move.b	(byte_D8AC).w,d1
 		bmi.s	loc_7FA8
@@ -5703,11 +5703,11 @@ Vint_Fields:
 		move.l	(word_CDDE).w,(vdp_data_port).l
 		jsr	(DMAToCRAM).w
 		jsr	(sub_C9DE).l
-		move.l	#v_spritetablebuffer,d0
+		move.l	#spritetablebuffer,d0
 		move.w	(word_D81A).w,d1
 		move.w	#$140,d2
 		jsr	(DMA_WriteData).w
-		ori.b	#$80,(v_lagger).w
+		ori.b	#$80,(lagger).w
 		addq.w	#1,(word_F000).w
 		movem.l	(sp)+,d0-a6
 		rte
@@ -5718,7 +5718,7 @@ Vint_Fields:
 Field_PauseGame:
 		tst.b	(byte_D89F).w
 		bpl.w	locret_8194
-		move.b	(v_ctrl_p1+ctrl.hold_3).w,d0
+		move.b	(ctrl_p1+ctrl.hold_3).w,d0
 		andi.b	#$70,d0
 		cmpi.b	#$70,d0
 		bne.s	loc_8086
@@ -5733,10 +5733,10 @@ loc_8086:
 		movem.l	d0-a6,-(sp)
 
 loc_808A:
-		bclr	#7,(v_lagger).w
+		bclr	#7,(lagger).w
 
 .wait:
-		tst.b	(v_lagger).w
+		tst.b	(lagger).w
 		bpl.s	.wait
 		jsr	(Field_ReadController).l
 		move.b	(byte_D89E).w,d0
@@ -5772,7 +5772,7 @@ loc_80E0:
 		move.l	d0,(word_CDDE).w
 		lea	(vdp_data_port).l,a0
 		move.w	#$8F02,(vdp_control_port).l
-		move.w	#$8F02,(v_vdp_increment).w
+		move.w	#$8F02,(vdp_increment).w
 		moveq	#0,d0
 		writeVRAM
 		move.w	#bytesToXcnt($10000,16),d1
@@ -5785,14 +5785,14 @@ loc_810E:
 		dbf	d1,loc_810E
 		writeVSRAM
 		move.l	(word_CDDE).w,(vdp_data_port).l
-		clr.w	(v_subgamemode).w
+		clr.w	(subgamemode).w
 		addq.w	#1,(word_D836).w
 		tst.w	(word_D834).w
 		beq.s	.gotolevel
 		addq.w	#1,(word_D83A).w
 
 .gotolevel:
-		move.w	#id_Level,(v_gamemode).w
+		move.w	#id_Level,(gamemode).w
 		movea.l	(SystemStackVector).w,sp
 		jmp	(MAINPROG).w
 ; ---------------------------------------------------------------------------
@@ -5814,7 +5814,7 @@ loc_814C:
 		jsr	(sub_82B2).l
 		jsr	(BuildSprites).w
 		bsr.w	sub_F374
-		tst.b	(v_ctrl_p1+ctrl.press_3).w
+		tst.b	(ctrl_p1+ctrl.press_3).w
 		bpl.w	loc_808A
 		movem.l	(sp)+,d0-a6
 
@@ -5828,8 +5828,8 @@ locret_8194:
 Load_Field_Players:
 Load_Sonic:
 sub_8196:
-		move.w	#0,(v_sonic).w
-		move.w	#4,(v_tails).w
+		move.w	#0,(sonic).w
+		move.w	#4,(tails).w
 		moveq	#4,d0
 		jsr	(ProcessObject).w
 		bmi.s	Load_Tails
@@ -6030,8 +6030,8 @@ loc_8328:
 		move.w	(word_FAEC).w,d0
 		andi.w	#3,d0
 		lsl.w	#3,d0
-		move.l	PALCY_RainbowField(pc,d0.w),(v_pal+$58).w
-		move.l	PALCY_RainbowField+4(pc,d0.w),(v_pal+$5C).w
+		move.l	PALCY_RainbowField(pc,d0.w),(pal+$58).w
+		move.l	PALCY_RainbowField+4(pc,d0.w),(pal+$5C).w
 
 loc_8356:
 		addq.w	#1,(word_FAEA).w
@@ -6086,10 +6086,10 @@ loc_837C:
 
 loc_83C8:
 		move.w	d0,(word_FAF2).w
-		move.l	PALCY_ElectricField_1(pc,d0.w),(v_pal+$66).w
-		move.l	PALCY_ElectricField_1+4(pc,d0.w),(v_pal+$6A).w
-		move.l	PALCY_ElectricField_1+8(pc,d0.w),(v_pal+$6E).w
-		move.l	PALCY_ElectricField_1+$C(pc,d0.w),(v_pal+$72).w
+		move.l	PALCY_ElectricField_1(pc,d0.w),(pal+$66).w
+		move.l	PALCY_ElectricField_1+4(pc,d0.w),(pal+$6A).w
+		move.l	PALCY_ElectricField_1+8(pc,d0.w),(pal+$6E).w
+		move.l	PALCY_ElectricField_1+$C(pc,d0.w),(pal+$72).w
 
 loc_83E4:
 		addq.w	#1,(word_FAF0).w
@@ -6294,11 +6294,11 @@ PALCY_ElectricField_1:
 loc_856A:
 		dc.l word_FAEC
 	if FixBugs
-		dc.l v_pal+$58
+		dc.l pal+$58
 	else
 		; Bug: this uses palette entry 2 instead of 3 like intended
 		; perhaps intentional though, considering it can flash very fast.
-		dc.l v_pal+$38
+		dc.l pal+$38
 	endif
 PALCY_ElectricField_2:
 		dc.w $EE0
@@ -6354,11 +6354,11 @@ PALCY_ElectricField_2:
 loc_85D6:
 		dc.l word_FAEE
 	if FixBugs
-		dc.l v_pal+$5A
+		dc.l pal+$5A
 	else
 		; Bug: this uses palette entry 2 instead of 3 like intended
 		; perhaps intentional though, considering it can flash very fast.
-		dc.l v_pal+$3A
+		dc.l pal+$3A
 	endif
 		dc.w $8E0,$32
 		dc.w $6C0,5
@@ -6436,7 +6436,7 @@ loc_866E:
 
 
 sub_86A0:
-		lea	(v_pal+$40).w,a1
+		lea	(pal+$40).w,a1
 		movem.l	(a0)+,d0-d7
 		movem.l	d0-d7,(a1)
 		lea	$20(a1),a1
@@ -6518,14 +6518,14 @@ sub_8736:
 		bne.s	loc_8748
 		lea	(lword_D87C).w,a4
 		moveq	#1,d2
-		move.w	(v_sonic).w,d0
+		move.w	(sonic).w,d0
 		bra.s	loc_8752
 ; ---------------------------------------------------------------------------
 
 loc_8748:
 		lea	(lword_D888).w,a4
 		moveq	#8,d2
-		move.w	(v_tails).w,d0
+		move.w	(tails).w,d0
 
 loc_8752:
 		lea	CharacterDataTable(pc,d0.w),a3
@@ -6623,7 +6623,7 @@ CharacterMapTable:
 Levels:
 		pea	(a0)
 		lea	loc_8B1C(pc),a0
-		move.l	a0,(v_vdpindex).w
+		move.l	a0,(vdpindex).w
 		movem.l	(sp)+,a0				; this could be improved by using "movea.l	(sp)+,a0"
 		lea	Level_VDPSettings(pc),a0
 		jsr	(SetupVDPUsingTable).w
@@ -6637,7 +6637,7 @@ Levels:
 loc_88C2:
 		jsr	(QueueSound).l
 		lea	PAL_PrimaryColours(pc),a1
-		lea	(v_pal).w,a0
+		lea	(pal).w,a0
 		moveq	#bytesToLcnt($40),d1
 
 loc_88D2:
@@ -6703,10 +6703,10 @@ Level_VDPSettings:
 
 Level_MainLoop:
 		pea	(Level_MainLoop).l
-		bclr	#7,(v_lagger).w
+		bclr	#7,(lagger).w
 
 .wait:
-		tst.b	(v_lagger).w
+		tst.b	(lagger).w
 		bpl.s	.wait
 		bsr.w	sub_F390
 		jsr	(Level_ReadController).l
@@ -6728,7 +6728,7 @@ Level_MainLoop:
 
 Level_ReadController:
 		jsr	(ReadCtrlInput).w
-		lea	(v_ctrl_p1).w,a3
+		lea	(ctrl_p1).w,a3
 		moveq	#0,d1
 		move.b	(byte_D89C).w,d1
 		moveq	#7,d0
@@ -6751,7 +6751,7 @@ Level_ReadController:
 		lea	(byte_D89C).w,a4
 		bsr.w	sub_8ABC
 		move.b	(word_FAFE).w,d0
-		lea	(v_ctrl_p1).w,a3
+		lea	(ctrl_p1).w,a3
 		moveq	#0,d1
 		move.b	(byte_D8AC).w,d1
 		bmi.s	loc_8AB4
@@ -6821,7 +6821,7 @@ loc_8B1C:
 		jsr	(VDPSetup_02).w
 		jsr	(DMAToCRAM).w
 		jsr	(sub_C9DE).l
-		move.l	#v_spritetablebuffer,d0
+		move.l	#spritetablebuffer,d0
 		move.w	(word_D81A).w,d1
 		move.w	#$140,d2
 		jsr	(DMA_WriteData).w
@@ -6833,7 +6833,7 @@ loc_8B1C:
 		lea	(unk_0C86&$FFFFFF).l,a4
 		lea	(word_CA1E).w,a5
 		jsr	(sub_14E4).w
-		ori.b	#$80,(v_lagger).w
+		ori.b	#$80,(lagger).w
 		addq.w	#1,(word_F000).w
 		movem.l	(sp)+,d0-a6
 		rte
@@ -6844,7 +6844,7 @@ loc_8B1C:
 Level_PauseGame:
 		tst.b	(byte_D89F).w
 		bpl.w	locret_8BFC
-		move.b	(v_ctrl_p1+ctrl.hold_3).w,d0
+		move.b	(ctrl_p1+ctrl.hold_3).w,d0
 		andi.b	#$70,d0
 		cmpi.b	#$70,d0
 		bne.s	loc_8BA0
@@ -6859,10 +6859,10 @@ loc_8BA0:
 		movem.l	d0-a6,-(sp)
 
 loc_8BA4:
-		bclr	#7,(v_lagger).w
+		bclr	#7,(lagger).w
 
 .wait:
-		tst.b	(v_lagger).w
+		tst.b	(lagger).w
 		bpl.s	.wait
 		jsr	(Level_ReadController).l
 		move.w	(word_D8A4).w,d0
@@ -6881,7 +6881,7 @@ loc_8BA4:
 		jsr	(sub_9514).l
 		jsr	(BuildSprites).w
 		bsr.w	sub_F374
-		tst.b	(v_ctrl_p1+ctrl.press_3).w
+		tst.b	(ctrl_p1+ctrl.press_3).w
 		bpl.s	loc_8BA4
 		movem.l	(sp)+,d0-a6
 
@@ -7007,7 +7007,7 @@ loc_8CE4:
 		lsl.l	#6,d0
 		lea	(PAL_TechnoTowerZone).l,a1
 		adda.l	d0,a1
-		lea	(v_pal+$40).w,a0
+		lea	(pal+$40).w,a0
 		move.b	#bytesToWcnt($40),d7
 
 .load:
@@ -7036,7 +7036,7 @@ UnkRet002:
 ; ---------------------------------------------------------------------------
 
 LevelSelect:
-		move.w	(v_subgamemode).w,d0
+		move.w	(subgamemode).w,d0
 		jmp	.submodes(pc,d0.w)
 ; ---------------------------------------------------------------------------
 
@@ -7049,7 +7049,7 @@ LevelSelect:
 LevelSelect_Init:
 		pea	(a0)
 		lea	loc_903C(pc),a0
-		move.l	a0,(v_vdpindex).w
+		move.l	a0,(vdpindex).w
 		movem.l	(sp)+,a0				; this could be improved by using "movea.l	(sp)+,a0"
 		disable_ints
 		moveq	#$3F,d0
@@ -7073,21 +7073,21 @@ LevelSelect_Init:
 		move.l	#$600110,(vdp_data_port).l
 		move.w	#0,(word_D834).w
 		move.w	#0,(word_D836).w
-		move.l	#cWhite,(v_pal).w
-		move.l	#cWhite,(v_pal+$20).w
+		move.l	#cWhite,(pal).w
+		move.l	#cWhite,(pal+$20).w
 		jsr	(DMAToCRAM).w
 		enable_ints
-		addq.w	#4,(v_subgamemode).w
+		addq.w	#4,(subgamemode).w
 		rts
 ; ---------------------------------------------------------------------------
 
 LevelSelect_Main:
-		bclr	#7,(v_lagger).w
+		bclr	#7,(lagger).w
 
 .wait:
-		tst.b	(v_lagger).w
+		tst.b	(lagger).w
 		bpl.s	.wait
-		move.w	(v_ctrl_p1+ctrl.var_C).w,d0
+		move.w	(ctrl_p1+ctrl.var_C).w,d0
 		add.w	(word_D834).w,d0
 		bpl.s	loc_8ED8
 		moveq	#0,d0
@@ -7183,7 +7183,7 @@ loc_8FCA:
 		move.w	(word_D834).w,d1
 		add.w	d1,d1
 		move.w	word_8FB6(pc,d1.w),d1
-		move.w	(v_ctrl_p1+ctrl.var_E).w,d0
+		move.w	(ctrl_p1+ctrl.var_E).w,d0
 		neg.w	d0
 		add.w	(word_D836).w,d0
 		bpl.s	loc_8FE2
@@ -7200,23 +7200,23 @@ loc_8FE8:
 		neg.w	d0
 		addi.w	#$130,d0
 		move.w	d0,(word_D832).w
-		tst.b	(v_ctrl_p1+ctrl.press_3).w
+		tst.b	(ctrl_p1+ctrl.press_3).w
 		bmi.s	LevelSelect_PlaySpecial
 		rts
 ; ---------------------------------------------------------------------------
 
 LevelSelect_PlaySpecial:
-		clr.l	(v_subgamemode).w
+		clr.l	(subgamemode).w
 		cmpi.w	#9,(word_D834).w
 		bne.s	LevelSelect_PlayField
-		move.w	#id_Null,(v_gamemode).w
+		move.w	#id_Null,(gamemode).w
 		rts
 ; ---------------------------------------------------------------------------
 
 LevelSelect_PlayField:
 		tst.w	(word_D836).w
 		bne.s	LevelSelect_PlayLevel
-		move.w	#id_Field,(v_gamemode).w
+		move.w	#id_Field,(gamemode).w
 		rts
 ; ---------------------------------------------------------------------------
 
@@ -7225,7 +7225,7 @@ LevelSelect_PlayLevel:
 		andi.w	#3,d0
 		move.w	d0,(word_D83A).w
 		move.w	#1,(word_D836).w
-		move.w	#id_Level,(v_gamemode).w
+		move.w	#id_Level,(gamemode).w
 		rts
 ; ---------------------------------------------------------------------------
 
@@ -7238,16 +7238,16 @@ loc_903C:
 		writeVRAM vram_sprtbl_title
 		move.w	(word_D832).w,(vdp_data_port).l
 		jsr	(ReadCtrlInput).w
-		move.b	(v_ctrl_p1+ctrl.hold_3).w,d0
+		move.b	(ctrl_p1+ctrl.hold_3).w,d0
 		bsr.s	sub_9098
-		move.w	d1,(v_ctrl_p1+ctrl.var_8).w
-		move.w	d2,(v_ctrl_p1+ctrl.var_A).w
-		move.b	(v_ctrl_p1+ctrl.press_3).w,d0
+		move.w	d1,(ctrl_p1+ctrl.var_8).w
+		move.w	d2,(ctrl_p1+ctrl.var_A).w
+		move.b	(ctrl_p1+ctrl.press_3).w,d0
 		bsr.s	sub_9098
-		move.w	d1,(v_ctrl_p1+ctrl.var_C).w
-		move.w	d2,(v_ctrl_p1+ctrl.var_E).w
+		move.w	d1,(ctrl_p1+ctrl.var_C).w
+		move.w	d2,(ctrl_p1+ctrl.var_E).w
 		jsr	(DMAToCRAM).w
-		ori.b	#$80,(v_lagger).w
+		ori.b	#$80,(lagger).w
 		movem.l	(sp)+,d0-a6
 		rte
 
@@ -7298,7 +7298,7 @@ UnkRet003:
 ; ---------------------------------------------------------------------------
 
 OptionSoundTest:
-		move.w	(v_subgamemode).w,d0
+		move.w	(subgamemode).w,d0
 		jmp	.submodes(pc,d0.w)
 ; ---------------------------------------------------------------------------
 
@@ -7311,7 +7311,7 @@ OptionSoundTest:
 OptionSoundTest_Main:
 		pea	(a0)
 		lea	loc_94B4(pc),a0
-		move.l	a0,(v_vdpindex).w
+		move.l	a0,(vdpindex).w
 		movem.l	(sp)+,a0				; this could be improved by using "movea.l	(sp)+,a0"
 		disable_ints
 		moveq	#$3F,d0
@@ -7328,9 +7328,9 @@ OptionSoundTest_Main:
 		writeVRAM vram_sprtbl_title
 		move.l	#0,(vdp_data_port).l
 		move.l	#0,(vdp_data_port).l
-		move.w	#bgm_First-1,(v_menu_soundid).w
+		move.w	#bgm_First-1,(menu_soundid).w
 		enable_ints
-		addq.w	#4,(v_subgamemode).w
+		addq.w	#4,(subgamemode).w
 		rts
 ; ---------------------------------------------------------------------------
 		charset	' ','~',0
@@ -7342,28 +7342,28 @@ OptionText_End:
 ; ---------------------------------------------------------------------------
 
 OptionSoundTest_Exit:
-		bclr	#7,(v_lagger).w
+		bclr	#7,(lagger).w
 
 .wait:
-		tst.b	(v_lagger).w
+		tst.b	(lagger).w
 		bpl.s	.wait
-		move.w	(v_ctrl_p1+ctrl.var_C).w,d0
-		add.b	d0,(v_menu_soundid+1).w
-		move.w	(v_ctrl_p1+ctrl.var_E).w,d0
+		move.w	(ctrl_p1+ctrl.var_C).w,d0
+		add.b	d0,(menu_soundid+1).w
+		move.w	(ctrl_p1+ctrl.var_E).w,d0
 		lsl.w	#4,d0
-		add.b	d0,(v_menu_soundid+1).w
+		add.b	d0,(menu_soundid+1).w
 		disable_ints
-		move.w	(v_menu_soundid).w,d0
+		move.w	(menu_soundid).w,d0
 		move.w	(word_D816).w,d1
 		addi.w	#$820,d1	; position on screen
 		jsr	(sub_5090).l
 		enable_ints
-		move.b	(v_ctrl_p1+ctrl.press_3).w,d0
+		move.b	(ctrl_p1+ctrl.press_3).w,d0
 		bpl.s	loc_94A0
 		move.b	#flg_FadeOut,d0
 		jsr	(QueueSound).l
-		move.w	#id_Title,(v_gamemode).w
-		clr.l	(v_subgamemode).w
+		move.w	#id_Title,(gamemode).w
+		clr.l	(subgamemode).w
 		rts
 ; ---------------------------------------------------------------------------
 
@@ -7374,7 +7374,7 @@ loc_94A0:
 ; ---------------------------------------------------------------------------
 
 loc_94A8:
-		move.w	(v_menu_soundid).w,d0
+		move.w	(menu_soundid).w,d0
 		jsr	(QueueSound).l
 		rts
 ; ---------------------------------------------------------------------------
@@ -7384,15 +7384,15 @@ loc_94B4:
 		writeVRAM vram_sprtbl_title
 		move.w	(word_D832).w,(vdp_data_port).l
 		jsr	(ReadCtrlInput).w
-		move.b	(v_ctrl_p1+ctrl.hold_3).w,d0
+		move.b	(ctrl_p1+ctrl.hold_3).w,d0
 		bsr.s	sub_94F6
-		move.w	d1,(v_ctrl_p1+ctrl.var_8).w
-		move.w	d2,(v_ctrl_p1+ctrl.var_A).w
-		move.b	(v_ctrl_p1+ctrl.press_3).w,d0
+		move.w	d1,(ctrl_p1+ctrl.var_8).w
+		move.w	d2,(ctrl_p1+ctrl.var_A).w
+		move.b	(ctrl_p1+ctrl.press_3).w,d0
 		bsr.s	sub_94F6
-		move.w	d1,(v_ctrl_p1+ctrl.var_C).w
-		move.w	d2,(v_ctrl_p1+ctrl.var_E).w
-		ori.b	#$80,(v_lagger).w
+		move.w	d1,(ctrl_p1+ctrl.var_C).w
+		move.w	d2,(ctrl_p1+ctrl.var_E).w
+		ori.b	#$80,(lagger).w
 		movem.l	(sp)+,d0-a6
 		rte
 
@@ -7615,7 +7615,7 @@ loc_967C:
 		lea	(word_C9DE).w,a1
 		move.w	#$104,$1E(a1)
 		lea	PAL_SpeedSliderZone(pc),a0
-		lea	(v_pal+$40).w,a2
+		lea	(pal+$40).w,a2
 		bsr.w	sub_9E6E
 		lea	SSZ_FG_StartLocCam(pc),a0
 		lea	(word_D816).w,a2
@@ -7624,7 +7624,7 @@ loc_967C:
 		lea	SSZ_ArtLocs(pc),a2
 		bsr.w	sub_9D30
 		lea	(word_C9DE).w,a0
-		move.l	#v_lvldatabuffer&$FFFFFF,$28(a0)
+		move.l	#lvldatabuffer&$FFFFFF,$28(a0)
 		lea	SSZ_MapFGLocs(pc),a2
 		bsr.w	DecEniMapLocs
 		move.l	a1,(lword_CA46).w
@@ -7818,7 +7818,7 @@ loc_9898:
 		disable_ints
 		lea	(word_C9DE).w,a1
 		lea	PAL_TechnoTowerZoneUnused(pc),a0
-		lea	(v_pal+$40).w,a2
+		lea	(pal+$40).w,a2
 		bsr.w	sub_9E6E
 		lea	TTZ_FG_StartLocCam(pc),a0
 		lea	(word_D816).w,a2
@@ -7827,7 +7827,7 @@ loc_9898:
 		lea	TTZ_ArtLocs(pc),a2
 		bsr.w	sub_9D30
 		lea	(word_C9DE).w,a0
-		move.l	#v_lvldatabuffer&$FFFFFF,$28(a0)
+		move.l	#lvldatabuffer&$FFFFFF,$28(a0)
 		lea	TTZ_MapFGLocs(pc),a2
 		bsr.w	DecEniMapLocs
 		move.l	a1,(lword_CA46).w
@@ -8827,7 +8827,7 @@ loc_A192:
 ; ---------------------------------------------------------------------------
 
 loc_A1AA:
-		move.w	(v_sonic).w,d0
+		move.w	(sonic).w,d0
 		movea.l	CharacterTable(pc,d0.w),a0
 		lea	(byte_D89C).w,a5
 		movea.w	(word_D864).w,a4
@@ -8835,7 +8835,7 @@ loc_A1AA:
 ; ---------------------------------------------------------------------------
 
 loc_A1BC:
-		move.w	(v_tails).w,d0
+		move.w	(tails).w,d0
 		movea.l	CharacterTable(pc,d0.w),a0
 		lea	(byte_D8AC).w,a5
 		movea.w	(word_D862).w,a4
@@ -8855,13 +8855,13 @@ CharacterTable:
 ; ---------------------------------------------------------------------------
 
 loc_A1F2:
-		move.w	(v_sonic).w,d0
+		move.w	(sonic).w,d0
 		movea.l	off_A206(pc,d0.w),a0
 		jmp	(a0)
 ; ---------------------------------------------------------------------------
 
 loc_A1FC:
-		move.w	(v_tails).w,d0
+		move.w	(tails).w,d0
 		movea.l	off_A206(pc,d0.w),a0
 		jmp	(a0)		; A dynamic call... to entries on a table right next line?
 ; ---------------------------------------------------------------------------
@@ -8879,13 +8879,13 @@ off_A206:
 ; ---------------------------------------------------------------------------
 
 loc_A22A:
-		move.w	(v_sonic).w,d0
+		move.w	(sonic).w,d0
 		movea.l	off_A23E(pc,d0.w),a0
 		jmp	(a0)
 ; ---------------------------------------------------------------------------
 
 loc_A234:
-		move.w	(v_tails).w,d0
+		move.w	(tails).w,d0
 		movea.l	off_A23E(pc,d0.w),a0
 		jmp	(a0)
 ; ---------------------------------------------------------------------------
@@ -12091,8 +12091,8 @@ loc_BE66:
 
 Load_Level_Players:
 sub_BE72:
-		move.w	#0,(v_sonic).w
-		move.w	#4,(v_tails).w
+		move.w	#0,(sonic).w
+		move.w	#4,(tails).w
 		moveq	#4,d0
 		jsr	(ProcessObject).w
 		bmi.s	loc_BE9C
@@ -13196,14 +13196,14 @@ loc_C7BC:
 		bne.s	loc_C7D6
 		lea	(lword_D87C).w,a4
 		moveq	#1,d2
-		move.w	(v_sonic).w,d0
+		move.w	(sonic).w,d0
 		bra.s	loc_C7E0
 ; ---------------------------------------------------------------------------
 
 loc_C7D6:
 		lea	(lword_D880).w,a4
 		moveq	#2,d2
-		move.w	(v_tails).w,d0
+		move.w	(tails).w,d0
 
 loc_C7E0:
 		lea	CharacterDataTable_Levels(pc,d0.w),a3
@@ -17111,19 +17111,19 @@ GameOver:
 		move.w	#$300,d0			; this basically performs a spinlock for 12 seconds
 
 .loop:
-		bclr	#7,(v_lagger).w
+		bclr	#7,(lagger).w
 
 .wait:
-		tst.b	(v_lagger).w
+		tst.b	(lagger).w
 		bpl.s	.wait
 		dbf	d0,.loop
-		clr.w	(v_subgamemode).w
+		clr.w	(subgamemode).w
 		move.w	(word_D834).w,d0
 		addq.w	#1,d0
 		andi.w	#1,d0
 		move.w	d0,(word_D834).w
 		clr.w	(word_D836).w
-		move.w	#id_Field,(v_gamemode).w	; change game mode to Field
+		move.w	#id_Field,(gamemode).w	; change game mode to Field
 		movea.l	(SystemStackVector).w,sp	; set the stack pointer
 		jmp	(MAINPROG).w			; jump to the main game loop
 ; ---------------------------------------------------------------------------
@@ -17138,28 +17138,28 @@ loc_EC62:
 		swap	d0
 		move.b	d0,d6
 		add.b	d6,d6
-		move.w	d6,(v_timeattack_s_2).w
+		move.w	d6,(timeattack_s_2).w
 		swap	d0
 		ext.l	d0
 		divu.w	#6,d0	; divide by 6
 		move.b	d0,d6
 		add.b	d6,d6
-		move.w	d6,(v_timeattack_m).w
+		move.w	d6,(timeattack_m).w
 		swap	d0
 		move.b	d0,d6
 		add.b	d6,d6
-		move.w	d6,(v_timeattack_s).w
+		move.w	d6,(timeattack_s).w
 		move.w	d7,d0
 		andi.w	#$3F,d0
 		move.b	unk_ECE6(pc,d0.w),d0
 		move.b	d0,d6
 		lsr.b	#4,d6
 		add.b	d6,d6
-		move.w	d6,(v_timeattack_ms).w
+		move.w	d6,(timeattack_ms).w
 		move.b	d0,d6
 		andi.b	#$F,d6
 		add.b	d6,d6
-		move.w	d6,(v_timeattack_ms_2).w
+		move.w	d6,(timeattack_ms_2).w
 		move.w	obj.HUDTime(a6),d0
 		cmpi.w	#150<<6,d0	; is the timer at 2.5 minutes?
 		bcc.s	loc_ECCE	; if greater than, branch
@@ -17172,9 +17172,9 @@ loc_ECCE:
 		andi.w	#$F,d0		; is this a 16th of a frame?
 		bne.s	locret_ECE4	; if not, branch
 		move.w	#$2000,d0	; xor bit 12 with $A to cycle between palettes
-		eor.w	d0,(v_timeattack_flash).w
-		eor.w	d0,(v_timeattack_flash_2).w
-		eor.w	d0,(v_timeattack_flash_3).w
+		eor.w	d0,(timeattack_flash).w
+		eor.w	d0,(timeattack_flash_2).w
+		eor.w	d0,(timeattack_flash_3).w
 
 locret_ECE4:
 		rts
@@ -17301,7 +17301,7 @@ loc_ED7C:
 		moveq	#0,d2
 		move.w	$26(a6),d2
 		lsl.l	#1,d2
-		lea	(v_pal).w,a0
+		lea	(pal).w,a0
 		move.w	word_EDE4(pc,d2.w),d0
 		move.w	d0,$7A(a0)
 
@@ -17319,7 +17319,7 @@ loc_EDC6:
 		moveq	#0,d2
 		move.w	obj.Angle(a6),d2
 		lsl.l	#1,d2
-		lea	(v_pal).w,a0
+		lea	(pal).w,a0
 		move.w	word_EDF4(pc,d2.w),d0
 		move.w	d0,$7C(a0)
 		move.w	word_EE00(pc,d2.w),d0
@@ -17357,7 +17357,7 @@ word_EE00:
 ; ---------------------------------------------------------------------------
 
 loc_EE0C:
-		lea	(v_pal).w,a0
+		lea	(pal).w,a0
 		move.w	#6,d0
 		move.w	d0,$7A(a0)
 		addq.w	#1,$28(a6)
@@ -17368,7 +17368,7 @@ loc_EE0C:
 		moveq	#0,d2
 		move.w	obj.Angle(a6),d2
 		lsl.l	#1,d2
-		lea	(v_pal).w,a0
+		lea	(pal).w,a0
 		move.w	word_EE4C(pc,d2.w),d0
 		move.w	d0,$7C(a0)
 		move.w	word_EE54(pc,d2.w),d0
@@ -17400,7 +17400,7 @@ loc_EE5C:
 		moveq	#0,d2
 		move.w	$26(a6),d2
 		lsl.l	#1,d2
-		lea	(v_pal).w,a0
+		lea	(pal).w,a0
 		move.w	word_EEBA(pc,d2.w),d0
 		move.w	d0,$7A(a0)
 
@@ -17413,7 +17413,7 @@ loc_EE86:
 		moveq	#0,d2
 		move.w	obj.Angle(a6),d2
 		lsl.l	#1,d2
-		lea	(v_pal).w,a0
+		lea	(pal).w,a0
 		move.w	word_EECA(pc,d2.w),d0
 		move.w	d0,$7C(a0)
 		move.w	word_EED2(pc,d2.w),d0
@@ -17455,7 +17455,7 @@ loc_EEDA:
 		moveq	#0,d2
 		move.w	$26(a6),d2
 		lsl.l	#1,d2
-		lea	(v_pal).w,a0
+		lea	(pal).w,a0
 		move.w	word_EF38(pc,d2.w),d0
 		move.w	d0,$7A(a0)
 
@@ -17468,7 +17468,7 @@ loc_EF04:
 		moveq	#0,d2
 		move.w	obj.Angle(a6),d2
 		lsl.l	#1,d2
-		lea	(v_pal).w,a0
+		lea	(pal).w,a0
 		move.w	word_EF48(pc,d2.w),d0
 		move.w	d0,$7C(a0)
 		move.w	word_EF50(pc,d2.w),d0
@@ -17516,7 +17516,7 @@ loc_EF7E:
 		moveq	#0,d2
 		move.w	obj.Angle(a6),d2
 		lsl.l	#1,d2
-		lea	(v_pal).w,a0
+		lea	(pal).w,a0
 		move.w	word_EFA4(pc,d2.w),d0
 		move.w	d0,$54(a0)
 		move.w	word_EFB4(pc,d2.w),d0
@@ -17568,7 +17568,7 @@ sub_EFD4:
 		move.w	#0,4(a0)
 		move.l	#0,$24(a0)
 		lea	HUD_Elements(pc),a1
-		lea	(v_spritetable).w,a2
+		lea	(spritetable).w,a2
 		move.w	#bytesToWcnt(HUD_Elements_End-HUD_Elements),d0
 
 loc_EFF8:
@@ -18119,41 +18119,41 @@ loc_F3B6:
 
 loc_F3C6:
 		move.w	#$9100,(vdp_control_port).l
-		move.w	#$9100,(v_window_x).w
+		move.w	#$9100,(window_x).w
 		move.w	#$9200,(vdp_control_port).l
-		move.w	#$9200,(v_window_y).w
+		move.w	#$9200,(window_y).w
 		rts
 ; ---------------------------------------------------------------------------
 
 loc_F3E4:
 		move.w	#$9100+%10010011,(vdp_control_port).l
-		move.w	#$9100+%10010011,(v_window_x).w
+		move.w	#$9100+%10010011,(window_x).w
 		move.w	#$9200+%10011100,(vdp_control_port).l
-		move.w	#$9200+%10011100,(v_window_y).w
+		move.w	#$9200+%10011100,(window_y).w
 		rts
 ; ---------------------------------------------------------------------------
 
 loc_F402:
 		move.w	#$9100+%10010010,(vdp_control_port).l
-		move.w	#$9100+%10010010,(v_window_x).w
+		move.w	#$9100+%10010010,(window_x).w
 		move.w	#$9200+%10011001,(vdp_control_port).l
-		move.w	#$9200+%10011001,(v_window_y).w
+		move.w	#$9200+%10011001,(window_y).w
 		rts
 ; ---------------------------------------------------------------------------
 
 loc_F420:
 		move.w	#$9100+%10010001,(vdp_control_port).l
-		move.w	#$9100+%10010001,(v_window_x).w
+		move.w	#$9100+%10010001,(window_x).w
 		move.w	#$9200+%10010110,(vdp_control_port).l
-		move.w	#$9200+%10010110,(v_window_y).w
+		move.w	#$9200+%10010110,(window_y).w
 		rts
 ; ---------------------------------------------------------------------------
 
 loc_F43E:
 		move.w	#$9100+%10010000,(vdp_control_port).l
-		move.w	#$9100+%10010000,(v_window_x).w
+		move.w	#$9100+%10010000,(window_x).w
 		move.w	#$9200+%10010011,(vdp_control_port).l
-		move.w	#$9200+%10010011,(v_window_y).w
+		move.w	#$9200+%10010011,(window_y).w
 		rts
 
 ; =============== S U B	R O U T	I N E =======================================
@@ -18242,10 +18242,10 @@ sub_F4E4:
 
 
 sub_F4FE:
-		bclr	#7,(v_lagger).w
+		bclr	#7,(lagger).w
 
 .wait:
-		tst.b	(v_lagger).w
+		tst.b	(lagger).w
 		bpl.s	.wait
 		move.w	(word_FDC4).w,d0
 		cmpi.w	#$14,d0
@@ -18279,16 +18279,16 @@ locret_F536:
 
 
 sub_F538:
-		bclr	#7,(v_lagger).w
+		bclr	#7,(lagger).w
 
 .wait:
-		tst.b	(v_lagger).w
+		tst.b	(lagger).w
 		bpl.s	.wait
 		jsr	(ReadCtrlInput).w
 		jsr	(BuildSprites).w
 		tst.b	(byte_FDC2).w
 		beq.s	loc_F562
-		btst	#bitStart,(v_ctrl_p1+ctrl.press_3).w
+		btst	#bitStart,(ctrl_p1+ctrl.press_3).w
 		beq.s	sub_F538
 		clr.b	(byte_FDC2).w
 		clr.w	(word_FDC4).w
@@ -18661,7 +18661,7 @@ loc_F90C:
 		andi.w	#3,d3
 		lea	(vdp_data_port).l,a1
 		move.w	#$8F80,(vdp_control_port).l
-		move.w	#$8F80,(v_vdp_increment).w
+		move.w	#$8F80,(vdp_increment).w
 		move.l	d3,4(a1)
 		lsr.l	#1,d1
 
@@ -18669,7 +18669,7 @@ loc_F934:
 		move.l	d0,(a1)
 		dbf	d1,loc_F934
 		move.w	#$8F02,(vdp_control_port).l
-		move.w	#$8F02,(v_vdp_increment).w
+		move.w	#$8F02,(vdp_increment).w
 		rts
 ; End of function sub_F904
 
