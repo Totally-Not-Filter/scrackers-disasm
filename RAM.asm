@@ -11,6 +11,7 @@ unk_0A00:	ds.b $102
 unk_0B02:	ds.b $82
 unk_0B84:	ds.b $102
 unk_0C86:	ds.b $82
+
 lvldatabuffer:
 lvldata16x16:
 			ds.b $340*8	; blocks
