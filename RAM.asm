@@ -3,10 +3,18 @@
 ram_start:	ds.b $200
 
 systemstack:
-unk_0200:	ds.b $200
-unk_0400:	ds.b $200
-unk_0600:	ds.b $200
-unk_0800:	ds.b $200
+col_primary:	ds.b $400
+col_primary_end:
+
+unk_0200:	= col_primary
+unk_0400:	= col_primary+$200
+
+col_secondary:	ds.b $400
+col_secondary_end:
+
+unk_0600:	= col_secondary
+unk_0800:	= col_secondary+$200
+
 unk_0A00:	ds.b $102
 unk_0B02:	ds.b $82
 unk_0B84:	ds.b $102

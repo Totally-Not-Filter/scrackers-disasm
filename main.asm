@@ -2575,10 +2575,10 @@ sub_1A3C:
 		andi.w	#$F000,d0
 		rol.w	#4,d0
 		lsl.w	#2,d0
-		lea	(unk_0200&$FFFFFF).l,a1
+		lea	(col_primary&$FFFFFF).l,a1
 		move.w	a3,d1
 		beq.s	loc_1A64
-		lea	(unk_0600&$FFFFFF).l,a1
+		lea	(col_secondary&$FFFFFF).l,a1
 
 loc_1A64:
 		lea	(CollisionArrayRota).l,a2
@@ -2646,10 +2646,10 @@ sub_1AC8:
 		andi.w	#$F000,d0
 		rol.w	#4,d0
 		lsl.w	#2,d0
-		lea	(unk_0200&$FFFFFF).l,a1
+		lea	(col_primary&$FFFFFF).l,a1
 		move.w	a3,d1
 		beq.s	loc_1AF0
-		lea	(unk_0600&$FFFFFF).l,a1
+		lea	(col_secondary&$FFFFFF).l,a1
 
 loc_1AF0:
 		exg.l	d6,d7
@@ -2707,12 +2707,12 @@ sub_1B3E:
 		move.w	d0,d3
 		tst.w	d4
 		bne.s	loc_1B5C
-		lea	(unk_0200&$FFFFFF).l,a1
+		lea	(col_primary&$FFFFFF).l,a1
 		rol.w	#2,d3
 		bra.s	loc_1B64
 
 loc_1B5C:
-		lea	(unk_0600&$FFFFFF).l,a1
+		lea	(col_secondary&$FFFFFF).l,a1
 		rol.w	#4,d3
 
 loc_1B64:
@@ -2968,9 +2968,9 @@ W1C6A_loc08:
 		bsr.w	sub_1BF6
 		move.w	(a0),d0
 		move.w	a3,d1
-		lea	(unk_0200&$FFFFFF).l,a1
+		lea	(col_primary&$FFFFFF).l,a1
 		beq.s	loc_1D72
-		lea	(unk_0600&$FFFFFF).l,a1
+		lea	(col_secondary&$FFFFFF).l,a1
 
 loc_1D72:
 		move.w	d0,d1
@@ -3025,7 +3025,7 @@ loc_1DB2:
 		beq.w	loc_1E0C
 		move.w	d1,d0
 		andi.w	#$3FF,d0
-		lea	(unk_0200&$FFFFFF).l,a1
+		lea	(col_primary&$FFFFFF).l,a1
 		move.b	(a1,d0.w),d0
 		andi.w	#$FF,d0
 		lsl.w	#4,d0
@@ -7644,7 +7644,7 @@ loc_967C:
 		lea	SSZ_MapFGLocs(pc),a2
 		bsr.w	DecEniMapLocs
 		move.l	a1,(lword_CA46).w
-		bsr.w	sub_9DA2
+		bsr.w	LoadLevelCollision
 		lea	SSZ_BG_StartLocCam(pc),a0
 		lea	(word_CA1E).w,a1
 		move.w	#$104,$1E(a1)
@@ -7847,7 +7847,7 @@ loc_9898:
 		lea	TTZ_MapFGLocs(pc),a2
 		bsr.w	DecEniMapLocs
 		move.l	a1,(lword_CA46).w
-		bsr.w	sub_9DA2
+		bsr.w	LoadLevelCollision
 		lea	TTZ_BG_StartLocCam(pc),a0
 		lea	(word_CA1E).w,a1
 		move.w	#$104,$1E(a1)
@@ -8378,20 +8378,20 @@ DecEniMapLocs:
 		rts
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
-;
+; Load primary and secondary collision and store it in RAM
 ; ---------------------------------------------------------------------------
 
-sub_9DA2:
+LoadLevelCollision:
 		movea.l	(a2)+,a1
-		lea	(unk_0200&$FFFFFF).l,a2
-		moveq	#bytesToXcnt($400,8),d0
+		lea	(col_primary&$FFFFFF).l,a2
+		moveq	#bytesToXcnt(col_primary_end-col_primary,8),d0
 
 loc_9DAC:
 		move.l	(a1)+,(a2)+
 		move.l	(a1)+,(a2)+
 		dbf	d0,loc_9DAC
-		lea	(unk_0600&$FFFFFF).l,a2
-		moveq	#bytesToXcnt($400,8),d0
+		lea	(col_secondary&$FFFFFF).l,a2
+		moveq	#bytesToXcnt(col_secondary_end-col_secondary,8),d0
 
 loc_9DBC:
 		move.l	(a1)+,(a2)+
