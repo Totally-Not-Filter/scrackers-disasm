@@ -69,45 +69,45 @@ zTrack ENDSTRUCT
 
 	phase $1C00
 zDataStart:
-	ds.b 4
-zMusicBank:	ds.b 1
-zDACBank:	ds.b 1
-zFadeCounter:	ds.b 1	; fade volume counter
-	ds.b 2
+					ds.b 4	; unused
+zMusicBank:			ds.b 1
+zDACBank:			ds.b 1
+zFadeCounter:		ds.b 1	; fade volume counter
+					ds.b 2	; unused
 
 zTempVariablesStart:
 
-zNextSound:	ds.b 1
+zNextSound:			ds.b 1
 zSoundQueueStart:
-zSoundQueue0:	ds.b 1
-zSoundQueue1:	ds.b 1
-zSoundQueue2:	ds.b 1
+zSoundQueue0:		ds.b 1
+zSoundQueue1:		ds.b 1
+zSoundQueue2:		ds.b 1
 zSoundQueueEnd:
 
 zFadeOutTimeout:	ds.b 1
-zFadeDelay:	ds.b 1
+zFadeDelay:			ds.b 1
 zFadeDelayTimeout:	ds.b 1
-zPauseFlag:	ds.b 1
-zHaltFlag:	ds.b 1
-zFM3Settings:	ds.b 1
+zPauseFlag:			ds.b 1
+zHaltFlag:			ds.b 1
+zFM3Settings:		ds.b 1
 zTempoAccumulator:	ds.b 1
-zCurrentTempo:	ds.b 1
-zUnk_1C15:	ds.b 1
-zCommunicationByte	ds.b 1
-zUnk_1C17:	ds.b 1
-zUnk_1C18:	ds.b 1
-zUpdateSound:	ds.b 1
-zSpecSFXMode:	ds.l 2
-zSFXMode:	ds.l 2
-zMusicMode:	ds.l 2
-zSFXSaveIndex:	ds.b 1
-zSongPosition:	ds.w 1
-zTrackInitPos:	ds.w 1
-zVoiceTblPtr:	ds.w 1
+zCurrentTempo:		ds.b 1
+zUnk_1C15:			ds.b 1
+zCommunicationByte:	ds.b 1
+zUnk_1C17:			ds.b 1
+zUnk_1C18:			ds.b 1
+zUpdateSound:		ds.b 1
+zSpecSFXMode:		ds.l 2
+zSFXMode:			ds.l 2
+zMusicMode:			ds.l 2
+zSFXSaveIndex:		ds.b 1
+zSongPosition:		ds.w 1
+zTrackInitPos:		ds.w 1
+zVoiceTblPtr:		ds.w 1
 zSFXVoiceTblPtr:	ds.w 1
 zSFXTempoDivider:	ds.b 1
-zDACIndex:	ds.b 1
-	ds.b 3
+zDACIndex:			ds.b 1
+					ds.b 3	; unused
 
 ; Now starts song and SFX z80 RAM
 ; Max number of music channels: 6 FM + 3 PSG or 1 DAC + 5 FM + 3 PSG
