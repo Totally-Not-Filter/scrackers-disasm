@@ -449,7 +449,7 @@ DMAToCRAM:
 		disable_dma (a0)
 		startZ80
 		writeCRAM	; set VDP in CRAM write mode
-		move.w	(pal).w,-4(a0)		; move colour value in ram to VDP
+		move.w	(pal).w,vdp_data_port-vdp_control_port(a0)	; move colour value in ram to VDP
 		rts
 ; ===========================================================================
 
@@ -502,7 +502,7 @@ loc_506:
 		move.l	-(a1),d1
 		lsl.l	#1,d1				; this could be improved by using "add.l	d1,d1"
 		movea.l	d1,a2
-		move.w	(a2),-4(a4)
+		move.w	(a2),vdp_data_port-vdp_control_port(a4)
 		addq.w	#8,a1
 
 loc_542:
@@ -660,7 +660,7 @@ sub_626:
 		move.w	d3,(a0)
 		move.w	d1,(a0)
 		movea.l	d6,a1
-		move.w	(a1),-4(a0)			; points to vdp_data_port
+		move.w	(a1),vdp_data_port-vdp_control_port(a0)
 		move.w	(vdp81_ctrl).w,d4
 		bclr	#4,d4
 		move.w	d4,(a0)
@@ -1440,7 +1440,7 @@ sub_DAA:
 ; The table reference code seems to be taken out as well.
 ; ---------------------------------------------------------------------------
 
-;LoadPLC:
+LoadPLC:
 		lea	(plc_buffer).w,a1
 
 loc_EF8:
@@ -1462,7 +1462,7 @@ locret_F0C:
 		rts
 ; ===========================================================================
 
-;NewPLC:
+NewPLC:
 		bsr.s	ClearPLC
 		lea	(plc_buffer).w,a1
 		move.w	(a0)+,d0
@@ -1488,7 +1488,7 @@ ClearPLC:
 		rts
 ; ===========================================================================
 
-;RunPLC:
+RunPLC:
 		tst.l	(plc_buffer).w
 		beq.s	locret_F84
 		tst.w	(plc_patternsleft).w
@@ -1526,7 +1526,7 @@ locret_F84:
 		rts
 ; ===========================================================================
 
-;ProcessDPLC:
+ProcessDPLC:
 		tst.w	(plc_patternsleft).w
 		beq.w	locret_101E
 		move.w	#6,(plc_framepatternsleft).w
@@ -1536,7 +1536,7 @@ locret_F84:
 		bra.s	loc_FBA
 ; ===========================================================================
 
-;ProcessDPLC2:
+ProcessDPLC2:
 		tst.w	(plc_patternsleft).w
 		beq.s	locret_101E
 		move.w	#3,(plc_framepatternsleft).w
@@ -1587,10 +1587,25 @@ ProcessDPLC_Pop:
 loc_1026:
 		move.l	6(a0),(a0)+
 		dbf	d0,loc_1026
+
+	if FixBugs
+		; The above code does not properly 'pop' the 16th PLC entry.
+		; Because of this, occupying the 16th slot will cause it to
+		; be repeatedly decompressed infinitely.
+		; Granted, this could be considered more of an optimisation
+		; than a bug: treating the 16th entry as a dummy that
+		; should never be occupied makes this code unnecessary.
+		; Still, the overhead of this code is minimal.
+		if (plc_buffer_end-plc_buffer-6)&2
+			move.w	6(a0),(a0)
+		endif
+		clr.l	(plc_buffer_end-6).w
+	endif
+
 		rts
 ; ===========================================================================
 
-;QuickPLC:
+QuickPLC:
 		lea	(a0),a1
 		move.w	(a1)+,d1
 
@@ -1863,7 +1878,7 @@ loc_14B2:
 
 sub_14E4:
 		lea	(vdp_control_port).l,a1
-		lea	-4(a1),a2
+		lea	vdp_data_port-vdp_control_port(a1),a2
 		move.w	$18(a5),d3
 		move.w	$1A(a5),d4
 		move.w	(a4),d0
@@ -5450,8 +5465,8 @@ loc_74FC:
 		lsl.w	#4,d0
 		addi.w	#$120,d0	; position on screen
 		move.w	d0,(word_D832).w
-		tst.b	(ctrl_p1+ctrl.press_3).w
-		bmi.s	TitleStartMenu
+		tst.b	(ctrl_p1+ctrl.press_3).w	; is start pressed on 3 button controller?
+		bmi.s	TitleStartMenu	; if so, branch
 		rts
 ; ---------------------------------------------------------------------------
 
