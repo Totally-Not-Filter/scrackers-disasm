@@ -94,17 +94,18 @@ bitUp:		equ 0
 
 ; Object variables
 obj	struct DOTS
-ID:			ds.w 1				; object ID (2 bytes)
+ID:			ds.w 1		; object ID (2 bytes)
 			ds.b 2
-Unk4:		ds.w 1				; unknown (2 bytes)
-Pointer:	ds.w 1				; object pointer (2 bytes)
-Xpos:		ds.l 1				; x position (4 bytes)
-Ypos:		ds.l 1				; y position (4 bytes)
-Map:		ds.l 1				; mappings address (4 bytes)
-			ds.b 4
-VelX:		ds.l 1				; x velocity (4 bytes)
-VelY:		ds.l 1				; y velocity (4 bytes)
-VRAM:		ds.w 1				; object video ram location (2 bytes)
+Unk4:		ds.w 1		; unknown (2 bytes)
+Pointer:	ds.w 1		; object pointer (2 bytes)
+Xpos:		ds.l 1		; x position (4 bytes)
+Ypos:		ds.l 1		; y position (4 bytes)
+Map:		ds.l 1		; mappings address (4 bytes)
+ScreenX:	ds.w 1		; fixed x position (2 bytes)
+ScreenY:	ds.w 1		; fixed y position (2 bytes)
+VelX:		ds.l 1		; x velocity (4 bytes)
+VelY:		ds.l 1		; y velocity (4 bytes)
+VRAM:		ds.w 1		; object VRAM location (2 bytes)
 			ds.b 2
 
 HUDTime:

@@ -373,27 +373,27 @@ VInt:	rsttarget
 		rst	ReadPtrTable
 		ld	c, 80h
 		ld	a, (hl)
-		ld	(DACLoop+1), a
-		ld	(loc_F11+1), a
+		ld	(zPlayDigitalAudio.sample1_rate+1), a
+		ld	(zPlayDigitalAudio.sample2_rate+1), a
 		inc	hl
-		ld	a, (hl)
+		ld	a, (hl)				; get DAC bank location
 		ld	(zDACBank), a
 		inc	hl
-		ld	e, (hl)
+		ld	e, (hl)				; get low byte of DAC length
 		inc	hl
-		ld	d, (hl)
+		ld	d, (hl)				; get high byte of DAC length
 		inc	hl
-		ld	a, (hl)
+		ld	a, (hl)				; get low byte of DAC 68K pointer
 		inc	hl
-		ld	h, (hl)
-		ld	l, a
+		ld	h, (hl)				; get high byte of DAC 68K pointer
+		ld	l, a				; load contents of a into l (hl is now a full 16-bit DAC 68K pointer)
 		exx
 		bankswitchToDAC
 		exx
 		pop	iy
 		pop	af
 		pop	af
-		jp	loc_EED
+		jp	zPlayDigitalAudio.dac_idle_loop
 ; ---------------------------------------------------------------------------
 
 loc_95:
@@ -3175,14 +3175,15 @@ zPlayDigitalAudio:
 		call	WriteFMI
 	endif
 
-loc_EED:
+.dac_idle_loop:
 		ei
 		ld	a, d
 		or	e
-		jr	z, loc_EED
+		jr	z, .dac_idle_loop
 		ei
 
-DACLoop:
+.dac_playback_loop:
+.sample1_rate:
 		ld	b, 0Ah				; 7
 		djnz	$				; 8
 		ld	a, (hl)				; 7+3
@@ -3191,10 +3192,10 @@ DACLoop:
 		rlca					; 4
 		rlca					; 4
 		and	0Fh					; 7
-		ld	(loc_F02+2), a		; 13
+		ld	(.sample1_index+2), a	; 13
 		ld	a, c				; 4
 
-loc_F02:
+.sample1_index:
 		add	a, (iy+0)			; 19
 		ld	c, a				; 4
 		ld	a, 2Ah				; 7
@@ -3204,15 +3205,15 @@ loc_F02:
 		ld	(zYM2612_D0), a		; 13
 		ei						; 4
 
-loc_F11:
+.sample2_rate:
 		ld	b, 0Ah				; 7
 		djnz	$				; 8
 		ld	a, (hl)				; 7+3
 		and	0Fh					; 7
-		ld	(loc_F1C+2), a		; 13
+		ld	(.sample2_index+2), a	; 13
 		ld	a, c				; 4
 
-loc_F1C:
+.sample2_index:
 		add	a, (iy+0)			; 19
 		ld	c, a				; 4
 		ld	a, 2Ah				; 7
@@ -3245,7 +3246,7 @@ loc_F1C:
 		dec	de					; 6
 		ld	a, d				; 4
 		or	e					; 4
-		jp	nz, DACLoop			; 10
+		jp	nz, .dac_playback_loop	; 10
 								; 298 cycles in total
 		ld	hl, zSongDAC
 		res	2, (hl)

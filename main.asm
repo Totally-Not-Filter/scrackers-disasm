@@ -8,7 +8,7 @@
 	cpu 68000
 
 FixBugs = 0
-;	| If 1, fixes some bugs (mainly sound driver related)
+;	| If 1, fixes various bugs within the game (primarily sound driver related)
 
 AllOptimizations = 0
 ;	| If 1, enables all optimizations
@@ -1502,7 +1502,9 @@ ClearPLC:
 
 loc_F52:
 		andi.w	#$7FFF,d2
+	if FixBugs=0
 		move.w	d2,(plc_patternsleft).w
+	endif
 		bsr.w	NemDec_BuildCodeTable
 		move.b	(a0)+,d5
 		asl.w	#8,d5
@@ -1516,6 +1518,9 @@ loc_F52:
 		move.l	d0,(plc_paletteindex).w
 		move.l	d5,(plc_previousrow).w
 		move.l	d6,(plc_dataword).w
+	if FixBugs
+		move.w	d2,(plc_patternsleft).w
+	endif
 
 locret_F84:
 		rts
@@ -2065,8 +2070,8 @@ loc_1684:
 		jsr	(sub_19DA).l
 		tst.b	5(a0)
 		bpl.s	loc_16BA
-		move.w	d2,$14(a0)
-		move.w	d3,$16(a0)
+		move.w	d2,obj.ScreenX(a0)
+		move.w	d3,obj.ScreenY(a0)
 		movea.l	obj.Map(a0),a3
 		move.b	obj.VRAM(a0),d0
 		andi.w	#$18,d0
