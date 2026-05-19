@@ -143,7 +143,7 @@ word_D832:	ds.w 1
 word_D834:	ds.w 1
 word_D836:	ds.w 1
 			ds.b 2
-word_D83A:	ds.w 1
+timeofday:	ds.w 1
 word_D83C:	ds.w 1
 			ds.b 2
 word_D840:	ds.w 1

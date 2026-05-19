@@ -5471,7 +5471,7 @@ loc_74FC:
 ; ---------------------------------------------------------------------------
 
 TitleStartMenu:
-		clr.w	(word_D83A).w	; reset time of day for all levels
+		clr.w	(timeofday).w	; reset time of day for all levels
 		clr.w	(subgamemode).w
 		move.w	(titleselect).w,d0
 		beq.s	TitleScrn_PlayLevel
@@ -5553,7 +5553,7 @@ ARTNEM_MainMenusText:
 		charset	' ','~',0
 
 MAPUNC_TitleMenu_1:
-		binclude	"tilemaps/MapuncTitleMenu01.bin" ; tile map for the title screen - banner
+		binclude	"tilemaps/TitleMenu01.bin" ; tile map for the title screen - banner
 		even
 MAPUNC_TitleMenu_2:
 		dc.w	"1P START"
@@ -5753,8 +5753,8 @@ Field_PauseGame:
 		tst.b	(byte_D89F).w
 		bpl.w	locret_8194
 		move.b	(ctrl_p1+ctrl.hold_3).w,d0
-		andi.b	#$70,d0
-		cmpi.b	#$70,d0
+		andi.b	#btnABC,d0
+		cmpi.b	#btnABC,d0
 		bne.s	loc_8086
 		disable_ints
 		suba.l	a0,a0
@@ -5823,7 +5823,7 @@ loc_810E:
 		addq.w	#1,(word_D836).w
 		tst.w	(word_D834).w
 		beq.s	.gotolevel
-		addq.w	#1,(word_D83A).w
+		addq.w	#1,(timeofday).w
 
 .gotolevel:
 		move.w	#id_Level,(gamemode).w
@@ -5848,8 +5848,8 @@ loc_814C:
 		jsr	(sub_82B2).l
 		jsr	(BuildSprites).w
 		bsr.w	sub_F374
-		tst.b	(ctrl_p1+ctrl.press_3).w
-		bpl.w	loc_808A
+		tst.b	(ctrl_p1+ctrl.press_3).w	; is start pressed?
+		bpl.w	loc_808A	; if not, branch
 		movem.l	(sp)+,d0-a6
 
 locret_8194:
@@ -6444,10 +6444,10 @@ Field_LoadArt:
 		bsr.w	sub_86BA
 		lea	(MAPUNC_RainbowFieldFG).l,a0
 		movea.w	(word_D816).w,a1
-		bsr.w	sub_86EA
+		bsr.w	LoadFieldMappings
 		lea	(MAPUNC_RainbowFieldBG).l,a0
 		movea.w	(word_D818).w,a1
-		bsr.w	sub_86EA
+		bsr.w	LoadFieldMappings
 		rts
 ; ---------------------------------------------------------------------------
 
@@ -6458,10 +6458,10 @@ loc_866E:
 		bsr.w	sub_86BA
 		lea	(MAPUNC_ElectricFieldFG).l,a0
 		movea.w	(word_D816).w,a1
-		bsr.w	sub_86EA
+		bsr.w	LoadFieldMappings
 		lea	(MAPUNC_ElectricFieldBG).l,a0
 		movea.w	(word_D818).w,a1
-		bsr.w	sub_86EA
+		bsr.w	LoadFieldMappings
 		rts
 ; End of function Field_LoadArt
 
@@ -6508,7 +6508,7 @@ loc_86BC:
 ; =============== S U B	R O U T	I N E =======================================
 
 
-sub_86EA:
+LoadFieldMappings:
 		move.w	(a0)+,d7
 
 loc_86EC:
@@ -6541,7 +6541,7 @@ loc_8714:
 		move.w	(sp)+,d7
 		dbf	d7,loc_86EC
 		rts
-; End of function sub_86EA
+; End of function LoadFieldMappings
 
 
 ; =============== S U B	R O U T	I N E =======================================
@@ -6664,7 +6664,7 @@ Levels:
 		move.b	#bgm_Electoria,d0
 		tst.w	(word_D834).w
 		beq.s	loc_88C2
-		move.w	(word_D83A).w,d0
+		move.w	(timeofday).w,d0
 		andi.w	#3,d0
 		addi.w	#bgm_Walkin,d0
 
@@ -6881,8 +6881,8 @@ Level_PauseGame:
 		tst.b	(byte_D89F).w
 		bpl.w	locret_8BFC
 		move.b	(ctrl_p1+ctrl.hold_3).w,d0
-		andi.b	#$70,d0
-		cmpi.b	#$70,d0
+		andi.b	#btnABC,d0
+		cmpi.b	#btnABC,d0
 		bne.s	loc_8BA0
 		disable_ints
 		suba.l	a0,a0
@@ -7038,7 +7038,7 @@ locret_8CE2:
 
 loc_8CE4:
 		moveq	#0,d0
-		move.w	(word_D83A).w,d0
+		move.w	(timeofday).w,d0
 		andi.w	#3,d0
 		lsl.l	#6,d0
 		lea	(PAL_TechnoTowerZone).l,a1
@@ -7053,13 +7053,13 @@ loc_8CE4:
 ; ---------------------------------------------------------------------------
 
 PAL_TechnoTowerZone:
-		binclude	"Palettes/PalTechnoTowerZone.bin"
+		binclude	"Palettes/PalTechnoTowerZone.bin"	; morning
 		even
-		binclude	"Palettes/PalTechnoTowerZone 2.bin"
+		binclude	"Palettes/PalTechnoTowerZone 2.bin"	; afternoon
 		even
-		binclude	"Palettes/PalTechnoTowerZone 3.bin"
+		binclude	"Palettes/PalTechnoTowerZone 3.bin"	; evening
 		even
-		binclude	"Palettes/PalTechnoTowerZone 4.bin"
+		binclude	"Palettes/PalTechnoTowerZone 4.bin"	; night
 		even
 ; ---------------------------------------------------------------------------
 
@@ -7188,7 +7188,7 @@ loc_8F50:
 loc_8F84:
 		moveq	#0,d0
 		writeVRAM vram_bg+$610
-		move.w	#$17F,d1
+		move.w	#bytesToLcnt($600),d1
 
 loc_8F94:
 		move.l	d0,(vdp_data_port).l
@@ -7259,7 +7259,7 @@ LevelSelect_PlayField:
 LevelSelect_PlayLevel:
 		move.w	(word_D836).w,d0
 		andi.w	#3,d0
-		move.w	d0,(word_D83A).w
+		move.w	d0,(timeofday).w
 		move.w	#1,(word_D836).w
 		move.w	#id_Level,(gamemode).w
 		rts
@@ -7313,19 +7313,19 @@ ARTNEM_MenuSelectorBorder:
 		binclude	"artnem/Menu Select Border.nem" ; Selector art for Select Menu screen
 		even
 MAPUNC_SelectMenu_1:
-		binclude	"tilemaps/MapuncSelectMenu01.bin" ; tilemaps for the select menu (Top W? numbers that scroll)
+		binclude	"tilemaps/SelectMenu01.bin" ; tilemaps for the select menu (Top W? numbers that scroll)
 		even
 MAPUNC_SelectMenu_2:
-		binclude	"tilemaps/MapuncSelectMenu02.bin" ; tilemaps for the select menu (World ? words)
+		binclude	"tilemaps/SelectMenu02.bin" ; tilemaps for the select menu (World ? words)
 		even
 MAPUNC_SelectMenu_3:
-		binclude	"tilemaps/MapuncSelectMenu03.bin" ; tilemaps for the select menu (Attraction	LV.? words)
+		binclude	"tilemaps/SelectMenu03.bin" ; tilemaps for the select menu (Attraction	LV.? words)
 		even
 MAPUNC_SelectMenu_4:
-		binclude	"tilemaps/MapuncSelectMenu04.bin" ; tilemaps for the select menu (Field/Attraction words)
+		binclude	"tilemaps/SelectMenu04.bin" ; tilemaps for the select menu (Field/Attraction words)
 		even
 MAPUNC_SelectMenu_5:
-		binclude	"tilemaps/MapuncSelectMenu05.bin" ; tilemaps for the select menu (Special Stage word)
+		binclude	"tilemaps/SelectMenu05.bin" ; tilemaps for the select menu (Special Stage word)
 		even
 ; ---------------------------------------------------------------------------
 
@@ -17310,7 +17310,7 @@ loc_ED36:
 		jsr	(ProcessObject).w
 		bmi.w	loc_ED5E
 		moveq	#0,d7
-		move.w	(word_D83A).w,d7
+		move.w	(timeofday).w,d7
 		andi.w	#3,d7
 		addq.w	#1,d7
 		lsl.l	#2,d7
@@ -19609,25 +19609,107 @@ PAL_RainbowField:
 		binclude	"Palettes/PalRainbowField.bin"	; Palettes for Rainbow Field
 		even
 ARTCRA_RainbowField8x8:
+		dc.w	1
+		dc.w	$2000
+		dc.w	$0203
 		binclude	"artcra/Rainbow Field.cra"	; 8x8 tiles for Rainbow Field
 		even
 MAPUNC_RainbowFieldFG:
-		binclude	"Uncompressed/MapuncRainbowFieldFG.bin" ; Screen map for Rainbow Field FG
+		dc.w	4-1	; Number of map pieces to load -1
+		dc.w	0
+		dc.w	$C100
+		dc.w	32-1
+		dc.w	32-1
+		binclude	"tilemaps/RainbowFieldFG - Piece 1.bin" ; Screen map for Rainbow Field FG
+		even
+		dc.w	$40
+		dc.w	$C100
+		dc.w	32-1
+		dc.w	32-1
+		binclude	"tilemaps/RainbowFieldFG - Piece 2.bin" ; Screen map for Rainbow Field FG
+		even
+		dc.w	$1000
+		dc.w	$C100
+		dc.w	32-1
+		dc.w	32-1
+		binclude	"tilemaps/RainbowFieldFG - Piece 3.bin" ; Screen map for Rainbow Field FG
+		even
+		dc.w	$1040
+		dc.w	$C100
+		dc.w	32-1
+		dc.w	32-1
+		binclude	"tilemaps/RainbowFieldFG - Piece 4.bin" ; Screen map for Rainbow Field FG
 		even
 MAPUNC_RainbowFieldBG:
-		binclude	"Uncompressed/MapuncRainbowFieldBG.bin" ; Screen map for Rainbow Field BG
+		dc.w	2-1	; Number of map pieces to load -1
+		dc.w	0
+		dc.w	$6308
+		dc.w	32-1
+		dc.w	32-1
+		binclude	"tilemaps/RainbowFieldBG - Piece.bin" ; Screen map for Rainbow Field BG
+		even
+		dc.w	$40
+		dc.w	$6308
+		dc.w	32-1
+		dc.w	32-1
+		binclude	"tilemaps/RainbowFieldBG - Piece.bin" ; Screen map for Rainbow Field BG
 		even
 PAL_ElectricField:
 		binclude	"Palettes/PalElectricField.bin"	; Palettes for Electric Field
 		even
 ARTCRA_ElectricField8x8:
+		dc.w	1
+		dc.w	$900
+		dc.w	$0273
 		binclude	"artcra/Electric Field.cra"	; 8x8 tiles for Electric Field
 		even
+		binclude	"UnknownCodes/4F3D4.bin"
+		even
 MAPUNC_ElectricFieldFG:
-		binclude	"Uncompressed/MapuncElectricFieldFG.bin" ; Screen map for Electric Field FG
+		dc.w	4-1	; Number of map pieces to load -1
+		dc.w	0
+		dc.w	$C048
+		dc.w	32-1
+		dc.w	32-1
+		binclude	"tilemaps/ElectricFieldFG - Piece 1.bin" ; Screen map for Electric Field FG
+		even
+		dc.w	$40
+		dc.w	$C048
+		dc.w	32-1
+		dc.w	32-1
+		binclude	"tilemaps/ElectricFieldFG - Piece 2.bin" ; Screen map for Electric Field FG
+		even
+		dc.w	$1000
+		dc.w	$C048
+		dc.w	32-1
+		dc.w	32-1
+		binclude	"tilemaps/ElectricFieldFG - Piece 3.bin" ; Screen map for Electric Field FG
+		even
+		dc.w	$1040
+		dc.w	$C048
+		dc.w	32-1
+		dc.w	32-1
+		binclude	"tilemaps/ElectricFieldFG - Piece 4.bin" ; Screen map for Electric Field FG
 		even
 MAPUNC_ElectricFieldBG:
-		binclude	"Uncompressed/MapuncElectricFieldBG.bin" ; Screen map for Electric Field BG
+		dc.w	3-1	; Number of map pieces to load -1
+		dc.w	$1000
+		dc.w	$62D8
+		dc.w	52-1
+		dc.w	16-1
+		binclude	"tilemaps/ElectricFieldBG - Piece 1.bin" ; Screen map for Electric Field BG
+		even
+		dc.w	$800
+		dc.w	$62D8
+		dc.w	52-1
+		dc.w	16-1
+		binclude	"tilemaps/ElectricFieldBG - Piece 2.bin" ; Screen map for Electric Field BG
+		even
+		dc.w	0
+		dc.w	$62D8
+		dc.w	52-1
+		dc.w	16-1
+		binclude	"tilemaps/ElectricFieldBG - Piece 3.bin" ; Screen map for Electric Field BG
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19636,9 +19718,9 @@ MAPUNC_ElectricFieldBG:
 ; Large Section of Data, has 2 padded sections, and something that looks like
 ; uncompressed Tails mini art (May wanna look into this in the near future)
 ; ---------------------------------------------------------------------------
-; Data Location (00054460 - 00025A3FF)
+; Data Location (00054446 - 00025A3FF)
 ; Striped out
-; UnkData_00054460:
+; UnkData_00054446:
 		binclude	"artunc/Mini Tails.bin"
 		even
 ; ===========================================================================
