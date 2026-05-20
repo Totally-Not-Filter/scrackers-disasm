@@ -18981,7 +18981,7 @@ UnkReps:
 ; Data Location (0000FB82 - 0000FDAF)
 ; Striped out
 ; UnkData_0000FB82:
-		binclude	"UnknownCodes/UnknownData_0000FB82.bin"
+		binclude	"Unknown/FB82.bin"
 		even
 ; ---------------------------------------------------------------------------
 ; ===========================================================================
@@ -18991,7 +18991,7 @@ UnkReps:
 ; Data Location (0000FDB0 - 0000FFFF)
 ; Striped out
 ; UnkData_0000FDB0:
-		binclude	"UnknownCodes/UnknownData_0000FDB0.bin"
+		binclude	"Unknown/FDB0.bin"
 		even
 ; ---------------------------------------------------------------------------
 ; ===========================================================================
@@ -19014,7 +19014,7 @@ Music86:	include	"Sound/Music/Mus86 - Game Over.asm"
 ; Data Location (00011C65 - 0001224F)
 ; Striped out
 ; UnkData_00011C65:
-		binclude	"leftovers/DAC/UnknownData_00011C65.dpcm"
+		binclude	"leftovers/DAC/11C65.dpcm"
 		even
 ; ---------------------------------------------------------------------------
 ; ===========================================================================
@@ -19024,7 +19024,7 @@ Music86:	include	"Sound/Music/Mus86 - Game Over.asm"
 ; Data Location (00012250 - 000123FF)
 ; Striped out
 ; UnkData_00012250:
-		binclude	"UnknownCodes/UnknownData_00012250.bin"
+		binclude	"Unknown/12250.bin"
 		even
 ; ---------------------------------------------------------------------------
 ; ===========================================================================
@@ -19034,7 +19034,7 @@ Music86:	include	"Sound/Music/Mus86 - Game Over.asm"
 ; Data Location (00012400 - 00012FFF)
 ; Striped out
 ; UnkData_00012400:
-		binclude	"UnknownCodes/UnknownData_00012400.bin"
+		binclude	"Unknown/12400.bin"
 		even
 ; ---------------------------------------------------------------------------
 ; ===========================================================================
@@ -19044,7 +19044,7 @@ Music86:	include	"Sound/Music/Mus86 - Game Over.asm"
 ; Data Location (00013000 - 000145FF)
 ; Striped out
 ; UnkData_00013000:
-		binclude	"UnknownCodes/UnknownData_00013000.bin"
+		binclude	"Unknown/13000.bin"
 		even
 ; ---------------------------------------------------------------------------
 ; ===========================================================================
@@ -19054,7 +19054,7 @@ Music86:	include	"Sound/Music/Mus86 - Game Over.asm"
 ; Data Location (00014600 - 000150FF)
 ; Striped out
 ; UnkData_00014600:
-		binclude	"UnknownCodes/UnknownData_00014600.bin"
+		binclude	"Unknown/14600.bin"
 		even
 ; ---------------------------------------------------------------------------
 ; ===========================================================================
@@ -19064,7 +19064,7 @@ Music86:	include	"Sound/Music/Mus86 - Game Over.asm"
 ; Data Location (00015100 - 0001562F)
 ; Striped out
 ; UnkData_00013000:
-		binclude	"UnknownCodes/UnknownData_00015100.bin"
+		binclude	"Unknown/15100.bin"
 		even
 ; ---------------------------------------------------------------------------
 ; ===========================================================================
@@ -19076,7 +19076,7 @@ Music86:	include	"Sound/Music/Mus86 - Game Over.asm"
 ; Data Location (00016000 - 00016703)
 ; Striped out
 ; UnkData_00016000:
-		binclude	"UnknownCodes/UnknownData_00016000.bin"
+		binclude	"Unknown/16000.bin"
 		even
 ; ---------------------------------------------------------------------------
 ; ===========================================================================
@@ -19127,7 +19127,7 @@ SoundAF:	include	"Sound/SFX/SndAF.asm"
 ; Data Location (00018740 - 0001C98F)
 ; Striped out
 ; UnkData_00018740:
-		binclude	"UnknownCodes/UnknownData_00018740.bin"
+		binclude	"Unknown/18740.bin"
 		even
 ; ---------------------------------------------------------------------------
 ; ===========================================================================
@@ -19137,7 +19137,7 @@ SoundAF:	include	"Sound/SFX/SndAF.asm"
 ; Data Location (0001C990 - 0001CD8F)
 ; Striped out
 ; UnkData_0001C990:
-		binclude	"UnknownCodes/UnknownData_0001C990.bin"
+		binclude	"Unknown/1C990.bin"
 		even
 ; ---------------------------------------------------------------------------
 ; ===========================================================================
@@ -19147,7 +19147,7 @@ SoundAF:	include	"Sound/SFX/SndAF.asm"
 ; Data Location (0001CD90 - 0001F761)
 ; Striped out
 ; UnkData_0001CD90:
-		binclude	"UnknownCodes/UnknownData_0001CD90.bin"
+		binclude	"Unknown/1CD90.bin"
 		even
 ; ---------------------------------------------------------------------------
 ; ===========================================================================
@@ -19158,7 +19158,7 @@ SoundAF:	include	"Sound/SFX/SndAF.asm"
 ; Data Location (0001F762 - 0001FB61)
 ; Striped out
 ; UnkData_0001F762:
-		binclude	"UnknownCodes/UnknownData_0001F762.bin"
+		binclude	"Unknown/1F762.bin"
 		even
 ; ---------------------------------------------------------------------------
 ; ===========================================================================
@@ -19168,7 +19168,7 @@ SoundAF:	include	"Sound/SFX/SndAF.asm"
 ; Data Location (0001FB62 - 0001FFFF)
 ; Striped out
 ; UnkData_0001FB62:
-		binclude	"UnknownCodes/UnknownData_0001FB62.bin"
+		binclude	"Unknown/1FB62.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19197,7 +19197,7 @@ DAC_Sample5_End:
 ; Data Location (000244A2 - 000247EF)
 ; Striped out
 ; UnkData_000244A2:
-		binclude	"UnknownCodes/UnknownData_000244A2.bin"
+		binclude	"Unknown/244A2.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19206,7 +19206,7 @@ DAC_Sample5_End:
 ; Data Location (000247F0 - 00026009)
 ; Striped out
 ; UnkData_000247F0:
-		binclude	"UnknownCodes/UnknownData_000247F0.bin"
+		binclude	"Unknown/247F0.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19215,7 +19215,7 @@ DAC_Sample5_End:
 ; Data Location (0002600A - 00028843)
 ; Striped out
 ; UnkData_0002600A:
-		binclude	"UnknownCodes/UnknownData_0002600A.bin"
+		binclude	"Unknown/2600A.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19224,7 +19224,7 @@ DAC_Sample5_End:
 ; Data Location (00028844 - 0002A221)
 ; Striped out
 ; UnkData_00028844:
-		binclude	"UnknownCodes/UnknownData_00028844.bin"
+		binclude	"Unknown/28844.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19233,7 +19233,7 @@ DAC_Sample5_End:
 ; Data Location (0002A222 - 0002AC5F)
 ; Striped out
 ; UnkData_0002A222:
-		binclude	"UnknownCodes/UnknownData_0002A222.bin"
+		binclude	"Unknown/2A222.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19244,7 +19244,7 @@ DAC_Sample5_End:
 ; Data Location (0002C000 - 0002D1FF)
 ; Striped out
 ; UnkData_0002C000:
-		binclude	"UnknownCodes/UnknownData_0002C000.bin"
+		binclude	"Unknown/2C000.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19663,7 +19663,7 @@ ARTCRA_ElectricField8x8:
 		dc.w	$0273
 		binclude	"artcra/Electric Field.cra"	; 8x8 tiles for Electric Field
 		even
-		binclude	"UnknownCodes/4F3D4.bin"
+		binclude	"Unknown/4F3D4.bin"
 		even
 MAPUNC_ElectricFieldFG:
 		dc.w	4-1	; Number of map pieces to load -1
@@ -19816,7 +19816,7 @@ Map_TailsFields:
 ; Data Location (00068FD6 - 0006AC5F)
 ; Striped out
 ; UnkData_00068FD6:
-		binclude	"UnknownCodes/UnknownData_00068FD6.bin"
+		binclude	"Unknown/68FD6.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19827,7 +19827,7 @@ Map_TailsFields:
 ; Data Location (0006C000 - 0006CE07)
 ; Striped out
 ; UnkData_0006C000:
-		binclude	"UnknownCodes/UnknownData_0006C000.bin"
+		binclude	"Unknown/6C000.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19836,7 +19836,7 @@ Map_TailsFields:
 ; Data Location (0006CE08 - 0006D1FF)
 ; Striped out
 ; UnkData_0006CE08:
-		binclude	"UnknownCodes/UnknownData_0006CE08.bin"
+		binclude	"Unknown/6CE08.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19847,7 +19847,7 @@ Map_TailsFields:
 ; Data Location (00070000 - 00071813)
 ; Striped out
 ; UnkData_00070000:
-		binclude	"UnknownCodes/UnknownData_00070000.bin"
+		binclude	"Unknown/70000.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19858,7 +19858,7 @@ Map_TailsFields:
 ; Data Location (00072000 - 00072763)
 ; Striped out
 ; UnkData_00072000:
-		binclude	"UnknownCodes/UnknownData_00072000.bin"
+		binclude	"Unknown/72000.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19869,7 +19869,7 @@ Map_TailsFields:
 ; Data Location (00074000 - 0007562F)
 ; Striped out
 ; UnkData_00074000:
-		binclude	"UnknownCodes/UnknownData_00074000.bin"
+		binclude	"Unknown/74000.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19880,7 +19880,7 @@ Map_TailsFields:
 ; Data Location (00076000 - 00076703)
 ; Striped out
 ; UnkData_00076000:
-		binclude	"UnknownCodes/UnknownData_00076000.bin"
+		binclude	"Unknown/76000.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19897,7 +19897,7 @@ ARTUNC_Sonic:	binclude	"artunc/Sonic.bin"
 ; Data Location (0008C0A0 - 00090000)
 ; Striped out
 ; UnkData_0008C0A0:
-		binclude	"UnknownCodes/UnknownData_0008C0A0.bin"
+		binclude	"Unknown/8C0A0.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19915,7 +19915,7 @@ ARTUNC_SonicField:
 ; Data Location (00093B20 - 0009562F)
 ; Striped out
 ; UnkData_00093B20:
-		binclude	"UnknownCodes/UnknownData_00093B20.bin"
+		binclude	"Unknown/93B20.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19926,7 +19926,7 @@ ARTUNC_SonicField:
 ; Data Location (00096000 - 00096703)
 ; Striped out
 ; UnkData_00096000:
-		binclude	"UnknownCodes/UnknownData_00096000.bin"
+		binclude	"Unknown/96000.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19944,7 +19944,7 @@ ARTUNC_UnknownHud:
 ; Data Location (00098740 - 0009FFFF)
 ; Striped out
 ; UnkData_00098740:
-		binclude	"UnknownCodes/UnknownData_00098740.bin"
+		binclude	"Unknown/98740.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19964,7 +19964,7 @@ ARTUNC_Tails:
 ; Data Location (000AC000 - 000AD1F9)
 ; Striped out
 ; UnkData_000AC000:
-		binclude	"UnknownCodes/UnknownData_000AC000.bin"
+		binclude	"Unknown/AC000.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19982,7 +19982,7 @@ ARTUNC_TailsField:
 ; Data Location (000B3820 - 000B562F)
 ; Striped out
 ; UnkData_000B3820:
-		binclude	"UnknownCodes/UnknownData_000B3820.bin"
+		binclude	"Unknown/B3820.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19993,7 +19993,7 @@ ARTUNC_TailsField:
 ; Data Location (000B6000 - 000B6703)
 ; Striped out
 ; UnkData_000B6000:
-		binclude	"UnknownCodes/UnknownData_000B6000.bin"
+		binclude	"Unknown/B6000.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -20015,7 +20015,7 @@ ARTUNC_TailsField:
 ; Data Location (000CC000 - 000CFFFF)
 ; Striped out
 ; UnkData_000CC000:
-		binclude	"UnknownCodes/UnknownData_000CC000.bin"
+		binclude	"Unknown/CC000.bin"
 		even
 ; ---------------------------------------------------------------------------
 ; Data Location (000D0000 - 000D58BF)
@@ -20030,7 +20030,7 @@ ARTUNC_TailsField:
 ; Data Location (000D6000 - 000D6703)
 ; Striped out
 ; UnkData_000D6000:
-		binclude	"UnknownCodes/UnknownData_000D6000.bin"
+		binclude	"Unknown/D6000.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -20045,7 +20045,7 @@ ARTUNC_TailsField:
 		even
 ; ---------------------------------------------------------------------------
 ; Data Location (000D9C10 - 000DA3FF)
-		binclude	"UnknownCodes/UnknownData_000D9C10.bin"
+		binclude	"Unknown/D9C10.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -20056,7 +20056,7 @@ ARTUNC_TailsField:
 ; Data Location (000E0000 - 000E3067)
 ; Striped out
 ; UnkData_000E0000:
-		binclude	"UnknownCodes/UnknownData_000E0000.bin"
+		binclude	"Unknown/E0000.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -20067,7 +20067,7 @@ ARTUNC_TailsField:
 ; Data Location (000E4000 - 000E4EC7)
 ; Striped out
 ; UnkData_000E4000:
-		binclude	"UnknownCodes/UnknownData_000E4000.bin"
+		binclude	"Unknown/E4000.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -20078,7 +20078,7 @@ ARTUNC_TailsField:
 ; Data Location (000E6000 - 000EAC5F)
 ; Striped out
 ; UnkData_000E6000:
-		binclude	"UnknownCodes/UnknownData_000E6000.bin"
+		binclude	"Unknown/E6000.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -20089,7 +20089,7 @@ ARTUNC_TailsField:
 ; Data Location (000EC000 - 000ED1FF)
 ; Striped out
 ; UnkData_000EC000:
-		binclude	"UnknownCodes/UnknownData_000EC000.bin"
+		binclude	"Unknown/EC000.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -20100,7 +20100,7 @@ ARTUNC_TailsField:
 ; Data Location (000F0000 - 000F1813)
 ; Striped out
 ; UnkData_000F0000:
-		binclude	"UnknownCodes/UnknownData_000F0000.bin"
+		binclude	"Unknown/F0000.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -20111,7 +20111,7 @@ ARTUNC_TailsField:
 ; Data Location (000F2000 - 000F2763)
 ; Striped out
 ; UnkData_000F2000:
-		binclude	"UnknownCodes/UnknownData_000F2000.bin"
+		binclude	"Unknown/F2000.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -20122,7 +20122,7 @@ ARTUNC_TailsField:
 ; Data Location (000F4000 - 000F562F)
 ; Striped out
 ; UnkData_000F4000:
-		binclude	"UnknownCodes/UnknownData_000F4000.bin"
+		binclude	"Unknown/F4000.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -20133,7 +20133,7 @@ ARTUNC_TailsField:
 ; Data Location (000F6000 - 000F6703)
 ; Striped out
 ; UnkData_000F6000:
-		binclude	"UnknownCodes/UnknownData_000F6000.bin"
+		binclude	"Unknown/F6000.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
