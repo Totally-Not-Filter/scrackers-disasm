@@ -634,8 +634,14 @@ GetFM3FreqPtr:
 TrkUpdate_Proc:
 		ld	e, (ix+zTrack.DataPointerLow)
 		ld	d, (ix+zTrack.DataPointerHigh)
+	if OptimiseDriver
+		ld	a, (ix+zTrack.PlaybackControl)
+		and	0EDh
+		ld	(ix+zTrack.PlaybackControl), a
+	else
 		res	1, (ix+zTrack.PlaybackControl)
 		res	4, (ix+zTrack.PlaybackControl)
+	endif
 
 loc_20B:
 		ld	a, (de)
