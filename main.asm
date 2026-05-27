@@ -5634,7 +5634,7 @@ Fields:
 		move.w	#$3F,(word_D848).w
 		jsr	(Load_Field_Players).l ; Load Field Player Objects
 		jsr	(sub_D1E0).l
-		jsr	(sub_FA44).l
+		jsr	(Load_DMA_PLCs).l
 		enable_display
 		bra.w	Fields_MainLoop
 ; ===========================================================================
@@ -6552,9 +6552,10 @@ loc_88D2:
 		move.l	(a1)+,(a0)+
 		dbf	d1,loc_88D2
 
-		move.w	#0,(a0)
+		move.w	#cBlack,(a0)	; set first colour entry as black
+
 		bsr.w	sub_F45C
-		bsr.w	sub_FA44
+		bsr.w	Load_DMA_PLCs
 		disable_display
 		clr.l	(word_D82C).w
 		jsr	(sub_9514).l
@@ -18003,7 +18004,7 @@ sub_F390:
 		subq.b	#2,(unk_FDC1).w
 		tst.b	(unk_FDC1).w
 		bgt.s	loc_F3AA
-		bsr.w	sub_FA44
+		bsr.w	Load_DMA_PLCs
 
 loc_F3AA:
 	if FixBugs
@@ -18730,11 +18731,11 @@ TTZ_AniTileLocs:
 ; Some sort of DMA cue system for uncompressed art such as animated tiles and HUD
 ; ---------------------------------------------------------------------------
 
-sub_FA44:
+Load_DMA_PLCs:
 		move.w	DMA_PLC_Count(pc),d7		; load number of repeat times (22) to d7
 		lea	DMA_PLC(pc),a0			; load data location to a0
 
-loc_FA4C:
+.loop:
 		move.w	(a0)+,d1			; load VRAM location
 		add.w	(word_D81E).w,d1
 		move.l	(a0)+,d0			; load art location to d0
@@ -18742,7 +18743,7 @@ loc_FA4C:
 		movem.l	d7-a0,-(sp)			; store all register data to the stack pointer
 		jsr	(DMA_WriteData).w		; dump art
 		movem.l	(sp)+,d7-a0			; reload art from stack
-		dbf	d7,loc_FA4C				; repeat til all uncompressed art is loaded to their respective locations
+		dbf	d7,.loop				; repeat til all uncompressed art is loaded to their respective locations
 
 		rts
 ; ===========================================================================
