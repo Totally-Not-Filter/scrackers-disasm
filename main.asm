@@ -18700,6 +18700,7 @@ locret_FA04:
 
 word_FA06:
 		dc.w	$C9FA,$CA3A
+; ---------------------------------------------------------------------------
 
 locret_FA0A:
 		rts
@@ -18724,15 +18725,14 @@ TTZ_AniTileLocs:
 		dc.l ARTUNC_TTZAnimatedTurbineBG2
 		dc.l ARTUNC_TTZAnimatedTurbineBG3
 		dc.l ARTUNC_TTZAnimatedTurbineBG4
-; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Some sort of DMA cue system for uncompressed art such as animated tiles and HUD
 ; ---------------------------------------------------------------------------
 
 sub_FA44:
-		move.w	UnkReps(pc),d7			; load number of repeat times (22) to d7
-		lea	UnkReps+2(pc),a0		; load data location to a0
+		move.w	DMA_PLC_Count(pc),d7		; load number of repeat times (22) to d7
+		lea	DMA_PLC(pc),a0			; load data location to a0
 
 loc_FA4C:
 		move.w	(a0)+,d1			; load VRAM location
@@ -18740,123 +18740,62 @@ loc_FA4C:
 		move.l	(a0)+,d0			; load art location to d0
 		move.w	(a0)+,d2			; load size of art to d2
 		movem.l	d7-a0,-(sp)			; store all register data to the stack pointer
-		jsr	(DMA_WriteData).w			; dump art
+		jsr	(DMA_WriteData).w		; dump art
 		movem.l	(sp)+,d7-a0			; reload art from stack
-		dbf	d7,loc_FA4C			; repeat til all uncompressed art is loaded to their respected locations
-		rts
+		dbf	d7,loc_FA4C				; repeat til all uncompressed art is loaded to their respective locations
 
+		rts
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Uncompressed Animated PLC Table
 ; ---------------------------------------------------------------------------
 
-UnkReps:
-		dc.w $22				; number of uncompressed art files to read
-		dc.w 0				; VRAM location
-		dc.l AniArt_Hud1to9_Sym			; "0" Hud	; location of Art
-		dc.w $20				; size of Art
-		dc.w $80
-		dc.l AniArt_Hud1to9_Sym+$40		; "1" Hud
-		dc.w $20
-		dc.w $100
-		dc.l AniArt_Hud1to9_Sym+$80		; "2" Hud
-		dc.w $20
-		dc.w $180
-		dc.l AniArt_Hud1to9_Sym+$C0		; "3" Hud
-		dc.w $20
-		dc.w $200
-		dc.l AniArt_Hud1to9_Sym+$100		; "4" Hud
-		dc.w $20
-		dc.w $280
-		dc.l AniArt_Hud1to9_Sym+$140		; "5" Hud
-		dc.w $20
-		dc.w $300
-		dc.l AniArt_Hud1to9_Sym+$180		; "6" Hud
-		dc.w $20
-		dc.w $380
-		dc.l AniArt_Hud1to9_Sym+$1C0		; "7" Hud
-		dc.w $20
-		dc.w $400
-		dc.l AniArt_Hud1to9_Sym+$200		; "8" Hud
-		dc.w $20
-		dc.w $480
-		dc.l AniArt_Hud1to9_Sym+$240		; "9" Hud
-		dc.w $20
-		dc.w $500
-		dc.l AniArt_Hud1to9_Sym+$280		; "!" Hud (Unused)
-		dc.w $20
-		dc.w $580
-		dc.l AniArt_Hud1to9_Sym+$2C0		; """ (Minute/Second Symbol)
-		dc.w $20
-		dc.w $600
-		dc.l AniArt_MiliSymbol			; "" (Second/Mili-Second Symbol)
-		dc.w $20
-		dc.w $680
-		dc.l AniArt_RingSprites+$1C0		; Ring Sprite (Frame 3)
-		dc.w $20
-		dc.w $700
-		dc.l AniArt_SLTime			; "/TIME" (Unused)
-		dc.w $20
-		dc.w $780
-		dc.l ARTUNC_TTZAnimatedTurbineBG5	; animated turbine (Frame 8)
-		dc.w $20
-		dc.w $800
-		dc.l ARTUNC_TTZAnimatedTurbineBG7	; animated turbine (Frame 7)
-		dc.w $20
-		dc.w $880
-		dc.l ARTUNC_TTZAnimatedTurbineBG6	; animated turbine (Frame 6)
-		dc.w $20
-		dc.w $900
-		dc.l AniArt_RingSprites+$80		; 5 Point Stars (Unused)
-		dc.w $20
-		dc.w $840
-		dc.l AniArt_Tether			; Tether (Frame 1)
-		dc.w $10
-		dc.w $8C0
-		dc.l AniArt_Tether+$20			; Tether (Frame 2)
-		dc.w $10
-		dc.w $940
-		dc.l AniArt_Tether+$40			; Tether (Frame 3)
-		dc.w $10
-		dc.w $9C0
-		dc.l AniArt_Tether+$60			; Tether (Frame 4)
-		dc.w $10
-		dc.w $980
-		dc.l AniArt_MultiStars			; Vertical Star (Frame 1) (Unused)
-		dc.w $20
-		dc.w $A00
-		dc.l AniArt_MultiStars+$40		; Horizontal Star (Frame 1) Vertical Star (Frame 2) (Unused)
-		dc.w $20
-		dc.w $A80
-		dc.l AniArt_MultiStars+$C0		; Horizontal Star (Frame 2) (Unused) Chain? (Unused)
-		dc.w $40
-		dc.w $B00
-		dc.l AniArt_MultiStars+$140		; Vertical and Horizontal White Star (Unused)
-		dc.w $40
-		dc.w $B80
-		dc.l AniArt_MultiStars+$1C0		; More Chain Pieces? (Unused)
-		dc.w $40
-		dc.w $C00
-		dc.l AniArt_MultiStars+$240		; Vertical and Horizontal White Star (Exact same design as the one before) (Unused)
-		dc.w $40
-		dc.w $C80
-		dc.l AniArt_MultiStars+$2C0		; Vertical and Horizontal White Star (More Sparkly) (Unused)
-		dc.w $40
-		dc.w $D00
-		dc.l AniArt_MultiStars+$340		; Centre of Night Sky Styled Star (Unused)
-		dc.w $40
-		dc.w $D80
-		dc.l AniArt_MultiStars+$3C0		; Edges of Night Sky Styled Star (Unused)
-		dc.w $40
-		dc.w $E00
-		dc.l AniArt_RingSprites+$C0		; Ring Sprite (Frame 1)
-		dc.w $40
-		dc.w $E80
-		dc.l AniArt_RingSprites+$140		; Ring Sprite (Frame 2)
-		dc.w $40
-		dc.w $F00
-		dc.l AniArt_RingSprites			; Stars (Ring Collect)
-		dc.w $40
+DMA_PLC_Count:
+		dc.w bytesToXcnt(DMA_PLC_End-DMA_PLC,8)		; number of uncompressed art files to read
+
+dmaPLCm:	macro vram,art,size
+		dc.w vram
+		dc.l art
+		dc.w size
+		endm
+
+DMA_PLC:
+		dmaPLCm		0,		AniArt_Hud1to9_Sym,				$20		; "0" Hud
+		dmaPLCm		$80,	AniArt_Hud1to9_Sym+$40,			$20		; "1" Hud
+		dmaPLCm		$100,	AniArt_Hud1to9_Sym+$80,			$20		; "2" Hud
+		dmaPLCm		$180,	AniArt_Hud1to9_Sym+$C0,			$20		; "3" Hud
+		dmaPLCm		$200,	AniArt_Hud1to9_Sym+$100,		$20		; "4" Hud
+		dmaPLCm		$280,	AniArt_Hud1to9_Sym+$140,		$20		; "5" Hud
+		dmaPLCm		$300,	AniArt_Hud1to9_Sym+$180,		$20		; "6" Hud
+		dmaPLCm		$380,	AniArt_Hud1to9_Sym+$1C0,		$20		; "7" Hud
+		dmaPLCm		$400,	AniArt_Hud1to9_Sym+$200,		$20		; "8" Hud
+		dmaPLCm		$480,	AniArt_Hud1to9_Sym+$240,		$20		; "9" Hud
+		dmaPLCm		$500,	AniArt_Hud1to9_Sym+$280,		$20		; "!" Hud (Unused)
+		dmaPLCm		$580,	AniArt_Hud1to9_Sym+$2C0,		$20		; """ Hud (Minute/Second Symbol)
+		dmaPLCm		$600,	AniArt_MiliSymbol,				$20		; "'" Hud (Second/Mili-Second Symbol)
+		dmaPLCm		$680,	AniArt_RingSprites+$1C0,		$20		; Ring Sprite (Frame 3)
+		dmaPLCm		$700,	AniArt_SLTime,					$20		; "/TIME" (Unused)
+		dmaPLCm		$780,	ARTUNC_TTZAnimatedTurbineBG5,	$20		; animated turbine (Frame 8)
+		dmaPLCm		$800,	ARTUNC_TTZAnimatedTurbineBG7,	$20		; animated turbine (Frame 7)
+		dmaPLCm		$880,	ARTUNC_TTZAnimatedTurbineBG6,	$20		; animated turbine (Frame 6)
+		dmaPLCm		$900,	AniArt_RingSprites+$80,			$20		; 5 Point Stars (Unused)
+		dmaPLCm		$840,	AniArt_Tether,					$10		; Tether (Frame 1)
+		dmaPLCm		$8C0,	AniArt_Tether+$20,				$10		; Tether (Frame 2)
+		dmaPLCm		$940,	AniArt_Tether+$40,				$10		; Tether (Frame 3)
+		dmaPLCm		$9C0,	AniArt_Tether+$60,				$10		; Tether (Frame 4)
+		dmaPLCm		$980,	AniArt_MultiStars,				$20		; Vertical Star (Frame 1) (Unused)
+		dmaPLCm		$A00,	AniArt_MultiStars+$40,			$20		; Horizontal Star (Frame 1) Vertical Star (Frame 2) (Unused)
+		dmaPLCm		$A80,	AniArt_MultiStars+$C0,			$40		; Horizontal Star (Frame 2) (Unused) Chain? (Unused)
+		dmaPLCm		$B00,	AniArt_MultiStars+$140,			$40		; Vertical and Horizontal White Star (Unused)
+		dmaPLCm		$B80,	AniArt_MultiStars+$1C0,			$40		; More Chain Pieces? (Unused)
+		dmaPLCm		$C00,	AniArt_MultiStars+$240,			$40		; Vertical and Horizontal White Star (Exact same design as the one before) (Unused)
+		dmaPLCm		$C80,	AniArt_MultiStars+$2C0,			$40		; Vertical and Horizontal White Star (More Sparkly) (Unused)
+		dmaPLCm		$D00,	AniArt_MultiStars+$340,			$40		; Centre of Night Sky Styled Star (Unused)
+		dmaPLCm		$D80,	AniArt_MultiStars+$3C0,			$40		; Edges of Night Sky Styled Star (Unused)
+		dmaPLCm		$E00,	AniArt_RingSprites+$C0,			$40		; Ring Sprite (Frame 1)
+		dmaPLCm		$E80,	AniArt_RingSprites+$140,		$40		; Ring Sprite (Frame 2)
+		dmaPLCm		$F00,	AniArt_RingSprites,				$40		; Stars (Ring Collect)
+DMA_PLC_End:
 ; ---------------------------------------------------------------------------
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
