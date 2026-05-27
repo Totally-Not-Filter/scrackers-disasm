@@ -31,8 +31,7 @@ lvldatabuffer_end:
 
 unk_2A00:	= lvldata128x128+$2F8
 
-unk_AD08:	ds.b $1004
-			ds.b $AF4
+unk_AD08:	ds.b $1AF8
 unk_C800:	ds.b $12
 unk_C812:	ds.b 6
 unk_C818:	ds.b 6
@@ -87,12 +86,16 @@ word_CDDE:	ds.w 1
 word_CDE0:	ds.w 1
 byte_CDE1:	= word_CDE0+1
 			ds.b $382
+
 spritetablebuffer:	ds.b $280
 spritetablebuffer_end:
+
 pal:		ds.b $80	; ($80 bytes)
 pal_end:
+
 unk_pal:	ds.b $80
 unk_pal_end:
+
 byte_D4E4:	ds.b 1
 byte_D4E5:	ds.b 1
 byte_D4E6:	ds.b 1
@@ -106,6 +109,7 @@ byte_D4EE:	ds.b 1
 			ds.b 1
 lword_D4F0:	ds.l 1
 lword_D4F4:	ds.l 1
+
 dmaqueueindex:	ds.b 2+$A0
 
 ngfx_buffer:	ds.b $200	; ($200 bytes)
@@ -140,7 +144,7 @@ word_D82C:	ds.w 1
 			ds.b 2
 word_D830:	ds.w 1
 word_D832:	ds.w 1
-word_D834:	ds.w 1
+worldnum:	ds.w 1
 word_D836:	ds.w 1
 			ds.b 2
 timeofday:	ds.w 1
@@ -165,8 +169,8 @@ word_D85C:	ds.w 1
 word_D862:	ds.w 1
 word_D864:	ds.w 1
 
-sonic:	ds.w 1
-tails:	ds.w 1
+sonic:		ds.w 1
+tails:		ds.w 1
 			ds.b $10
 byte_D87A:	ds.b 1
 			ds.b 1
@@ -201,18 +205,20 @@ word_D8EA:	ds.w 1
 lword_D8EC:	ds.l 1
 			ds.b 2
 unk_D8F2:	ds.b $100
+unk_D8F2_end:
+
 spritetable:	ds.w 80*4
 
-timeattack_flash:		equ spritetable+((HUD_Time_Attack_Text+4)-HUD_Elements)
-timeattack_flash_2:		equ spritetable+((HUD_Time_Attack_Text+$C)-HUD_Elements)
-timeattack_flash_3:		equ spritetable+((HUD_Time_Attack_Text+$14)-HUD_Elements)
-timeattack_m:			equ spritetable+((HUD_Time_Attack_Numbers+4)-HUD_Elements)
-timeattack_s:			equ spritetable+((HUD_Time_Attack_Numbers+$14)-HUD_Elements)
-timeattack_s_2:			equ spritetable+((HUD_Time_Attack_Numbers+$1C)-HUD_Elements)
-timeattack_ms:			equ spritetable+((HUD_Time_Attack_Numbers+$2C)-HUD_Elements)
-timeattack_ms_2:		equ spritetable+((HUD_Time_Attack_Numbers+$34)-HUD_Elements)
-byte_DA75:				equ spritetable+((HUD_Rings_Numbers+$23)-HUD_Elements)
-byte_DA85:				equ spritetable+((HUD_Pause_Text+$B)-HUD_Elements)
+timeattack_flash:	equ spritetable+((HUD_Time_Attack_Text+4)-HUD_Elements)
+timeattack_flash_2:	equ spritetable+((HUD_Time_Attack_Text+$C)-HUD_Elements)
+timeattack_flash_3:	equ spritetable+((HUD_Time_Attack_Text+$14)-HUD_Elements)
+timeattack_m:		equ spritetable+((HUD_Time_Attack_Numbers+4)-HUD_Elements)
+timeattack_s:		equ spritetable+((HUD_Time_Attack_Numbers+$14)-HUD_Elements)
+timeattack_s_2:		equ spritetable+((HUD_Time_Attack_Numbers+$1C)-HUD_Elements)
+timeattack_ms:		equ spritetable+((HUD_Time_Attack_Numbers+$2C)-HUD_Elements)
+timeattack_ms_2:	equ spritetable+((HUD_Time_Attack_Numbers+$34)-HUD_Elements)
+byte_DA75:			equ spritetable+((HUD_Rings_Numbers+$23)-HUD_Elements)
+byte_DA85:			equ spritetable+((HUD_Pause_Text+$B)-HUD_Elements)
 
 			ds.b $138E
 

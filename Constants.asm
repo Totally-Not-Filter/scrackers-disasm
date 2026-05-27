@@ -95,7 +95,7 @@ bitUp:		equ 0
 ; Object variables
 obj	struct DOTS
 ID:			ds.w 1		; object ID (2 bytes)
-			ds.b 2
+Unk2:		ds.b 2		; unknown (2 bytes)
 Unk4:		ds.w 1		; unknown (2 bytes)
 Pointer:	ds.w 1		; object pointer (2 bytes)
 Xpos:		ds.l 1		; x position (4 bytes)
