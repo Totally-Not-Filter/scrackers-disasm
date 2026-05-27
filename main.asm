@@ -5361,10 +5361,10 @@ SegatoVDPRep:
 ; ===========================================================================
 
 PAL_Segalogo:
-		binclude	"Palettes/PalSegaLogo.bin" ; palettes used in the Sega logo
+		binclude	"Palettes/Sega Logo.bin" ; palettes used in the Sega logo
 		even
 ARTCRA_SegaLogo:
-		binclude	"artcra/Sega Logo.cra"	; compressed Sega patterns
+		binclude	"Art/Crackers Compression/Sega Screen/Sega Logo.cra"	; compressed Sega patterns
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -5587,7 +5587,7 @@ sub_75BC:
 ; ===========================================================================
 
 ARTNEM_MainMenusText:
-		binclude	"artnem/Main Menu Text.nem"
+		binclude	"Art/Nemesis/Menus/Main Menu Text.nem"
 		even
 
 		charset	' ','~',0
@@ -7188,7 +7188,7 @@ sub_9098:
 ; ---------------------------------------------------------------------------
 
 ARTNEM_MenuSelectorBorder:
-		binclude	"artnem/Menu Select Border.nem" ; Selector art for Select Menu screen
+		binclude	"Art/Nemesis/Menus/Menu Select Border.nem" ; Selector art for Select Menu screen
 		even
 MAPUNC_SelectMenu_1:
 		binclude	"tilemaps/SelectMenu01.bin" ; tilemaps for the select menu (Top W? numbers that scroll)
@@ -18757,45 +18757,45 @@ DMA_PLC_Count:
 dmaPLCm:	macro vram,art,size
 		dc.w vram
 		dc.l art
-		dc.w size
+		dc.w size/2
 		endm
 
 DMA_PLC:
-		dmaPLCm		0,		AniArt_Hud1to9_Sym,				$20		; "0" Hud
-		dmaPLCm		$80,	AniArt_Hud1to9_Sym+$40,			$20		; "1" Hud
-		dmaPLCm		$100,	AniArt_Hud1to9_Sym+$80,			$20		; "2" Hud
-		dmaPLCm		$180,	AniArt_Hud1to9_Sym+$C0,			$20		; "3" Hud
-		dmaPLCm		$200,	AniArt_Hud1to9_Sym+$100,		$20		; "4" Hud
-		dmaPLCm		$280,	AniArt_Hud1to9_Sym+$140,		$20		; "5" Hud
-		dmaPLCm		$300,	AniArt_Hud1to9_Sym+$180,		$20		; "6" Hud
-		dmaPLCm		$380,	AniArt_Hud1to9_Sym+$1C0,		$20		; "7" Hud
-		dmaPLCm		$400,	AniArt_Hud1to9_Sym+$200,		$20		; "8" Hud
-		dmaPLCm		$480,	AniArt_Hud1to9_Sym+$240,		$20		; "9" Hud
-		dmaPLCm		$500,	AniArt_Hud1to9_Sym+$280,		$20		; "!" Hud (Unused)
-		dmaPLCm		$580,	AniArt_Hud1to9_Sym+$2C0,		$20		; """ Hud (Minute/Second Symbol)
-		dmaPLCm		$600,	AniArt_MiliSymbol,				$20		; "'" Hud (Second/Mili-Second Symbol)
-		dmaPLCm		$680,	AniArt_RingSprites+$1C0,		$20		; Ring Sprite (Frame 3)
-		dmaPLCm		$700,	AniArt_SLTime,					$20		; "/TIME" (Unused)
-		dmaPLCm		$780,	ARTUNC_TTZAnimatedTurbineBG5,	$20		; animated turbine (Frame 8)
-		dmaPLCm		$800,	ARTUNC_TTZAnimatedTurbineBG7,	$20		; animated turbine (Frame 7)
-		dmaPLCm		$880,	ARTUNC_TTZAnimatedTurbineBG6,	$20		; animated turbine (Frame 6)
-		dmaPLCm		$900,	AniArt_RingSprites+$80,			$20		; 5 Point Stars (Unused)
-		dmaPLCm		$840,	AniArt_Tether,					$10		; Tether (Frame 1)
-		dmaPLCm		$8C0,	AniArt_Tether+$20,				$10		; Tether (Frame 2)
-		dmaPLCm		$940,	AniArt_Tether+$40,				$10		; Tether (Frame 3)
-		dmaPLCm		$9C0,	AniArt_Tether+$60,				$10		; Tether (Frame 4)
-		dmaPLCm		$980,	AniArt_MultiStars,				$20		; Vertical Star (Frame 1) (Unused)
-		dmaPLCm		$A00,	AniArt_MultiStars+$40,			$20		; Horizontal Star (Frame 1) Vertical Star (Frame 2) (Unused)
-		dmaPLCm		$A80,	AniArt_MultiStars+$C0,			$40		; Horizontal Star (Frame 2) (Unused) Chain? (Unused)
-		dmaPLCm		$B00,	AniArt_MultiStars+$140,			$40		; Vertical and Horizontal White Star (Unused)
-		dmaPLCm		$B80,	AniArt_MultiStars+$1C0,			$40		; More Chain Pieces? (Unused)
-		dmaPLCm		$C00,	AniArt_MultiStars+$240,			$40		; Vertical and Horizontal White Star (Exact same design as the one before) (Unused)
-		dmaPLCm		$C80,	AniArt_MultiStars+$2C0,			$40		; Vertical and Horizontal White Star (More Sparkly) (Unused)
-		dmaPLCm		$D00,	AniArt_MultiStars+$340,			$40		; Centre of Night Sky Styled Star (Unused)
-		dmaPLCm		$D80,	AniArt_MultiStars+$3C0,			$40		; Edges of Night Sky Styled Star (Unused)
-		dmaPLCm		$E00,	AniArt_RingSprites+$C0,			$40		; Ring Sprite (Frame 1)
-		dmaPLCm		$E80,	AniArt_RingSprites+$140,		$40		; Ring Sprite (Frame 2)
-		dmaPLCm		$F00,	AniArt_RingSprites,				$40		; Stars (Ring Collect)
+		dmaPLCm		0,		ArtUnc_Hud0,					$40		; "0" Hud
+		dmaPLCm		$80,	ArtUnc_Hud1,					$40		; "1" Hud
+		dmaPLCm		$100,	ArtUnc_Hud2,					$40		; "2" Hud
+		dmaPLCm		$180,	ArtUnc_Hud3,					$40		; "3" Hud
+		dmaPLCm		$200,	ArtUnc_Hud4,					$40		; "4" Hud
+		dmaPLCm		$280,	ArtUnc_Hud5,					$40		; "5" Hud
+		dmaPLCm		$300,	ArtUnc_Hud6,					$40		; "6" Hud
+		dmaPLCm		$380,	ArtUnc_Hud7,					$40		; "7" Hud
+		dmaPLCm		$400,	ArtUnc_Hud8,					$40		; "8" Hud
+		dmaPLCm		$480,	ArtUnc_Hud9,					$40		; "9" Hud
+		dmaPLCm		$500,	ArtUnc_HudExclamationMark,		$40		; "!" Hud (Unused)
+		dmaPLCm		$580,	ArtUnc_HudMinutesSign,			$40		; """ Hud (Minute/Second Symbol)
+		dmaPLCm		$600,	AniArt_MiliSymbol,				$40		; "'" Hud (Second/Mili-Second Symbol)
+		dmaPLCm		$680,	AniArt_RingSprites+$1C0,		$40		; Ring Sprite (Frame 3)
+		dmaPLCm		$700,	AniArt_SLTime,					$40		; "/TIME" (Unused)
+		dmaPLCm		$780,	ARTUNC_TTZAnimatedTurbineBG5,	$40		; animated turbine (Frame 8)
+		dmaPLCm		$800,	ARTUNC_TTZAnimatedTurbineBG7,	$40		; animated turbine (Frame 7)
+		dmaPLCm		$880,	ARTUNC_TTZAnimatedTurbineBG6,	$40		; animated turbine (Frame 6)
+		dmaPLCm		$900,	AniArt_RingSprites+$80,			$40		; 5 Point Stars (Unused)
+		dmaPLCm		$840,	AniArt_Tether,					$20		; Tether (Frame 1)
+		dmaPLCm		$8C0,	AniArt_Tether+$20,				$20		; Tether (Frame 2)
+		dmaPLCm		$940,	AniArt_Tether+$40,				$20		; Tether (Frame 3)
+		dmaPLCm		$9C0,	AniArt_Tether+$60,				$20		; Tether (Frame 4)
+		dmaPLCm		$980,	AniArt_MultiStars,				$40		; Vertical Star (Frame 1) (Unused)
+		dmaPLCm		$A00,	AniArt_MultiStars+$40,			$40		; Horizontal Star (Frame 1) Vertical Star (Frame 2) (Unused)
+		dmaPLCm		$A80,	AniArt_MultiStars+$C0,			$80		; Horizontal Star (Frame 2) (Unused) Chain? (Unused)
+		dmaPLCm		$B00,	AniArt_MultiStars+$140,			$80		; Vertical and Horizontal White Star (Unused)
+		dmaPLCm		$B80,	AniArt_MultiStars+$1C0,			$80		; More Chain Pieces? (Unused)
+		dmaPLCm		$C00,	AniArt_MultiStars+$240,			$80		; Vertical and Horizontal White Star (Exact same design as the one before) (Unused)
+		dmaPLCm		$C80,	AniArt_MultiStars+$2C0,			$80		; Vertical and Horizontal White Star (More Sparkly) (Unused)
+		dmaPLCm		$D00,	AniArt_MultiStars+$340,			$80		; Centre of Night Sky Styled Star (Unused)
+		dmaPLCm		$D80,	AniArt_MultiStars+$3C0,			$80		; Edges of Night Sky Styled Star (Unused)
+		dmaPLCm		$E00,	AniArt_RingSprites+$C0,			$80		; Ring Sprite (Frame 1)
+		dmaPLCm		$E80,	AniArt_RingSprites+$140,		$80		; Ring Sprite (Frame 2)
+		dmaPLCm		$F00,	AniArt_RingSprites,				$80		; Stars (Ring Collect)
 DMA_PLC_End:
 ; ---------------------------------------------------------------------------
 ; ===========================================================================
@@ -18941,7 +18941,7 @@ SoundAF:	include	"Sound/SFX/SndAF.asm"
 ; Data Location (00018342 - 0001873F)
 ; Striped out
 ; UnkData_00018342:
-		binclude	"artunc/Mini HUD.bin"
+		binclude	"Art/Uncompressed/HUD/Scaled/Mini HUD.bin"
 		even
 ; ---------------------------------------------------------------------------
 ; ===========================================================================
@@ -19077,14 +19077,14 @@ DAC_Sample5_End:
 		align $8000
 
 ArtUnc_HUD:
-		binclude	"artunc/Hud.bin"		; Hud Patterns
+		binclude	"Art/Uncompressed/HUD/Main.bin"		; Hud Patterns
 		even
 ARTNEM_RingTetherStarsUnused:
-		binclude	"artnem/Unused - Ring Tether Stars.nem" ; unused Ring tether stars
+		binclude	"Art/Nemesis/Common/Unused - Ring Tether Stars.nem" ; unused Ring tether stars
 		even
 
 ARTNEM_SSZ8x8_FG:
-		binclude	"artnem/8x8 - SSZ FG.nem"	; 8x8 tiles for SSZ FG
+		binclude	"Art/Nemesis/Attraction/8x8 - SSZ FG.nem"	; 8x8 tiles for SSZ FG
 		even
 MAPENI_SSZ16x16_FG:
 		binclude	"map16/SSZ FG.eni"		; 16x16 blocks for SSZ FG
@@ -19102,7 +19102,7 @@ COL_SSZSecondary:
 		binclude	"collide/SSZ Secondary.bin"	; Secondary Collisions for SSZ
 		even
 ARTNEM_SSZ8x8_BG:
-		binclude	"artnem/8x8 - SSZ BG.nem"	; 8x8 tiles for SSZ BG
+		binclude	"Art/Nemesis/Attraction/8x8 - SSZ BG.nem"	; 8x8 tiles for SSZ BG
 		even
 MAPENI_SSZ16x16_BG:
 		binclude	"map16/SSZ BG.eni"		; 16x16 blocks for SSZ BG
@@ -19115,7 +19115,7 @@ MAPENI_SSZLayout_BG:
 		even
 
 ARTNEM_TTZ8x8_FG:
-		binclude	"artnem/8x8 - TTZ FG.nem"	; 8x8 tiles for TTZ FG
+		binclude	"Art/Nemesis/Attraction/8x8 - TTZ FG.nem"	; 8x8 tiles for TTZ FG
 		even
 MAPENI_TTZ16x16_FG:
 		binclude	"map16/TTZ FG.eni"		; 16x16 blocks for TTZ FG
@@ -19133,7 +19133,7 @@ COL_TTZSecondary:
 		binclude	"collide/TTZ Secondary.bin"	; Secondary Collisions for TTZ
 		even
 ARTNEM_TTZ8x8_BG:
-		binclude	"artnem/8x8 - TTZ BG.nem"	; 8x8 tiles for TTZ BG
+		binclude	"Art/Nemesis/Attraction/8x8 - TTZ BG.nem"	; 8x8 tiles for TTZ BG
 		even
 MAPENI_TTZ16x16_BG:
 		binclude	"map16/TTZ BG.eni"		; 16x16 blocks for TTZ BG
@@ -19166,79 +19166,79 @@ MAPENI_TTZLayout_BG:
 ARTUNC_TitleCardBGAndPause:
 		dc.w 32					; 32 bytes (1 tile)
 		dc.l 6					; jump forward 6 bytes to art
-		binclude "artunc/TCBG1.bin"		; Yellow Pause Bar
+		binclude "Art/Uncompressed/TCBG1.bin"		; Yellow Pause Bar
 		even
 ; ---------------------------------------------------------------------------
 TCBG_Tile2:
 		dc.w 32					; 32 bytes (1 tile)
 		dc.l 6					; jump forward 6 bytes to art
-		binclude "artunc/TCBG2.bin"		; Title Card - Black tiles that appear to hide the level design before the title card appears
+		binclude "Art/Uncompressed/TCBG2.bin"		; Title Card - Black tiles that appear to hide the level design before the title card appears
 		even
 ; ---------------------------------------------------------------------------
 TCBG_Tile3:
 		dc.w 32					; 32 bytes (1 tile)
 		dc.l 6					; jump forward 6 bytes to art
-		binclude "artunc/TCBG3.bin"		; Title Card - Dark Gray/Blue Bar that comes down first
+		binclude "Art/Uncompressed/TCBG3.bin"		; Title Card - Dark Gray/Blue Bar that comes down first
 		even
 ; ---------------------------------------------------------------------------
 TCBG_Tile4:
 		dc.w 32					; 32 bytes (1 tile)
 		dc.l 6					; jump forward 6 bytes to art
-		binclude "artunc/TCBG4.bin"		; Title Card - Light Gray/Blue Bar that appears from top right
+		binclude "Art/Uncompressed/TCBG4.bin"		; Title Card - Light Gray/Blue Bar that appears from top right
 		even
 ; ---------------------------------------------------------------------------
 TCBG_Tile5:
 		dc.w 32					; 32 bytes (1 tile)
 		dc.l 6					; jump forward 6 bytes to art
-		binclude "artunc/TCBG5.bin"		; Title Card - Pure White tiles that appear from the left
+		binclude "Art/Uncompressed/TCBG5.bin"		; Title Card - Pure White tiles that appear from the left
 		even
 ; ---------------------------------------------------------------------------
 TCBG_Tile6:
 		dc.w 32					; 32 bytes (1 tile)
 		dc.l 6					; jump forward 6 bytes to art
-		binclude "artunc/TCBG6.bin"		; Title Card - Faded Blue tiles that appear from the bottom that move over the Pure White tiles
+		binclude "Art/Uncompressed/TCBG6.bin"		; Title Card - Faded Blue tiles that appear from the bottom that move over the Pure White tiles
 		even
 ; ---------------------------------------------------------------------------
 TCBG_Tile7:
 		dc.w 32					; 32 bytes (1 tile)
 		dc.l 6					; jump forward 6 bytes to art
-		binclude "artunc/TCBG7.bin"		; ??? (Unused)
+		binclude "Art/Uncompressed/TCBG7.bin"		; ??? (Unused)
 		even
 ; ---------------------------------------------------------------------------
 TCBG_Tile8:
 		dc.w 32					; 32 bytes (1 tile)
 		dc.l 6					; jump forward 6 bytes to art
-		binclude "artunc/TCBG8.bin"		; Title Card - Dark Blue tiles on bottom right
+		binclude "Art/Uncompressed/TCBG8.bin"		; Title Card - Dark Blue tiles on bottom right
 		even
 ; ---------------------------------------------------------------------------
 TCBG_Tile9:
 		dc.w 32					; 32 bytes (1 tile)
 		dc.l 6					; jump forward 6 bytes to art
-		binclude "artunc/TCBG9.bin"		; Title Card - Light blue tiles that appear on the bottom and right
+		binclude "Art/Uncompressed/TCBG9.bin"		; Title Card - Light blue tiles that appear on the bottom and right
 		even
 ; ---------------------------------------------------------------------------
 TCBG_TileA:
 		dc.w 32					; 32 bytes (1 tile)
 		dc.l 6					; jump forward 6 bytes to art
-		binclude "artunc/TCBGA.bin"		; Title Card - Red thin bar that appears from the right
+		binclude "Art/Uncompressed/TCBGA.bin"		; Title Card - Red thin bar that appears from the right
 		even
 ; ---------------------------------------------------------------------------
 TCBG_TileB:
 		dc.w 32*2				; 64 bytes (2 tiles)
 		dc.l 6					; jump forward 6 bytes to art
-		binclude "artunc/TCBGB.bin"		; Title Card - White Zig-Zag tiles that appear overlapping the light Gray/Blue Bar that appears from top right
+		binclude "Art/Uncompressed/TCBGB.bin"		; Title Card - White Zig-Zag tiles that appear overlapping the light Gray/Blue Bar that appears from top right
 		even
 ; ---------------------------------------------------------------------------
 TCBG_TileC:
 		dc.w 32*2				; 64 bytes (2 tiles)
 		dc.l 6					; jump forward 6 bytes to art
-		binclude "artunc/TCBGC.bin"		; Title Card - White Zig-Zag tiles that appear overlapping middle section
+		binclude "Art/Uncompressed/TCBGC.bin"		; Title Card - White Zig-Zag tiles that appear overlapping middle section
 		even
 ; ---------------------------------------------------------------------------
 TCBG_TileD:
 		dc.w 32*2				; 64 bytes (2 tiles)
 		dc.l 6					; jump forward 6 bytes to art
-		binclude "artunc/TCBGD.bin"		; Title Card - Light blue Zig-Zag tiles (The Light blue tiles overlapping the white Zig-Zag tiles basically)
+		binclude "Art/Uncompressed/TCBGD.bin"		; Title Card - Light blue Zig-Zag tiles (The Light blue tiles overlapping the white Zig-Zag tiles basically)
 		even
 
 ; ===========================================================================
@@ -19246,13 +19246,13 @@ TCBG_TileD:
 ; Nemesis Compressed Object Patterns
 ; ---------------------------------------------------------------------------
 ARTNEM_Springs:
-		binclude	"artnem/Springs.nem"		; Red and Yellow Springs
+		binclude	"Art/Nemesis/Common/Springs.nem"		; Red and Yellow Springs
 		even
 ARTNEM_SpikesHoz:
-		binclude	"artnem/Spikes Horizontal.nem"	; Horizontal Spikes
+		binclude	"Art/Nemesis/Common/Spikes Horizontal.nem"	; Horizontal Spikes
 		even
 ARTNEM_SpikesVer:
-		binclude	"artnem/Spikes Vertical.nem"	; Vertical Spikes
+		binclude	"Art/Nemesis/Common/Spikes Vertical.nem"	; Vertical Spikes
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19361,68 +19361,101 @@ Objpos_TTZ:
 ; uncompressed Art (Used for animation)
 ; ---------------------------------------------------------------------------
 ARTUNC_TTZAnimatedFanFG1:
-		binclude	"artunc/TTZAnimatedFanFG1.bin"	; Fan tiles 1
+		binclude	"Art/Uncompressed/Animated/TTZAnimatedFanFG1.bin"	; Fan tiles 1
 		even
 ARTUNC_TTZAnimatedFanFG2:
-		binclude	"artunc/TTZAnimatedFanFG2.bin"	; Fan tiles 2
+		binclude	"Art/Uncompressed/Animated/TTZAnimatedFanFG2.bin"	; Fan tiles 2
 		even
 ARTUNC_TTZAnimatedTurbineBG1:
-		binclude	"artunc/TTZAnimatedTurbineBG1.bin" ; Turbine tiles 1
+		binclude	"Art/Uncompressed/Animated/TTZAnimatedTurbineBG1.bin" ; Turbine tiles 1
 		even
 ARTUNC_TTZAnimatedTurbineBG2:
-		binclude	"artunc/TTZAnimatedTurbineBG2.bin" ; Turbine tiles 2
+		binclude	"Art/Uncompressed/Animated/TTZAnimatedTurbineBG2.bin" ; Turbine tiles 2
 		even
 ARTUNC_TTZAnimatedTurbineBG3:
-		binclude	"artunc/TTZAnimatedTurbineBG3.bin" ; Turbine tiles 3
+		binclude	"Art/Uncompressed/Animated/TTZAnimatedTurbineBG3.bin" ; Turbine tiles 3
 		even
 ARTUNC_TTZAnimatedTurbineBG4:
-		binclude	"artunc/TTZAnimatedTurbineBG4.bin" ; Turbine tiles 4
+		binclude	"Art/Uncompressed/Animated/TTZAnimatedTurbineBG4.bin" ; Turbine tiles 4
 		even
 ARTUNC_TTZAnimatedTurbineBG5:
-		binclude	"artunc/TTZAnimatedTurbineBG5.bin" ; Turbine tiles 5
+		binclude	"Art/Uncompressed/Animated/TTZAnimatedTurbineBG5.bin" ; Turbine tiles 5
 		even
 ARTUNC_TTZAnimatedTurbineBG6:
-		binclude	"artunc/TTZAnimatedTurbineBG6.bin" ; Turbine tiles 6
+		binclude	"Art/Uncompressed/Animated/TTZAnimatedTurbineBG6.bin" ; Turbine tiles 6
 		even
 ARTUNC_TTZAnimatedTurbineBG7:
-		binclude	"artunc/TTZAnimatedTurbineBG7.bin" ; Turbine tiles 7
+		binclude	"Art/Uncompressed/Animated/TTZAnimatedTurbineBG7.bin" ; Turbine tiles 7
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Multiple Uncompressed Art (some of these are unused)
 ; ---------------------------------------------------------------------------
 AniArt_Combi:						; "COMBI" (Unused)
-		binclude	"artunc/Combi_Un.bin"
+		binclude	"Art/Uncompressed/Combi_Un.bin"
 		even
 AniArt_Limits:						; "LIMITS" (Unused)
-		binclude	"artunc/Limits_Un.bin"
+		binclude	"Art/Uncompressed/Limits_Un.bin"
 		even
 AniArt_StripBlock:					; Striped Block (Unused)
-		binclude	"artunc/StripBlock_Un.bin"
+		binclude	"Art/Uncompressed/StripBlock_Un.bin"
 		even
 AniArt_Score:						; "SCORE" (Unused)
-		binclude	"artunc/Score_Un.bin"
+		binclude	"Art/Uncompressed/Score_Un.bin"
 		even
 AniArt_Rings:						; "RINGS" (Unused)
-		binclude	"artunc/Rings_Un.bin"
+		binclude	"Art/Uncompressed/Rings_Un.bin"
 		even
 AniArt_SLTime:						; "/TIME" (Unused)
-		binclude	"artunc/SLTime_Un.bin"
+		binclude	"Art/Uncompressed/SLTime_Un.bin"
 		even
-AniArt_Hud1to9_Sym:					; "0" to "9" Hud (Exclaimation Mark, and Minute/Second Symbol)
-		binclude	"artunc/Hud0to9_Sym.bin"
+ArtUnc_Hud0:
+		binclude	"Art/Uncompressed/HUD/Number 0.bin"
+		even
+ArtUnc_Hud1:
+		binclude	"Art/Uncompressed/HUD/Number 1.bin"
+		even
+ArtUnc_Hud2:
+		binclude	"Art/Uncompressed/HUD/Number 2.bin"
+		even
+ArtUnc_Hud3:
+		binclude	"Art/Uncompressed/HUD/Number 3.bin"
+		even
+ArtUnc_Hud4:
+		binclude	"Art/Uncompressed/HUD/Number 4.bin"
+		even
+ArtUnc_Hud5:
+		binclude	"Art/Uncompressed/HUD/Number 5.bin"
+		even
+ArtUnc_Hud6:
+		binclude	"Art/Uncompressed/HUD/Number 6.bin"
+		even
+ArtUnc_Hud7:
+		binclude	"Art/Uncompressed/HUD/Number 7.bin"
+		even
+ArtUnc_Hud8:
+		binclude	"Art/Uncompressed/HUD/Number 8.bin"
+		even
+ArtUnc_Hud9:
+		binclude	"Art/Uncompressed/HUD/Number 9.bin"
+		even
+ArtUnc_HudExclamationMark:
+		binclude	"Art/Uncompressed/HUD/Exclamation Mark.bin"
+		even
+ArtUnc_HudMinutesSign:
+		binclude	"Art/Uncompressed/HUD/Minutes Sign.bin"
 		even
 AniArt_RingSprites:					; Ring Sprites
-		binclude	"artunc/Spark_Ring.bin"
+		binclude	"Art/Uncompressed/Common/Spark_Ring.bin"
 		even
 AniArt_Tether:						; Tether Star Sprites
-		binclude	"artunc/Tether.bin"
+		binclude	"Art/Uncompressed/Common/Tether.bin"
 		even
 AniArt_MultiStars:					; Multiple Stars (Unused)
-		binclude	"artunc/MultipleStars_Un.bin"
+		binclude	"Art/Uncompressed/MultipleStars_Un.bin"
 		even
 AniArt_MiliSymbol:					; "" (Second/Mili-Second Symbol)
-		binclude	"artunc/Hud_Sym2.bin"
+		binclude	"Art/Uncompressed/HUD/Seconds Sign.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19436,7 +19469,7 @@ ARTCRA_RainbowField8x8:
 		dc.w	1
 		dc.w	$2000
 		dc.w	$0203
-		binclude	"artcra/Rainbow Field.cra"	; 8x8 tiles for Rainbow Field
+		binclude	"Art/Crackers Compression/Fields/Rainbow Field.cra"	; 8x8 tiles for Rainbow Field
 		even
 MAPUNC_RainbowFieldFG:
 		dc.w	4-1	; Number of map pieces to load -1
@@ -19485,7 +19518,7 @@ ARTCRA_ElectricField8x8:
 		dc.w	1
 		dc.w	$900
 		dc.w	$0273
-		binclude	"artcra/Electric Field.cra"	; 8x8 tiles for Electric Field
+		binclude	"Art/Crackers Compression/Fields/Electric Field.cra"	; 8x8 tiles for Electric Field
 		even
 		binclude	"Unknown/4F3D4.bin"
 		even
@@ -19545,7 +19578,7 @@ MAPUNC_ElectricFieldBG:
 ; Data Location (00054446 - 00025A3FF)
 ; Striped out
 ; UnkData_00054446:
-		binclude	"artunc/Mini Tails.bin"
+		binclude	"Art/Uncompressed/Players/Scaled/Mini Tails.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19554,7 +19587,7 @@ MAPUNC_ElectricFieldBG:
 		align $8000
 
 ARTUNC_SonicArms:
-		binclude	"artunc/SonicArms.bin"		; Sonic's Arms
+		binclude	"Art/Uncompressed/Players/SonicArms.bin"		; Sonic's Arms
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19563,7 +19596,7 @@ ARTUNC_SonicArms:
 		align $4000
 
 ARTUNC_TailsArms:
-		binclude	"artunc/TailsArms.bin"		; Tails' Arms
+		binclude	"Art/Uncompressed/Players/TailsArms.bin"		; Tails' Arms
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19712,7 +19745,7 @@ Map_TailsFields:
 ; ---------------------------------------------------------------------------
 		align $10000
 
-ARTUNC_Sonic:	binclude	"artunc/Sonic.bin"
+ARTUNC_Sonic:	binclude	"Art/Uncompressed/Players/Sonic.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19730,7 +19763,7 @@ ARTUNC_Sonic:	binclude	"artunc/Sonic.bin"
 		align $4000
 
 ARTUNC_SonicField:
-		binclude	"artunc/SonicField.bin"
+		binclude	"Art/Uncompressed/Players/Field/Sonic.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19759,7 +19792,7 @@ ARTUNC_SonicField:
 		align $2000
 
 ARTUNC_UnknownHud:
-		binclude	"artunc/Mini HUD 2.bin"
+		binclude	"Art/Uncompressed/HUD/Scaled/Mini HUD 2.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19777,7 +19810,7 @@ ARTUNC_UnknownHud:
 	align $10
 
 ARTUNC_Tails:
-		binclude	"artunc/Tails.bin"
+		binclude	"Art/Uncompressed/Players/Tails.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19797,7 +19830,7 @@ ARTUNC_Tails:
 	align $4000
 
 ARTUNC_TailsField:
-		binclude	"artunc/TailsField.bin"
+		binclude	"Art/Uncompressed/Players/Field/Tails.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19828,7 +19861,7 @@ ARTUNC_TailsField:
 ; Data Location (000C0000 - 000CA887)
 ; Striped out
 ; UnkData_000C0000:
-		binclude	"artunc/Mini Sonic.bin"
+		binclude	"Art/Uncompressed/Players/Scaled/Mini Sonic.bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19843,7 +19876,7 @@ ARTUNC_TailsField:
 		even
 ; ---------------------------------------------------------------------------
 ; Data Location (000D0000 - 000D58BF)
-		binclude	"artunc/Mini Tails (Duplicate).bin"
+		binclude	"Art/Uncompressed/Players/Scaled/Mini Tails (Duplicate).bin"
 		even
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -19865,7 +19898,7 @@ ARTUNC_TailsField:
 ; Data Location (000D8000 - 000D9C0F)
 ; Striped out
 ; UnkData_000D8000:
-		binclude	"artunc/Mini Tails (Field).bin"
+		binclude	"Art/Uncompressed/Players/Scaled/Mini Tails (Field).bin"
 		even
 ; ---------------------------------------------------------------------------
 ; Data Location (000D9C10 - 000DA3FF)
