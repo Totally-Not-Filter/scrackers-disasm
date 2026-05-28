@@ -32,6 +32,7 @@ lvldatabuffer_end:
 unk_2A00:	= lvldata128x128+$2F8
 
 unk_AD08:	ds.b $1AF8
+
 unk_C800:
 			jmp	(RTS_code).l
 
@@ -41,32 +42,44 @@ unk_C800:
 
 unk_C800_end:
 
-unk_C812:
+int_list:
+
+lineA_jmp:
 			jmp	(RTE_code).l
 
-unk_C818:
+lineA_addr: =	lineA_jmp+2
+
+lineF_jmp:
 			jmp	(RTE_code).l
 
-unk_C81E:
+lineF_addr: =	lineF_jmp+2
+
+trace_jmp:
 			jmp	(RTE_code).l
 
-unk_C824:
+trace_addr: =	trace_jmp+2
+
+spurious_jmp:
 			jmp	(RTE_code).l
 
-unk_C82A:
+spurious_addr: =	spurious_jmp+2
+
+ext_int_jmp:
 			jmp	(RTE_code).l
 
-vintjmp:
+ext_int_addr: =	ext_int_jmp+2
+
+v_int_jmp:
 			jmp	(RTE_code).l
 
-vintaddr: =	vintjmp+2
+v_int_addr: =	v_int_jmp+2
 
-hintjmp:
+h_int_jmp:
 			jmp	(RTE_code).l
 
-hintaddr: =	hintjmp+2
+h_int_addr: =	h_int_jmp+2
 
-unk_C812_end:
+int_list_end:
 
 			ds.b $FA
 

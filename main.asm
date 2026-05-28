@@ -43,9 +43,9 @@ SystemStackVector:
 		dc.l ErrorTrap
 		dc.l ErrorTrap
 		dc.l ErrorTrap
-		dc.l unk_C81E
-		dc.l unk_C812
-		dc.l unk_C818
+		dc.l trace_jmp
+		dc.l lineA_jmp
+		dc.l lineF_jmp
 		dc.l ErrorTrap
 		dc.l ErrorTrap
 		dc.l ErrorTrap
@@ -58,13 +58,13 @@ SystemStackVector:
 		dc.l ErrorTrap
 		dc.l ErrorTrap
 		dc.l ErrorTrap
-		dc.l unk_C824
+		dc.l spurious_jmp
 		dc.l ErrorTrap
-		dc.l unk_C82A
+		dc.l ext_int_jmp
 		dc.l ErrorTrap
-		dc.l hintjmp
+		dc.l h_int_jmp
 		dc.l ErrorTrap
-		dc.l vintjmp
+		dc.l v_int_jmp
 		dc.l ErrorTrap
 		dc.l ErrorTrap
 		dc.l ErrorTrap
@@ -338,7 +338,7 @@ loc_360:
 		dbf	d7,loc_360			; the result from this is 'jmp	RTS_code'
 
 		lea	RTE_code(pc),a1		; routine used here just has 'rte'...
-		moveq	#bytesToXcnt(unk_C812_end-unk_C812,6),d7
+		moveq	#bytesToXcnt(int_list_end-int_list,6),d7
 
 loc_36E:
 		move.w	d0,(a0)+
@@ -4210,7 +4210,7 @@ QueueSound:
 SegaScreen:
 		pea	(a0)
 		lea	loc_6EB4(pc),a0
-		move.l	a0,(vintaddr).w
+		move.l	a0,(v_int_addr).w
 		movem.l	(sp)+,a0				; this could be improved by using "movea.l	(sp)+,a0"
 		jsr	(SoundDriverLoad).l		; load the Z80 Sound Driver
 		lea	SegaScreen_VDPSettings(pc),a0
@@ -5407,7 +5407,7 @@ TitleScreen:
 TitleLoad:
 		pea	(a0)
 		lea	loc_7576(pc),a0
-		move.l	a0,(vintaddr).w
+		move.l	a0,(v_int_addr).w
 		movem.l	(sp)+,a0				; this could be improved by using "movea.l	(sp)+,a0"
 		disable_ints
 		lea	TitleScreen_VDPSettings(pc),a0
@@ -5632,7 +5632,7 @@ MAPUNC_TitleMenu_3:
 Fields:
 		pea	(a0)
 		lea	Vint_Fields(pc),a0
-		move.l	a0,(vintaddr).w
+		move.l	a0,(v_int_addr).w
 		movem.l	(sp)+,a0				; this could be improved by using "movea.l	(sp)+,a0"
 		lea	Fields_VDPSettings(pc),a0
 		jsr	(SetupVDPUsingTable).w
@@ -6548,7 +6548,7 @@ CharacterMapTable:
 Levels:
 		pea	(a0)
 		lea	loc_8B1C(pc),a0
-		move.l	a0,(vintaddr).w
+		move.l	a0,(v_int_addr).w
 		movem.l	(sp)+,a0				; this could be improved by using "movea.l	(sp)+,a0"
 		lea	Level_VDPSettings(pc),a0
 		jsr	(SetupVDPUsingTable).w
@@ -6983,7 +6983,7 @@ LevelSelect:
 LevelSelect_Init:
 		pea	(a0)
 		lea	loc_903C(pc),a0
-		move.l	a0,(vintaddr).w
+		move.l	a0,(v_int_addr).w
 		movem.l	(sp)+,a0				; this could be improved by using "movea.l	(sp)+,a0"
 		disable_ints
 		moveq	#$3F,d0
@@ -7247,7 +7247,7 @@ OptionSoundTest:
 OptionSoundTest_Main:
 		pea	(a0)
 		lea	loc_94B4(pc),a0
-		move.l	a0,(vintaddr).w
+		move.l	a0,(v_int_addr).w
 		movem.l	(sp)+,a0				; this could be improved by using "movea.l	(sp)+,a0"
 		disable_ints
 		moveq	#$3F,d0
