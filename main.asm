@@ -62,9 +62,9 @@ SystemStackVector:
 		dc.l ErrorTrap
 		dc.l unk_C82A
 		dc.l ErrorTrap
-		dc.l unk_C836
+		dc.l hintjmp
 		dc.l ErrorTrap
-		dc.l unk_C830
+		dc.l vintjmp
 		dc.l ErrorTrap
 		dc.l ErrorTrap
 		dc.l ErrorTrap
@@ -148,6 +148,7 @@ EntryPoint:
 		move.w	d5,(a4)
 		add.w	d7,d5
 		dbf	d1,.vdploop
+
 		move.l	(a5)+,(a4)
 		move.w	d0,(a3)
 		move.w	d7,(a1)
@@ -161,6 +162,7 @@ EntryPoint:
 .writeZ80:
 		move.b	(a5)+,(a0)+
 		dbf	d2,.writeZ80
+
 		move.w	d0,(a2)
 		move.w	d0,(a1)
 		move.w	d7,(a2)
@@ -168,6 +170,7 @@ EntryPoint:
 .clearRAM:
 		move.l	d0,-(a6)
 		dbf	d6,.clearRAM
+
 		move.l	(a5)+,(a4)
 		move.l	(a5)+,(a4)
 
@@ -176,6 +179,7 @@ EntryPoint:
 .clearCRAM:
 		move.l	d0,(a3)
 		dbf	d3,.clearCRAM
+
 		move.l	(a5)+,(a4)
 
 		moveq	#bytesToLcnt($50),d4
@@ -183,11 +187,13 @@ EntryPoint:
 .clearVSRAM:
 		move.l	d0,(a3)
 		dbf	d4,.clearVSRAM
+
 		moveq	#PSGInitValues_End-PSGInitValues-1,d5
 
 .psginit:
 		move.b	(a5)+,$11(a3)
 		dbf	d5,.psginit
+
 		move.w	d0,(a2)
 		movem.l	(a6),d0-a6
 		disable_ints
@@ -303,6 +309,7 @@ loc_326:
 loc_32A:
 		clr.l	(a1)+
 		dbf	d0,loc_32A
+
 		move.l	#"SEGA",(a0)
 
 loc_336:
@@ -319,22 +326,25 @@ loc_336:
 .loop:
 		movem.l	d0-d6/a2,-(a0)
 		dbf	d7,.loop
+
 		lea	(unk_C800).w,a0
 		move.w	#$4EF9,d0			; machine code for 'jmp'
 		lea	RTS_code(pc),a1		; routine used here just has an 'rts'...
-		moveq	#bytesToXcnt($12,6),d7
+		moveq	#bytesToXcnt(unk_C800_end-unk_C800,6),d7
 
 loc_360:
 		move.w	d0,(a0)+
 		move.l	a1,(a0)+
 		dbf	d7,loc_360			; the result from this is 'jmp	RTS_code'
+
 		lea	RTE_code(pc),a1		; routine used here just has 'rte'...
-		moveq	#bytesToXcnt($2A,6),d7
+		moveq	#bytesToXcnt(unk_C812_end-unk_C812,6),d7
 
 loc_36E:
 		move.w	d0,(a0)+
 		move.l	a1,(a0)+
 		dbf	d7,loc_36E
+
 		moveq	#$40,d0
 		move.b	d0,(port_1_control).l
 		move.b	d0,(port_2_control).l
@@ -1090,7 +1100,7 @@ ReadCtrlPorts:
 ; ---------------------------------------------------------------------------
 		bra.w	ReadCtrlPad		; $0C
 ; ---------------------------------------------------------------------------
-		bra.w	InvalidCtrl	; $0E
+		bra.w	InvalidCtrl		; $0E
 ; ===========================================================================
 
 GetCtrlPeripheral:
@@ -1210,6 +1220,7 @@ loc_B40:
 		nop
 		_move.b	0(a0),d1
 		dbf	d3,loc_B40
+
 		bra.w	loc_BDA
 
 loc_B6E:
@@ -1496,6 +1507,7 @@ ClearPLC:
 		clr.l	(a1)+
 		clr.w	(a1)+
 		dbf	d0,.loop
+
 		rts
 ; ===========================================================================
 
@@ -1633,6 +1645,7 @@ loc_1034:
 		bsr.w	NemDec
 		movem.l	(sp)+,d1/a1
 		dbf	d1,loc_1034
+
 		rts
 
 		include "_Include/Enigma Decompression.asm"
@@ -3485,12 +3498,14 @@ loc_42A8:
 		sub.l	d2,d3
 		addq.l	#1,d2
 		dbf	d4,loc_42A8
+
 		rts
 ; ---------------------------------------------------------------------------
 
 loc_42C6:
 		subq.l	#1,d2
 		dbf	d4,loc_42A8
+
 		rts
 
 ; =============== S U B	R O U T	I N E =======================================
@@ -4092,6 +4107,7 @@ loc_5136:
 
 loc_5138:
 		dbf	d1,loc_5116
+
 		movem.l	(sp)+,d2-d6/a0-a1
 		rts
 ; ---------------------------------------------------------------------------
@@ -4102,6 +4118,7 @@ loc_5142:
 loc_5144:
 		move.w	d4,(a1)
 		dbf	d1,loc_5144
+
 		move.w	d5,(a1)
 		movem.l	(sp)+,d2-d6/a0-a1
 		rts
@@ -4162,6 +4179,7 @@ SoundDriverLoad:
 		resetZ80a
 		moveq	#$80-1,d0				; set repeat times
 		dbf	d0,*				; delay to make sure the YM2612 works correctly
+
 		startZ80
 		resetZ80
 		enable_ints				; set the stack register (Starting VBlank)
@@ -4191,7 +4209,7 @@ QueueSound:
 SegaScreen:
 		pea	(a0)
 		lea	loc_6EB4(pc),a0
-		move.l	a0,(vdpindex).w
+		move.l	a0,(vintaddr).w
 		movem.l	(sp)+,a0				; this could be improved by using "movea.l	(sp)+,a0"
 		jsr	(SoundDriverLoad).l		; load the Z80 Sound Driver
 		lea	SegaScreen_VDPSettings(pc),a0
@@ -5171,6 +5189,7 @@ loc_6D38:
 		move.l	d2,(a3)
 		adda.w	#$100,a6
 		dbf	d7,loc_6D38
+
 		enable_ints
 		subi.w	#$10,(word_CA5E).w
 		subi.w	#$10,(word_CA60).w
@@ -5387,7 +5406,7 @@ TitleScreen:
 TitleLoad:
 		pea	(a0)
 		lea	loc_7576(pc),a0
-		move.l	a0,(vdpindex).w
+		move.l	a0,(vintaddr).w
 		movem.l	(sp)+,a0				; this could be improved by using "movea.l	(sp)+,a0"
 		disable_ints
 		lea	TitleScreen_VDPSettings(pc),a0
@@ -5612,7 +5631,7 @@ MAPUNC_TitleMenu_3:
 Fields:
 		pea	(a0)
 		lea	Vint_Fields(pc),a0
-		move.l	a0,(vdpindex).w
+		move.l	a0,(vintaddr).w
 		movem.l	(sp)+,a0				; this could be improved by using "movea.l	(sp)+,a0"
 		lea	Fields_VDPSettings(pc),a0
 		jsr	(SetupVDPUsingTable).w
@@ -6403,6 +6422,7 @@ loc_8714:
 		add.w	d5,d0
 		move.w	d0,(vdp_data_port).l
 		dbf	d2,loc_8714
+
 		addi.w	#$80,d6
 		dbf	d3,loc_86FC
 
@@ -6527,7 +6547,7 @@ CharacterMapTable:
 Levels:
 		pea	(a0)
 		lea	loc_8B1C(pc),a0
-		move.l	a0,(vdpindex).w
+		move.l	a0,(vintaddr).w
 		movem.l	(sp)+,a0				; this could be improved by using "movea.l	(sp)+,a0"
 		lea	Level_VDPSettings(pc),a0
 		jsr	(SetupVDPUsingTable).w
@@ -6962,7 +6982,7 @@ LevelSelect:
 LevelSelect_Init:
 		pea	(a0)
 		lea	loc_903C(pc),a0
-		move.l	a0,(vdpindex).w
+		move.l	a0,(vintaddr).w
 		movem.l	(sp)+,a0				; this could be improved by using "movea.l	(sp)+,a0"
 		disable_ints
 		moveq	#$3F,d0
@@ -7048,6 +7068,7 @@ loc_8F3A:
 loc_8F50:
 		move.l	d0,(vdp_data_port).l
 		dbf	d1,loc_8F50
+
 		writeVRAM vram_bg+$B10,d0
 		lea	MAPUNC_SelectMenu_4(pc),a1
 		moveq	#16-1,d1
@@ -7225,7 +7246,7 @@ OptionSoundTest:
 OptionSoundTest_Main:
 		pea	(a0)
 		lea	loc_94B4(pc),a0
-		move.l	a0,(vdpindex).w
+		move.l	a0,(vintaddr).w
 		movem.l	(sp)+,a0				; this could be improved by using "movea.l	(sp)+,a0"
 		disable_ints
 		moveq	#$3F,d0
@@ -7673,6 +7694,7 @@ loc_980E:
 		addi.l	#$1000,(lword_FBC8).w
 		sub.w	(lword_FBC8).w,d2
 		dbf	d7,loc_980E
+
 		move.l	#word_CA5E,d0
 		move.w	(word_D81C).w,d1
 		move.w	#$1C0,d2
@@ -7692,6 +7714,7 @@ loc_9846:
 		addi.l	#$1000,(lword_FBC8).w
 		sub.w	(lword_FBC8).w,d2
 		dbf	d7,loc_9846
+
 		move.l	#word_CA5E,d0
 		move.w	(word_D81C).w,d1
 		move.w	#$1C0,d2
@@ -7845,6 +7868,7 @@ loc_99E4:
 		movea.l	(a3)+,a4
 		move.w	(a4),(a2)+
 		dbf	d7,loc_99E4
+
 		rts
 ; ---------------------------------------------------------------------------
 ; A table of RAM adresses
@@ -7977,6 +8001,7 @@ loc_9BA4:
 		move.w	d0,(a3)+
 		move.w	d4,(a3)+
 		dbf	d6,loc_9BA4
+
 		addq.w	#4,d2
 		jsr	(CalcSine).w
 		andi.w	#4,d0
@@ -13311,6 +13336,7 @@ loc_CA16:
 		addq.w	#4,a1
 		addq.w	#2,a2
 		dbf	d4,loc_CA0C
+
 		move.w	#$8164,(a6)	; disable DMA, enable vertical interrupts
 		startZ80
 		rts
@@ -17040,6 +17066,7 @@ GameOver:
 		tst.b	(lagger).w
 		bpl.s	.wait
 		dbf	d0,.loop
+
 		clr.w	(subgamemode).w
 		move.w	(worldnum).w,d0
 		addq.w	#1,d0
@@ -17687,6 +17714,7 @@ loc_F0DE:
 loc_F106:
 		move.l	d0,(vdp_data_port).l
 		dbf	d1,loc_F106
+
 		enable_ints
 		rts
 ; End of function sub_EFD4
@@ -17849,6 +17877,7 @@ loc_F244:
 		move.w	#-1,(a0)+
 		move.w	#-1,(a0)+
 		dbf	d7,loc_F244
+
 		movea.l	(lword_D8EC).w,a0
 		lea	(unk_D8F2).w,a1
 
@@ -18089,6 +18118,7 @@ sub_F45C:
 loc_F462:
 		bsr.s	sub_F472
 		dbf	d7,loc_F462
+
 		jsr	(VDPSetup_02).w
 		bra.w	loc_F4D8
 ; End of function sub_F45C
@@ -18591,6 +18621,7 @@ loc_F90C:
 loc_F934:
 		move.l	d0,(a1)
 		dbf	d1,loc_F934
+
 		move.w	#$8F02,(vdp_control_port).l
 		move.w	#$8F02,(vdp_increment).w
 		rts

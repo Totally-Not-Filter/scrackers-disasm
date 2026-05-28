@@ -32,15 +32,44 @@ lvldatabuffer_end:
 unk_2A00:	= lvldata128x128+$2F8
 
 unk_AD08:	ds.b $1AF8
-unk_C800:	ds.b $12
-unk_C812:	ds.b 6
-unk_C818:	ds.b 6
-unk_C81E:	ds.b 6
-unk_C824:	ds.b 6
-unk_C82A:	ds.b 6
-unk_C830:	ds.b 2
-vdpindex:	ds.l 1
-unk_C836:	ds.b $100
+unk_C800:
+			jmp	(RTS_code).l
+
+			jmp	(RTS_code).l
+
+			jmp	(RTS_code).l
+
+unk_C800_end:
+
+unk_C812:
+			jmp	(RTE_code).l
+
+unk_C818:
+			jmp	(RTE_code).l
+
+unk_C81E:
+			jmp	(RTE_code).l
+
+unk_C824:
+			jmp	(RTE_code).l
+
+unk_C82A:
+			jmp	(RTE_code).l
+
+vintjmp:
+			jmp	(RTE_code).l
+
+vintaddr: =	vintjmp+2
+
+hintjmp:
+			jmp	(RTE_code).l
+
+hintaddr: =	hintjmp+2
+
+unk_C812_end:
+
+			ds.b $FA
+
 ctrl_p1_type:	ds.b 1
 ctrl_p2_type:	ds.b 1
 ctrl_p1:	ctrl
