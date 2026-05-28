@@ -146,10 +146,10 @@ EntryPoint:
 		lea	SetupValues(pc),a5
 		movem.w	(a5)+,d5-d7
 		movem.l	(a5)+,a0-a4
-		move.b	-$10FF(a1),d0
+		move.b	region_version-z80_bus_request(a1),d0
 		andi.b	#$F,d0
 		beq.s	.skipsecurity
-		move.l	#"SEGA",$2F00(a1)
+		move.l	#"SEGA",vdp_sega_lock-z80_bus_request(a1)
 
 .skipsecurity:
 		move.w	(a4),d0

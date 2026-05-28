@@ -53,6 +53,7 @@ port_2_control:	equ $A1000B
 expansion_port_control:	equ $A1000D
 z80_bus_request:	equ $A11100
 z80_reset:		equ $A11200
+vdp_sega_lock:	equ $A14000
 
 id_Sega:	equ ptr_GM_Sega-GameModeArray
 id_Title:	equ ptr_GM_Title-GameModeArray
