@@ -5300,7 +5300,7 @@ loc_6EB4:
 		jsr	(ReadCtrlInput).w
 		move.l	#spritetablebuffer,d0
 		move.w	(word_D81A).w,d1
-		move.w	#$140,d2
+		move.w	#(spritetablebuffer_end-spritetablebuffer)&$FFFF/2,d2
 		jsr	(DMA_WriteData).w
 		jsr	(DMAToCRAM).w
 		move.w	(word_D81C).w,d0
@@ -5771,7 +5771,7 @@ Vint_Fields:
 		movem.l	d0-a6,-(sp)
 		move.l	#word_CA5E,d0
 		move.w	(word_D81C).w,d1
-		move.w	#$1C0,d2
+		move.w	#(word_CA5E_end-word_CA5E)&$FFFF/2,d2
 		jsr	(DMA_WriteData).w
 		writeVSRAM
 		move.l	(word_CDDE).w,(vdp_data_port).l
@@ -5779,7 +5779,7 @@ Vint_Fields:
 		jsr	(sub_C9DE).l
 		move.l	#spritetablebuffer,d0
 		move.w	(word_D81A).w,d1
-		move.w	#$140,d2
+		move.w	#(spritetablebuffer_end-spritetablebuffer)&$FFFF/2,d2
 		jsr	(DMA_WriteData).w
 		ori.b	#$80,(lagger).w
 		addq.w	#1,(word_F000).w
@@ -5841,7 +5841,7 @@ loc_80D2:
 		dbf	d1,loc_80D2
 
 		lea	(word_CA5E).w,a0
-		move.w	#bytesToLcnt($380),d1
+		move.w	#bytesToLcnt(word_CA5E_end-word_CA5E),d1
 
 loc_80E0:
 		move.l	d0,(a0)+
@@ -6096,7 +6096,7 @@ loc_82DE:
 
 loc_8320:
 		lea	(word_CA5E).w,a0
-		move.w	#bytesToXcnt($380,8),d2
+		move.w	#bytesToXcnt(word_CA5E_end-word_CA5E,8),d2
 
 loc_8328:
 		move.l	d0,(a0)+
@@ -6145,7 +6145,7 @@ loc_837C:
 		swap	d0
 		move.w	d1,d0
 		lea	(word_CA5E).w,a0
-		move.w	#bytesToLcnt($380),d1
+		move.w	#bytesToLcnt(word_CA5E_end-word_CA5E),d1
 
 .loop:
 		move.l	d0,(a0)+
@@ -6735,7 +6735,7 @@ loc_8B1C:
 		jsr	(sub_C9DE).l
 		move.l	#spritetablebuffer,d0
 		move.w	(word_D81A).w,d1
-		move.w	#$140,d2
+		move.w	#(spritetablebuffer_end-spritetablebuffer)&$FFFF/2,d2
 		jsr	(DMA_WriteData).w
 		lea	(unk_0A00&$FFFFFF).l,a3
 		lea	(unk_0B02&$FFFFFF).l,a4
@@ -17678,7 +17678,7 @@ loc_F0DE:
 		disable_ints
 		move.l	#ArtUnc_HUD,d0
 		move.w	#$500*tile_size,d1
-		move.w	#$800,d2
+		move.w	#$1000/2,d2
 		jsr	(DMA_WriteData).w
 		writeVRAM $7F8*tile_size
 		move.l	#$DDDDDDDD,d0
@@ -19468,7 +19468,7 @@ PAL_RainbowField:
 ARTCRA_RainbowField8x8:
 		dc.w	1
 		dc.w	$2000
-		dc.w	$0203
+		dc.w	$406/2
 		binclude	"Art/Crackers Compression/Fields/Rainbow Field.cra"	; 8x8 tiles for Rainbow Field
 		even
 MAPUNC_RainbowFieldFG:
@@ -19517,7 +19517,7 @@ PAL_ElectricField:
 ARTCRA_ElectricField8x8:
 		dc.w	1
 		dc.w	$900
-		dc.w	$0273
+		dc.w	$4E6/2
 		binclude	"Art/Crackers Compression/Fields/Electric Field.cra"	; 8x8 tiles for Electric Field
 		even
 		binclude	"Unknown/4F3D4.bin"

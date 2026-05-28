@@ -82,6 +82,8 @@ lword_CA46:	ds.l 1
 word_CA5E:	ds.w 1
 word_CA60:	ds.w 1
 			ds.b $37C
+word_CA5E_end:
+
 word_CDDE:	ds.w 1
 word_CDE0:	ds.w 1
 byte_CDE1:	= word_CDE0+1
