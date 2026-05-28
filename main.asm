@@ -607,6 +607,11 @@ loc_5C0:
 ;
 ; ---------------------------------------------------------------------------
 
+; Usage:
+; d0 = source
+; d1 = destination
+; d2 = size/2
+
 DMA_WriteData:
 		moveq	#0,d3
 		move.w	d2,d3
