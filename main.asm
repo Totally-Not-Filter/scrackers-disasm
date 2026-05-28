@@ -303,7 +303,7 @@ GameProgram:
 		bne.s	loc_336
 
 loc_326:
-		moveq	#bytesToLcnt($40),d0
+		moveq	#bytesToLcnt(ram_end-text),d0
 		lea	(a0),a1
 
 loc_32A:
@@ -321,11 +321,11 @@ loc_336:
 		moveq	#0,d5
 		moveq	#0,d6
 		movea.w	d0,a2
-		move.w	#bytesToXcnt($FFC0,$20),d7
+		move.w	#bytesToXcnt(text-ram_start,$20),d7
 
-.loop:
+.clearRAM:
 		movem.l	d0-d6/a2,-(a0)
-		dbf	d7,.loop
+		dbf	d7,.clearRAM
 
 		lea	(unk_C800).w,a0
 		move.w	#$4EF9,d0			; machine code for 'jmp'
@@ -354,6 +354,7 @@ loc_36E:
 		move.w	(vdp_control_port).l,d0
 		btst	#1,d0				; is DMA running?
 		bne.s	.waitfordma			; if not, wait until it's finished
+
 		lea	(vdp_data_port).l,a0
 		move.w	#$8F02,(vdp_control_port).l
 		move.w	#$8F02,(vdp_increment).w
