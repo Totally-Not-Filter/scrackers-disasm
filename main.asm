@@ -350,10 +350,10 @@ loc_36E:
 		move.b	d0,(port_2_control).l
 		move.b	d0,(expansion_port_control).l
 
-.waitfordma:
+.waitforDMA:
 		move.w	(vdp_control_port).l,d0
 		btst	#1,d0				; is DMA running?
-		bne.s	.waitfordma			; if not, wait until it's finished
+		bne.s	.waitforDMA			; if not, wait until it's finished
 
 		lea	(vdp_data_port).l,a0
 		move.w	#$8F02,(vdp_control_port).l
@@ -448,7 +448,7 @@ DMAToCRAM:
 		move.w	(a1),(a0)
 		move.w	#$9500,d0			; prepare VDP DMA register value in d0
 		lea	DMAValues_End(pc),a1		; load location just after VDP values to a1
-		moveq	#3-1,d1				; set repeat times
+		moveq	#((DMACRAMSource_End-DMACRAMSource)-1)-1,d1				; set repeat times
 
 .setDMA:
 		move.b	-(a1),d0			; get end value, dump to d0 and move back
@@ -469,7 +469,11 @@ DMAToCRAM:
 DMAValues:
 		dc.w $9300+(pal_end-pal)/2	; DMA Transfer Size (Lower and Upper bytes, in order: XX00, 00XX)
 		dc.w $9400
+
+DMACRAMSource:
 		dc.l (pal&$FFFFFF)/2			; DMA Transfer Source (7FE9F2 x 2 = FFD3E4)
+DMACRAMSource_End:
+
 DMAValues_End:
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
