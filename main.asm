@@ -5,7 +5,8 @@
 ; -> Hivebrain (for SCHG sonic crackers location guide on SonicRetro)
 ; -> Malevolence (for the SST Object defining/labling)
 
-	cpu 68000
+; ===========================================================================
+; ASSEMBLY OPTIONS:
 
 FixBugs = 0
 ;	| If 1, fixes various bugs within the game (primarily sound driver related)
@@ -17,14 +18,28 @@ ZeroOffsetOptimization = 0|AllOptimizations
 PaddingOptimization = 0|AllOptimizations
 ;	| If 1, removes about 39 KB of various superfluous padding
 
+; ===========================================================================
+; AS-specific macros and assembler settings
+	cpu 68000
+	include "MacroSetup.asm"
+
+; ===========================================================================
+; Simplifying macros and functions
+	include "Macros.asm"
+
+; ===========================================================================
+; Equates section - Names for constants
+	include "Constants.asm"
+
+; ===========================================================================
+; Equates section - Names for RAM
+	include "RAM.asm"
+
+; ===========================================================================
 ; Include SMPS2ASM, for expressing SMPS bytecode in a portable and human-readable form.
 FixMusicAndSFXDataBugs = FixBugs
 SonicDriverVer = 3 ; Tell SMPS2ASM that we are targetting Sonic 3's sound driver
 	include "sound/_smps2asm_inc.asm"
-	include "MacroSetup.asm"
-	include "Macros.asm"
-	include "Constants.asm"
-	include "RAM.asm"
 
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
