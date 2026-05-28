@@ -307,7 +307,7 @@ word_FDCA:	ds.w 1
 word_FDCC:	ds.w 1
 word_FDCE:	ds.w 1
 			ds.b $1F0
-text:		ds.l 1
+init_flag:	ds.l 1
 word_FFC4:	ds.w 1
 			ds.b 3
 lagger:		ds.b 1

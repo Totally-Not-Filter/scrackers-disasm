@@ -307,7 +307,7 @@ PSGInitValues_End:
 
 GameProgram:
 		tst.w	(vdp_control_port).l
-		lea	(text).w,a0
+		lea	(init_flag).w,a0
 		move.l	(a0),d0
 		cmpi.l	#"SEGA",d0
 		bne.s	loc_326
@@ -318,7 +318,7 @@ GameProgram:
 		bne.s	loc_336
 
 loc_326:
-		moveq	#bytesToLcnt(ram_end-text),d0
+		moveq	#bytesToLcnt(ram_end-init_flag),d0
 		lea	(a0),a1
 
 loc_32A:
@@ -336,7 +336,7 @@ loc_336:
 		moveq	#0,d5
 		moveq	#0,d6
 		movea.w	d0,a2
-		move.w	#bytesToXcnt(text-ram_start,$20),d7
+		move.w	#bytesToXcnt(init_flag-ram_start,$20),d7
 
 .clearRAM:
 		movem.l	d0-d6/a2,-(a0)
