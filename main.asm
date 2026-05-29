@@ -147,7 +147,7 @@ EntryPoint:
 		movem.w	(a5)+,d5-d7
 		movem.l	(a5)+,a0-a4
 		move.b	region_version-z80_bus_request(a1),d0
-		andi.b	#$F,d0
+		andi.b	#$F,d0	; read the regions only (bits 0 to 3)
 		beq.s	.skipsecurity
 		move.l	#"SEGA",vdp_sega_lock-z80_bus_request(a1)
 
@@ -309,8 +309,8 @@ GameProgram:
 		tst.w	(vdp_control_port).l
 		lea	(init_flag).w,a0
 		move.l	(a0),d0
-		cmpi.l	#"SEGA",d0
-		bne.s	loc_326
+		cmpi.l	#"SEGA",d0	; has the initiation flag already run?
+		bne.s	loc_326		; if not, branch
 		move.b	(port_1_control).l,d0
 		and.b	(port_2_control).l,d0
 		and.b	(expansion_port_control).l,d0
@@ -325,7 +325,7 @@ loc_32A:
 		clr.l	(a1)+
 		dbf	d0,loc_32A
 
-		move.l	#"SEGA",(a0)
+		move.l	#"SEGA",(a0)	; set initiation flag
 
 loc_336:
 		moveq	#0,d0				; clear registers (d0 to d6 and a2)
@@ -378,29 +378,29 @@ loc_36E:
 		writeVRAM	; set VDP in VRAM write mode
 		move.w	#bytesToXcnt($10000,$10),d1			; set repeat times
 
-.clrVRAM:
+.clearVRAM:
 	rept 4
 		move.l	d0,(a0)				; clear VRAM
 	endr
-		dbf	d1,.clrVRAM			; repeat til VRAM is cleared
+		dbf	d1,.clearVRAM			; repeat til VRAM is cleared
 
 		writeCRAM	; set VDP in CRAM write mode
 		move.w	#bytesToXcnt($80,$10),d1				; set repeat times
 
-.clrCRAM:
+.clearCRAM:
 	rept 4
 		move.l	d0,(a0)				; clear CRAM
 	endr
-		dbf	d1,.clrCRAM			; repeat til CRAM is cleared
+		dbf	d1,.clearCRAM			; repeat til CRAM is cleared
 
 		writeVSRAM	; set VDP in VSRAM mode
 		move.w	#bytesToXcnt($50,$10),d1				; set repeat times
 
-.clrVSRAM:
+.clearVSRAM:
 	rept 4
 		move.l	d0,(a0)				; clear VSRAM
 	endr
-		dbf	d1,.clrVSRAM			; repeat til VSRAM is cleared
+		dbf	d1,.clearVSRAM			; repeat til VSRAM is cleared
 
 		lea	InitialVDPSetupArray(pc),a0	; load VDP setup values address to a0
 		jsr	(SetupVDPUsingTable).l
@@ -413,12 +413,15 @@ MAINPROGLOOP:
 
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
+
 RTE_code:
 		rte
 ; ---------------------------------------------------------------------------
+
 RTS_code:
 		rts
 ; ---------------------------------------------------------------------------
+
 ErrorTrap:
 		nop					; Delay
 		nop					; Delay
@@ -633,7 +636,7 @@ DMA_WriteData:
 		add.w	d2,d3
 		add.l	d0,d3
 		eor.l	d0,d3
-		btst	#$11,d3
+		btst	#17,d3
 		beq.s	sub_626
 		eor.l	d0,d3
 		move.l	d3,d4
@@ -714,18 +717,18 @@ PaletteFadeOut:
 		move.b	(byte_D4E4).w,d1
 		bne.s	loc_6E0
 		move.b	d0,(byte_D4E4).w
-		move.b	d0,(byte_D4E6).w
-		move.b	#8,(byte_D4E5).w
+		move.b	d0,(fade_pal_time).w
+		move.b	#8,(fade_pal_delay).w
 
 loc_6E0:
-		subq.b	#1,(byte_D4E6).w
+		subq.b	#1,(fade_pal_time).w
 		beq.s	loc_6E8
 		rts
 
 loc_6E8:
-		move.b	(byte_D4E4).w,(byte_D4E6).w
+		move.b	(byte_D4E4).w,(fade_pal_time).w
 		bsr.s	sub_6FE
-		subq.b	#1,(byte_D4E5).w
+		subq.b	#1,(fade_pal_delay).w
 		bne.s	locret_6FC
 		move.b	#0,(byte_D4E4).w
 
@@ -1039,7 +1042,7 @@ SetupVDPUsingTable:
 ; ---------------------------------------------------------------------------
 
 ControlInit_Unused:
-		move.b	#1,(z80_reset).l		; (?)
+		move.b	#1,(z80_reset).l	; cancel any reset requests
 		stopZ80
 		waitZ80
 		moveq	#$40,d0				; prepare init value
@@ -4290,7 +4293,7 @@ loc_64AA:
 
 		move.l	#$F00,(a0)+
 		move.l	d1,(a0)
-		clr.w	(word_FAC4).w
+		clr.w	(sega_colour_number).w
 		move.w	#1,(word_FAC6).w
 		move.w	(word_FFC4).w,d0
 		andi.w	#4,d0
@@ -4359,7 +4362,7 @@ SegaPaletteStart:
 		move.w	#$14,(subgamemode).w
 
 .cycling:
-		subq.w	#1,(word_FAC4).w
+		subq.w	#1,(sega_colour_number).w
 		bne.s	MultiReturn
 		moveq	#64-1,d0
 		moveq	#64-1,d1
@@ -4371,7 +4374,7 @@ SegaPaletteStart:
 		moveq	#0,d2
 		move.w	(word_D818).w,d3
 		jsr	(sub_86E).w
-		move.w	#0,(word_FAC4).w		; clear colour number
+		move.w	#0,(sega_colour_number).w		; clear colour number
 		move.w	(pal+4).w,(word_FAC6).w	; save first colour to storage
 		move.w	#cWhite,(pal+4).w		; save white to colour palette
 		addq.w	#4,(subgamemode).w		; increase sub mode
@@ -4388,16 +4391,16 @@ SegaPaletteCycle:
 
 loc_6594:
 		lea	(pal+4).w,a0		; load palette address to a0
-		move.w	(word_FAC4).w,d0		; load current colour number to d0
+		move.w	(sega_colour_number).w,d0		; load current colour number to d0
 		add.w	d0,d0				; double it
 		adda.w	d0,a0				; add to colour palette location
 		move.w	(word_FAC6).w,(a0)+		; reload original colour from storage
 		move.w	(a0),(word_FAC6).w		; save next current colour to storage
 		move.w	#cWhite,(a0)			; save white to colour palette
-		addq.w	#1,(word_FAC4).w		; increase colour number to next colour
-		cmpi.w	#$C,(word_FAC4).w		; has colour number finished at C?
+		addq.w	#1,(sega_colour_number).w		; increase colour number to next colour
+		cmpi.w	#$C,(sega_colour_number).w		; has colour number finished at C?
 		bne.w	MultiReturn			; if not, branch to return
-		move.w	#$40,(word_FAC4).w		; set colour number to 40
+		move.w	#$40,(sega_colour_number).w		; set colour number to 40
 		addq.w	#4,(subgamemode).w		; increase sub mode
 		rts
 ; ===========================================================================
@@ -4411,7 +4414,7 @@ loc_65C6:
 		move.w	#$14,(subgamemode).w
 
 loc_65D2:
-		subq.w	#1,(word_FAC4).w		; minus 1 from colour number
+		subq.w	#1,(sega_colour_number).w		; minus 1 from colour number
 		bpl.w	MultiReturn			; if still positive, branch
 		moveq	#1,d0
 		jsr	(PaletteFadeOut).w
@@ -4838,8 +4841,8 @@ loc_6934:
 Sega_MainAnimation:
 		subq.w	#1,(word_FAC6).w
 		bne.w	MultiReturn
-		addq.w	#4,(word_FAC4).w
-		move.w	(word_FAC4).w,d0
+		addq.w	#4,(sega_colour_number).w
+		move.w	(sega_colour_number).w,d0
 
 .submodes:
 		jmp	.submodes(pc,d0.w)
@@ -5103,13 +5106,13 @@ loc_6BD8:
 		move.b	3(a0),d0
 		move.l	d0,(a0)+
 		move.l	$20(a0),(a0)
-		move.w	#$10,(word_FAC4).w
+		move.w	#$10,(sega_colour_number).w
 		addq.w	#4,(subgamemode).w
 		rts
 ; ---------------------------------------------------------------------------
 
 Sega_AltAnimation:
-		move.w	(word_FAC4).w,d0
+		move.w	(sega_colour_number).w,d0
 		jmp	.submodes(pc,d0.w)
 ; ---------------------------------------------------------------------------
 
@@ -5152,7 +5155,7 @@ loc_6C70:
 		dbf	d7,loc_6C70
 
 		enable_ints
-		addq.w	#4,(word_FAC4).w
+		addq.w	#4,(sega_colour_number).w
 		move.w	#$20,(word_FAC6).w
 		move.w	#$F8,(word_CA5E).w
 		move.w	#$18,(word_CDDE).w
@@ -5191,7 +5194,7 @@ loc_6CFC:
 		subi.w	#$10,(word_CA60).w
 		subq.w	#1,(word_FAC6).w
 		bne.s	locret_6D20
-		addq.w	#4,(word_FAC4).w
+		addq.w	#4,(sega_colour_number).w
 
 locret_6D20:
 		rts
@@ -5218,7 +5221,7 @@ loc_6D38:
 		enable_ints
 		subi.w	#$10,(word_CA5E).w
 		subi.w	#$10,(word_CA60).w
-		addq.w	#4,(word_FAC4).w
+		addq.w	#4,(sega_colour_number).w
 		move.w	#$20,(word_FAC6).w
 		rts
 ; ---------------------------------------------------------------------------
@@ -5242,7 +5245,7 @@ loc_6D6E:
 	rept 8
 		move.l	(a0)+,(a1)+
 	endr
-		addq.w	#4,(word_FAC4).w
+		addq.w	#4,(sega_colour_number).w
 		move.w	#$20,(word_FAC6).w
 		rts
 ; ---------------------------------------------------------------------------
@@ -5264,7 +5267,7 @@ loc_6DDC:
 		addq.w	#8,(spritetablebuffer+$1E).w
 		subq.w	#1,(word_FAC6).w
 		bne.s	locret_6DFC
-		addq.w	#4,(word_FAC4).w
+		addq.w	#4,(sega_colour_number).w
 		move.w	#$21,(word_FAC6).w
 
 locret_6DFC:
@@ -5300,7 +5303,7 @@ locret_6E3E:
 ; ---------------------------------------------------------------------------
 
 loc_6E40:
-		addq.w	#4,(word_FAC4).w
+		addq.w	#4,(sega_colour_number).w
 		rts
 ; ---------------------------------------------------------------------------
 byte_6E46:
@@ -5334,7 +5337,7 @@ loc_6E66:
 		move.l	d0,(a0)+
 		move.l	-$20(a0),(a0)
 		move.b	#4,-$21(a0)
-		move.w	#$10,(word_FAC4).w
+		move.w	#$10,(sega_colour_number).w
 		addq.w	#4,(subgamemode).w
 		rts
 ; ---------------------------------------------------------------------------
@@ -12615,7 +12618,7 @@ loc_C2CE:
 		move.l	d3,-(sp)
 		move.w	d2,-(sp)
 		move.w	d5,-(sp)
-		move.b	d2,(word_FAC4+1).w
+		move.b	d2,(sega_colour_number+1).w
 		move.l	a0,(lword_FACA).w
 		moveq	#0,d2
 		move.b	$22(a6),d2
@@ -12623,7 +12626,7 @@ loc_C2CE:
 		add.w	d2,d0
 		add.w	d2,d0
 		bsr.w	sub_BF84
-		move.b	d2,(word_FAC4).w
+		move.b	d2,(sega_colour_number).w
 		move.l	a0,(word_FAC6).w
 		move.w	d5,d0
 		move.w	(sp)+,d1
@@ -12666,7 +12669,7 @@ loc_C340:
 		move.l	d3,-(sp)
 		move.w	d2,-(sp)
 		move.w	d5,-(sp)
-		move.b	d2,(word_FAC4+1).w
+		move.b	d2,(sega_colour_number+1).w
 		move.l	a0,(lword_FACA).w
 		moveq	#0,d2
 		move.b	$23(a6),d2
@@ -12674,7 +12677,7 @@ loc_C340:
 		add.w	d2,d1
 		add.w	d2,d1
 		bsr.w	sub_C1DA
-		move.b	d2,(word_FAC4).w
+		move.b	d2,(sega_colour_number).w
 		move.l	a0,(word_FAC6).w
 		move.w	d5,d0
 		move.w	(sp)+,d1
@@ -12718,14 +12721,14 @@ loc_C3B4:
 		move.l	d3,-(sp)
 		move.w	d2,-(sp)
 		move.w	d5,-(sp)
-		move.b	d2,(word_FAC4+1).w
+		move.b	d2,(sega_colour_number+1).w
 		move.l	a0,(lword_FACA).w
 		moveq	#0,d2
 		move.b	$22(a6),d2
 		add.w	d2,d0
 		add.w	d2,d0
 		bsr.w	sub_C116
-		move.b	d2,(word_FAC4).w
+		move.b	d2,(sega_colour_number).w
 		move.l	a0,(word_FAC6).w
 		move.w	d5,d0
 		move.w	(sp)+,d1
@@ -12768,14 +12771,14 @@ loc_C428:
 		move.l	d3,-(sp)
 		move.w	d2,-(sp)
 		move.w	d5,-(sp)
-		move.b	d2,(word_FAC4+1).w
+		move.b	d2,(sega_colour_number+1).w
 		move.l	a0,(lword_FACA).w
 		moveq	#0,d2
 		move.b	$23(a6),d2
 		add.w	d2,d1
 		add.w	d2,d1
 		bsr.w	sub_C048
-		move.b	d2,(word_FAC4).w
+		move.b	d2,(sega_colour_number).w
 		move.l	a0,(word_FAC6).w
 		move.w	d5,d0
 		move.w	(sp)+,d1
@@ -14585,38 +14588,38 @@ loc_D216:
 
 Obj_Index:
 		bra.w	Spring_Right_Red                     ; Obj00 - Red Spring Right
-		bra.w	Spring_Left_Red                      ; Obj04 - Red Spring Left
-		bra.w	Spring_Up_Red                        ; Obj08 - Red Spring Up
-		bra.w	Spring_Down_Red                      ; Obj0C - Red Spring Down
-		bra.w	Obj10                                ; Obj10 - Null
-		bra.w	Spring_Diagonal_Up_Right_Red         ; Obj14 - Diagonal Red Spring Right Up
-		bra.w	Spring_Diagonal_Up_Left_Red          ; Obj18 - Diagonal Red Spring Left Up
-		bra.w	Spring_Diagonal_Down_Right_Red       ; Obj1C - Diagonal Red Spring Right Down
-		bra.w	Spring_Diagonal_Down_Left_Red        ; Obj20 - Diagonal Red Spring Left Down
-		bra.w	Obj24                                ; Obj24 - Null
-		bra.w	Scattering_Rings                     ; Obj28 - Ring Loss
-		bra.w	Obj2C                                ; Obj2C - Null
-		bra.w	Obj30                                ; Obj30 - Null
-		bra.w	Spring_Right_Yellow                  ; Obj34 - Yellow Spring Right
-		bra.w	Spring_Left_Yellow                   ; Obj38 - Yellow Spring Left
-		bra.w	Spring_Up_Yellow                     ; Obj3C - Yellow Spring Up
-		bra.w	Spring_Down_Yellow                   ; Obj40 - Yellow Spring Down
-		bra.w	Spring_Diagonal_Up_Right_Yellow      ; Obj44 - Diagonal Yellow Spring Right Up
-		bra.w	Spring_Diagonal_Up_Left_Yellow       ; Obj48 - Diagonal Yellow Spring Left Up
-		bra.w	Spring_Diagonal_Down_Right_Yellow    ; Obj4C - Diagonal Yellow Spring Right Down
-		bra.w	Spring_Diagonal_Down_Left_Yellow     ; Obj50 - Diagonal Yellow Spring Left Down
-		bra.w	Spikes_Up                            ; Obj54 - Spikes Up
-		bra.w	Spikes_Down                          ; Obj58 - Spikes Down
-		bra.w	Spikes_Right                         ; Obj5C - Spikes Right
-		bra.w	Spikes_Left                          ; Obj60 - Spikes Left
-		bra.w	Spring_Diagonal_Up_Right             ; Obj64 - Diagonal Springs Right Up
-		bra.w	Spring_Diagonal_Up_Left              ; Obj68 - Diagonal Springs Left Up
-		bra.w	Spring_Diagonal_Down_Right           ; Obj6C - Diagonal Springs Right Down
-		bra.w	Spring_Diagonal_Down_Left            ; Obj70 - Diagonal Springs Left Down
-		bra.w	Path_Swapper                         ; Obj74 - Path swapper
-		bra.w	Path_Swapper_2                       ; Obj78 - Path Swapper 2?
-		bra.w	Obj7C                                ; Obj7C - Null
-		bra.w	Obj80                                ; Obj80 - Null
+		bra.w	Spring_Left_Red                      ; Obj01 - Red Spring Left
+		bra.w	Spring_Up_Red                        ; Obj02 - Red Spring Up
+		bra.w	Spring_Down_Red                      ; Obj03 - Red Spring Down
+		bra.w	Obj10                                ; Obj04 - Null
+		bra.w	Spring_Diagonal_Up_Right_Red         ; Obj05 - Diagonal Red Spring Right Up
+		bra.w	Spring_Diagonal_Up_Left_Red          ; Obj06 - Diagonal Red Spring Left Up
+		bra.w	Spring_Diagonal_Down_Right_Red       ; Obj07 - Diagonal Red Spring Right Down
+		bra.w	Spring_Diagonal_Down_Left_Red        ; Obj08 - Diagonal Red Spring Left Down
+		bra.w	Obj24                                ; Obj09 - Null
+		bra.w	Scattering_Rings                     ; Obj0A - Ring Loss
+		bra.w	Obj2C                                ; Obj0B - Null
+		bra.w	Obj30                                ; Obj0C - Null
+		bra.w	Spring_Right_Yellow                  ; Obj0D - Yellow Spring Right
+		bra.w	Spring_Left_Yellow                   ; Obj0E - Yellow Spring Left
+		bra.w	Spring_Up_Yellow                     ; Obj0F - Yellow Spring Up
+		bra.w	Spring_Down_Yellow                   ; Obj10 - Yellow Spring Down
+		bra.w	Spring_Diagonal_Up_Right_Yellow      ; Obj11 - Diagonal Yellow Spring Right Up
+		bra.w	Spring_Diagonal_Up_Left_Yellow       ; Obj12 - Diagonal Yellow Spring Left Up
+		bra.w	Spring_Diagonal_Down_Right_Yellow    ; Obj13 - Diagonal Yellow Spring Right Down
+		bra.w	Spring_Diagonal_Down_Left_Yellow     ; Obj14 - Diagonal Yellow Spring Left Down
+		bra.w	Spikes_Up                            ; Obj15 - Spikes Up
+		bra.w	Spikes_Down                          ; Obj16 - Spikes Down
+		bra.w	Spikes_Right                         ; Obj17 - Spikes Right
+		bra.w	Spikes_Left                          ; Obj18 - Spikes Left
+		bra.w	Spikes_Diagonal_Up_Right             ; Obj19 - Diagonal Spikes Right Up
+		bra.w	Spikes_Diagonal_Up_Left              ; Obj1A - Diagonal Spikes Left Up
+		bra.w	Spikes_Diagonal_Down_Right           ; Obj1B - Diagonal Spikes Right Down
+		bra.w	Spikes_Diagonal_Down_Left            ; Obj1C - Diagonal Spikes Left Down
+		bra.w	Path_Swapper                         ; Obj1D - Path swapper
+		bra.w	Path_Swapper_2                       ; Obj1E - Path Swapper 2?
+		bra.w	Obj7C                                ; Obj1F - Null
+		bra.w	Obj80                                ; Obj20 - Null
 ; ---------------------------------------------------------------------------
 
 Spring_Right_Red:
@@ -16537,7 +16540,7 @@ locret_E79C:
 		rts
 ; ---------------------------------------------------------------------------
 
-Spring_Diagonal_Up_Right:
+Spikes_Diagonal_Up_Right:
 		moveq	#7,d0
 		bclr	d0,$28(a6)
 		beq.s	loc_E7C6
@@ -16598,7 +16601,7 @@ locret_E844:
 		rts
 ; ---------------------------------------------------------------------------
 
-Spring_Diagonal_Up_Left:
+Spikes_Diagonal_Up_Left:
 		moveq	#7,d0
 		bclr	d0,$28(a6)
 		beq.s	loc_E86E
@@ -16659,7 +16662,7 @@ locret_E8EC:
 		rts
 ; ---------------------------------------------------------------------------
 
-Spring_Diagonal_Down_Right:
+Spikes_Diagonal_Down_Right:
 		moveq	#7,d0
 		bclr	d0,$28(a6)
 		beq.s	loc_E916
@@ -16720,7 +16723,7 @@ locret_E994:
 		rts
 ; ---------------------------------------------------------------------------
 
-Spring_Diagonal_Down_Left:
+Spikes_Diagonal_Down_Left:
 		moveq	#7,d0
 		bclr	d0,$28(a6)
 		beq.s	loc_E9BE

@@ -141,8 +141,8 @@ unk_pal:	ds.b $80
 unk_pal_end:
 
 byte_D4E4:	ds.b 1
-byte_D4E5:	ds.b 1
-byte_D4E6:	ds.b 1
+fade_pal_delay:	ds.b 1
+fade_pal_time:	ds.b 1
 byte_D4E7:	ds.b 1
 byte_D4E8:	ds.b 1
 byte_D4E9:	ds.b 1
@@ -272,7 +272,7 @@ word_F9C0:	ds.b $10
 			ds.b $F0
 word_FAC0:	ds.w 1
 word_FAC2:	ds.w 1
-word_FAC4:	ds.w 1
+sega_colour_number:	ds.w 1
 word_FAC6:	ds.w 1
 word_FAC8:	ds.w 1
 lword_FACA:	ds.l 1
