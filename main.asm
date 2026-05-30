@@ -1302,7 +1302,6 @@ loc_BDA:
 		lea	ctrl.len(a1),a1
 		rts
 
-
 sub_C0A:
 		move.b	ctrl.hold_3(a1),d1
 		eor.b	d0,d1
@@ -1425,8 +1424,8 @@ loc_D24:
 sub_D3A:
 		moveq	#0,d0
 		move.b	ctrl.type(a1),d0
-		cmpi.b	#2,d0
-		bhi.s	loc_D58
+		cmpi.b	#2,d0		; is controller type 2?
+		bhi.s	loc_D58		; branch if higher than
 		add.w	d0,d0
 		add.w	d0,d0
 		jmp	loc_D4C(pc,d0.w)

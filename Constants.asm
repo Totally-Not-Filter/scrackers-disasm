@@ -94,6 +94,13 @@ bitDn:		equ 1
 bitUp:		equ 0
 
 ; Object variables
+
+; Object VRAM documentation
+; bit 11 - x flip
+; bit 12 - y flip
+; bit 13, 14 - palette
+; bit 15 - priority
+
 obj	struct DOTS
 ID:			ds.w 1		; object ID (2 bytes)
 Unk2:		ds.b 2		; unknown (2 bytes)
@@ -118,15 +125,16 @@ Angle:		ds.b 1
 Inertia:	ds.w 1
 	endstruct
 
-; Object VRAM documentation
-; bit 11 - x flip
-; bit 12 - y flip
-; bit 13 - palette
-; bit 15 - priority
-
 ; -------------------------------------------------------------------------
 ; Controller data structure
 ; -------------------------------------------------------------------------
+
+; type definition
+; 0 - 6 Button
+; 1 - 3 Button
+; 2 - Mouse
+; 3 to E - ?
+; F - Invalid
 
 ctrl struct DOTS
 type		ds.b 1
