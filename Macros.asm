@@ -181,3 +181,9 @@ finishBank macro
 ; sign-extends a 32-bit integer to 64-bit
 ; all RAM addresses are run through this function to allow them to work in both 16-bit and 32-bit addressing modes
 ramaddr function x,(-(x&$80000000)<<1)|x
+
+; ---------------------------------------------------------------------------
+; produce a packed art-tile
+; ---------------------------------------------------------------------------
+
+make_art_tile function addr,pal,xflip,yflip,pri,((xflip&1)<<11)|((yflip&1)<<12)|((pal&3)<<13)|((pri&1)<<15)|addr

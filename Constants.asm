@@ -118,6 +118,12 @@ Angle:		ds.b 1
 Inertia:	ds.w 1
 	endstruct
 
+; Object VRAM documentation
+; bit 11 - x flip
+; bit 12 - y flip
+; bit 13 - palette
+; bit 15 - priority
+
 ; -------------------------------------------------------------------------
 ; Controller data structure
 ; -------------------------------------------------------------------------
@@ -192,3 +198,21 @@ flg_Stop:	equ ((ptr_flgE1-CmdPtrTable)/2)+flg_First
 flg_StopPSG:	equ ((ptr_flgE2-CmdPtrTable)/2)+flg_First
 flg_FadeIn:	equ ((ptr_flgE3-CmdPtrTable)/2)+flg_First
 flg_Last:	equ ((ptr_flgend-CmdPtrTable)/2)+flg_First
+
+; VRAM ArtTile definitions
+; Multiply by $20 (tile_size) to get the actual location in VRAM
+
+; General Level Art
+ArtTile_Level:				equ $000
+ArtTile_Spikes_Horizontal:	equ $3BF
+ArtTile_Spikes_Vertical:	equ $3F7
+ArtTile_Spring:				equ $407
+ArtTile_HUD:				equ $500
+ArtTile_Player:				equ $69C
+ArtTile_Player_Arm:			equ $6B5
+
+; Field Art
+ArtTile_Electric_Field:		equ $048
+ArtTile_Rainbow_Field:		equ $100
+ArtTile_Sonic_Field:		equ $500
+ArtTile_Tails_Field:		equ $520

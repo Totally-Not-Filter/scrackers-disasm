@@ -2250,8 +2250,8 @@ locret_1754:
 ; ===========================================================================
 
 loc_1756:
-		cmp.w	d5,d6						; compare sprite limit with sprite counter
-		bcc.s	locret_1792					; if it's reached the limit, don't draw
+		cmp.w	d5,d6					; compare sprite limit with sprite counter
+		bcc.s	locret_1792				; if it's reached the limit, don't draw
 		addq.w	#1,d6
 		moveq	#0,d0
 		move.b	(a3),d0
@@ -5963,7 +5963,7 @@ sub_8196:
 		move.w	#2,obj.Pointer(a0)       ; Load Sonic Object Pointer?
 		move.w	#$70,obj.Xpos(a0)               ; Set starting X position
 		move.w	#$70,obj.Ypos(a0)               ; Set starting Y position
-		move.w	#$8000,obj.VRAM(a0)
+		move.w	#make_art_tile($000,0,FALSE,FALSE,TRUE),obj.VRAM(a0)
 		move.w	a0,(word_D862).w
 
 Load_Tails:
@@ -5975,7 +5975,7 @@ loc_81CC:
 		move.w	#$802,obj.Pointer(a0)    ; Load Tails Object Pointer?
 		move.w	#$B0,obj.Xpos(a0)               ; Set starting X position
 		move.w	#$70,obj.Ypos(a0)               ; Set starting Y position
-		move.w	#$8000,obj.VRAM(a0)
+		move.w	#make_art_tile($000,0,FALSE,FALSE,TRUE),obj.VRAM(a0)
 		move.w	a0,(word_D864).w
 
 locret_81F6:
@@ -6887,15 +6887,15 @@ Level_LoadObjectArt:
 		beq.s	.exit
 		disable_ints
 		lea	(ARTNEM_Springs).l,a0
-		writeVRAM $407*tile_size
+		writeVRAM ArtTile_Spring*tile_size
 		jsr	(NemDec).w
 		disable_ints
 		lea	(ARTNEM_SpikesVer).l,a0
-		writeVRAM $3F7*tile_size
+		writeVRAM ArtTile_Spikes_Vertical*tile_size
 		jsr	(NemDec).w
 		disable_ints
 		lea	(ARTNEM_SpikesHoz).l,a0
-		writeVRAM $3BF*tile_size
+		writeVRAM ArtTile_Spikes_Horizontal*tile_size
 		jsr	(NemDec).w
 
 .exit:
@@ -6929,11 +6929,11 @@ locret_8CB8:
 		rts
 ; ---------------------------------------------------------------------------
 word_8CBA:
-		dc.w $407*tile_size
+		dc.w ArtTile_Spring*tile_size
 		dc.l ARTNEM_Springs
-		dc.w $3F7*tile_size
+		dc.w ArtTile_Spikes_Vertical*tile_size
 		dc.l ARTNEM_SpikesVer
-		dc.w $3BF*tile_size
+		dc.w ArtTile_Spikes_Horizontal*tile_size
 		dc.l ARTNEM_SpikesHoz
 		dc.w -1
 
@@ -14540,7 +14540,7 @@ unk_D184:
 ; star tether
 
 sub_D1E0:
-		moveq	#7,d7
+		moveq	#8-1,d7
 
 loc_D1E2:
 		moveq	#8,d0
@@ -14591,15 +14591,15 @@ Obj_Index:
 		bra.w	Spring_Left_Red                      ; Obj01 - Red Spring Left
 		bra.w	Spring_Up_Red                        ; Obj02 - Red Spring Up
 		bra.w	Spring_Down_Red                      ; Obj03 - Red Spring Down
-		bra.w	Obj10                                ; Obj04 - Null
+		bra.w	Obj04                                ; Obj04 - Null
 		bra.w	Spring_Diagonal_Up_Right_Red         ; Obj05 - Diagonal Red Spring Right Up
 		bra.w	Spring_Diagonal_Up_Left_Red          ; Obj06 - Diagonal Red Spring Left Up
 		bra.w	Spring_Diagonal_Down_Right_Red       ; Obj07 - Diagonal Red Spring Right Down
 		bra.w	Spring_Diagonal_Down_Left_Red        ; Obj08 - Diagonal Red Spring Left Down
-		bra.w	Obj24                                ; Obj09 - Null
+		bra.w	Obj09                                ; Obj09 - Null
 		bra.w	Scattering_Rings                     ; Obj0A - Ring Loss
-		bra.w	Obj2C                                ; Obj0B - Null
-		bra.w	Obj30                                ; Obj0C - Null
+		bra.w	Obj0B                                ; Obj0B - Null
+		bra.w	Obj0C                                ; Obj0C - Null
 		bra.w	Spring_Right_Yellow                  ; Obj0D - Yellow Spring Right
 		bra.w	Spring_Left_Yellow                   ; Obj0E - Yellow Spring Left
 		bra.w	Spring_Up_Yellow                     ; Obj0F - Yellow Spring Up
@@ -14618,8 +14618,8 @@ Obj_Index:
 		bra.w	Spikes_Diagonal_Down_Left            ; Obj1C - Diagonal Spikes Left Down
 		bra.w	Path_Swapper                         ; Obj1D - Path swapper
 		bra.w	Path_Swapper_2                       ; Obj1E - Path Swapper 2?
-		bra.w	Obj7C                                ; Obj1F - Null
-		bra.w	Obj80                                ; Obj20 - Null
+		bra.w	Obj1F                                ; Obj1F - Null
+		bra.w	Obj20                                ; Obj20 - Null
 ; ---------------------------------------------------------------------------
 
 Spring_Right_Red:
@@ -14627,7 +14627,7 @@ Spring_Right_Red:
 		bclr	d0,$28(a6)
 		beq.s	loc_D2D6
 		move.l	#Map_SpringLR,obj.Map(a6)
-		move.w	#$407,obj.VRAM(a6)
+		move.w	#make_art_tile(ArtTile_Spring,0,FALSE,FALSE,FALSE),obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#8,$22(a6)
 		move.b	#$10,$23(a6)
@@ -14704,7 +14704,7 @@ Spring_Left_Red:
 		bclr	d0,$28(a6)
 		beq.s	loc_D3C2
 		move.l	#Map_SpringLR,obj.Map(a6)
-		move.w	#$C07,obj.VRAM(a6)
+		move.w	#make_art_tile(ArtTile_Spring,0,TRUE,FALSE,FALSE),obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#8,$22(a6)
 		move.b	#$10,$23(a6)
@@ -14783,7 +14783,7 @@ Spring_Up_Red:
 		bclr	d0,$28(a6)
 		beq.s	loc_D4B2
 		move.l	#Map_SpringUp,obj.Map(a6)
-		move.w	#$407,obj.VRAM(a6)
+		move.w	#make_art_tile(ArtTile_Spring,0,FALSE,FALSE,FALSE),obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$10,$22(a6)
 		move.b	#8,$23(a6)
@@ -14862,7 +14862,7 @@ Spring_Down_Red:
 		bclr	d0,$28(a6)
 		beq.s	loc_D5A2
 		move.l	#Map_SpringUp,obj.Map(a6)
-		move.w	#$1407,obj.VRAM(a6)
+		move.w	#make_art_tile(ArtTile_Spring,0,FALSE,TRUE,FALSE),obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$10,$22(a6)
 		move.b	#8,$23(a6)
@@ -14938,7 +14938,7 @@ Spring_Diagonal_Up_Right_Red:
 		bclr	d0,$28(a6)
 		beq.s	loc_D68E
 		move.l	#Map_SpringAngUp,obj.Map(a6)
-		move.w	#$407,obj.VRAM(a6)
+		move.w	#make_art_tile(ArtTile_Spring,0,FALSE,FALSE,FALSE),obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$C,$22(a6)
 		move.b	#$C,$23(a6)
@@ -15025,7 +15025,7 @@ Spring_Diagonal_Up_Left_Red:
 		bclr	d0,$28(a6)
 		beq.s	loc_D79E
 		move.l	#Map_SpringAngUp,obj.Map(a6)
-		move.w	#$C07,obj.VRAM(a6)
+		move.w	#make_art_tile(ArtTile_Spring,0,TRUE,FALSE,FALSE),obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$C,$22(a6)
 		move.b	#$C,$23(a6)
@@ -15114,7 +15114,7 @@ Spring_Diagonal_Down_Right_Red:
 		bclr	d0,$28(a6)
 		beq.s	loc_D8B2
 		move.l	#Map_SpringAngUp,obj.Map(a6)
-		move.w	#$1407,obj.VRAM(a6)
+		move.w	#make_art_tile(ArtTile_Spring,0,FALSE,TRUE,FALSE),obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$C,$22(a6)
 		move.b	#$C,$23(a6)
@@ -15199,7 +15199,7 @@ Spring_Diagonal_Down_Left_Red:
 		bclr	d0,$28(a6)
 		beq.s	loc_D9BE
 		move.l	#Map_SpringAngUp,obj.Map(a6)
-		move.w	#$1C07,obj.VRAM(a6)
+		move.w	#make_art_tile(ArtTile_Spring,0,TRUE,TRUE,FALSE),obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$C,$22(a6)
 		move.b	#$C,$23(a6)
@@ -15286,7 +15286,7 @@ Spring_Right_Yellow:
 		bclr	d0,$28(a6)
 		beq.s	loc_DACE
 		move.l	#Map_SpringLR,obj.Map(a6)
-		move.w	#$2407,obj.VRAM(a6)
+		move.w	#make_art_tile(ArtTile_Spring,1,FALSE,FALSE,FALSE),obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#8,$22(a6)
 		move.b	#$10,$23(a6)
@@ -15364,7 +15364,7 @@ Spring_Left_Yellow:
 		bclr	d0,$28(a6)
 		beq.s	loc_DBBA
 		move.l	#Map_SpringLR,obj.Map(a6)		; mappings to load for object
-		move.w	#$2C07,obj.VRAM(a6)
+		move.w	#make_art_tile(ArtTile_Spring,1,TRUE,FALSE,FALSE),obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#8,$22(a6)
 		move.b	#$10,$23(a6)
@@ -15443,7 +15443,7 @@ Spring_Up_Yellow:
 		bclr	d0,$28(a6)
 		beq.s	loc_DCAA
 		move.l	#Map_SpringUp,obj.Map(a6)
-		move.w	#$2407,obj.VRAM(a6)
+		move.w	#make_art_tile(ArtTile_Spring,1,FALSE,FALSE,FALSE),obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$10,$22(a6)
 		move.b	#8,$23(a6)
@@ -15522,7 +15522,7 @@ Spring_Down_Yellow:
 		bclr	d0,$28(a6)
 		beq.s	loc_DD9A
 		move.l	#Map_SpringUp,obj.Map(a6)
-		move.w	#$3407,obj.VRAM(a6)
+		move.w	#make_art_tile(ArtTile_Spring,1,FALSE,TRUE,FALSE),obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$10,$22(a6)
 		move.b	#8,$23(a6)
@@ -15599,7 +15599,7 @@ Spring_Diagonal_Up_Right_Yellow:
 		bclr	d0,$28(a6)
 		beq.s	loc_DE86
 		move.l	#Map_SpringAngUp,obj.Map(a6)
-		move.w	#$2407,obj.VRAM(a6)
+		move.w	#make_art_tile(ArtTile_Spring,1,FALSE,FALSE,FALSE),obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$C,$22(a6)
 		move.b	#$C,$23(a6)
@@ -15686,7 +15686,7 @@ Spring_Diagonal_Up_Left_Yellow:
 		bclr	d0,$28(a6)
 		beq.s	loc_DF96
 		move.l	#Map_SpringAngUp,obj.Map(a6)
-		move.w	#$2C07,obj.VRAM(a6)
+		move.w	#make_art_tile(ArtTile_Spring,1,TRUE,FALSE,FALSE),obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$C,$22(a6)
 		move.b	#$C,$23(a6)
@@ -15775,7 +15775,7 @@ Spring_Diagonal_Down_Right_Yellow:
 		bclr	d0,$28(a6)
 		beq.s	loc_E0AA
 		move.l	#Map_SpringAngUp,obj.Map(a6)
-		move.w	#$3407,obj.VRAM(a6)
+		move.w	#make_art_tile(ArtTile_Spring,1,FALSE,TRUE,FALSE),obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$C,$22(a6)
 		move.b	#$C,$23(a6)
@@ -15860,7 +15860,7 @@ Spring_Diagonal_Down_Left_Yellow:
 		bclr	d0,$28(a6)
 		beq.s	loc_E1B6
 		move.l	#Map_SpringAngUp,obj.Map(a6)
-		move.w	#$3C07,obj.VRAM(a6)
+		move.w	#make_art_tile(ArtTile_Spring,1,TRUE,TRUE,FALSE),obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$C,$22(a6)
 		move.b	#$C,$23(a6)
@@ -15967,7 +15967,7 @@ word_E2B0:
 		dc.w $8080
 ; ---------------------------------------------------------------------------
 
-Obj24:
+Obj09:
 		rts
 ; ---------------------------------------------------------------------------
 
@@ -15982,12 +15982,12 @@ loc_E2C8:
 		move.w	obj.Ypos(a6),d1
 		jsr	(sub_1DA8).w
 		beq.s	loc_E2E6
-		move.l	$1C(a6),d6
+		move.l	obj.VelY(a6),d6
 		neg.l	d6
 		move.l	d6,d7
 		asr.l	#2,d7
 		sub.l	d7,d6
-		move.l	d6,$1C(a6)
+		move.l	d6,obj.VelY(a6)
 
 loc_E2E6:
 		move.w	d0,obj.Xpos(a6)
@@ -15996,7 +15996,7 @@ loc_E2E6:
 		add.l	d0,obj.Xpos(a6)
 		move.l	obj.VelY(a6),d0
 		addi.l	#$1800,d0
-		move.l	d0,$1C(a6)
+		move.l	d0,obj.VelY(a6)
 		add.l	d0,obj.Ypos(a6)
 		move.w	(word_F000).l,d0
 		andi.w	#$C,d0
@@ -16017,7 +16017,7 @@ loc_E32C:
 Scattering_Rings_Mappings:
 ;	mappings 1
 		dc.b 5,$F8
-		dc.w $25F0
+		dc.w make_art_tile($5F0,1,FALSE,FALSE,FALSE)
 		dc.b $F8,$FF
 		even
 
@@ -16025,7 +16025,7 @@ Scattering_Rings_Mappings:
 
 ;	mappings 2
 		dc.b 5,$F8
-		dc.w $25F4
+		dc.w make_art_tile($5F4,1,FALSE,FALSE,FALSE)
 		dc.b $F8,$FF
 		even
 
@@ -16033,7 +16033,7 @@ Scattering_Rings_Mappings:
 
 ;	mappings 3
 		dc.b 1,$F8
-		dc.w $25B4
+		dc.w make_art_tile($5B4,1,FALSE,FALSE,FALSE)
 		dc.b $FC,$FF
 		even
 
@@ -16041,16 +16041,16 @@ Scattering_Rings_Mappings:
 
 ;	mappings 4
 		dc.b 5,$F8
-		dc.w $2DF4
+		dc.w make_art_tile($5F4,1,TRUE,FALSE,FALSE)
 		dc.b $F8,$FF
 		even
 ; ---------------------------------------------------------------------------
 
-Obj2C:
+Obj0B:
 		rts
 ; ---------------------------------------------------------------------------
 
-Obj30:
+Obj0C:
 		rts
 ; ---------------------------------------------------------------------------
 
@@ -16066,7 +16066,7 @@ Path_Swapper:
 
 word_E376:
 		dc.b $F,$F0
-		dc.w $8001
+		dc.w make_art_tile($001,0,FALSE,FALSE,TRUE)
 		dc.b $F0,$FF
 		even
 ; ---------------------------------------------------------------------------
@@ -16288,11 +16288,11 @@ loc_E4EC:
 		rts
 ; ---------------------------------------------------------------------------
 
-Obj7C:
+Obj1F:
 		rts
 ; ---------------------------------------------------------------------------
 
-Obj80:
+Obj20:
 		rts
 ; ---------------------------------------------------------------------------
 
@@ -16301,7 +16301,7 @@ Spikes_Up:
 		bclr	d0,$28(a6)
 		beq.s	loc_E526
 		move.l	#Map_SpikesUpLrg,obj.Map(a6)
-		move.w	#$23BF,obj.VRAM(a6)
+		move.w	#make_art_tile(ArtTile_Spikes_Horizontal,1,FALSE,FALSE,FALSE),obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$10,$22(a6)
 		move.b	#$10,$23(a6)
@@ -16362,7 +16362,7 @@ Spikes_Down:
 		bclr	d0,$28(a6)
 		beq.s	loc_E5CE
 		move.l	#Map_SpikesUpLrg,obj.Map(a6)
-		move.w	#$33BF,obj.VRAM(a6)
+		move.w	#make_art_tile(ArtTile_Spikes_Horizontal,1,FALSE,TRUE,FALSE),obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$10,$22(a6)
 		move.b	#$10,$23(a6)
@@ -16423,7 +16423,7 @@ Spikes_Right:
 		bclr	d0,$28(a6)
 		beq.s	loc_E676
 		move.l	#Map_SpikesLR,obj.Map(a6)
-		move.w	#$23BF,obj.VRAM(a6)
+		move.w	#make_art_tile(ArtTile_Spikes_Horizontal,1,FALSE,FALSE,FALSE),obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$10,$22(a6)
 		move.b	#$10,$23(a6)
@@ -16484,7 +16484,7 @@ Spikes_Left:
 		bclr	d0,$28(a6)
 		beq.s	loc_E71E
 		move.l	#Map_SpikesLR,obj.Map(a6)
-		move.w	#$2BBF,obj.VRAM(a6)
+		move.w	#make_art_tile(ArtTile_Spikes_Horizontal,1,TRUE,FALSE,FALSE),obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$10,$22(a6)
 		move.b	#$10,$23(a6)
@@ -16545,7 +16545,7 @@ Spikes_Diagonal_Up_Right:
 		bclr	d0,$28(a6)
 		beq.s	loc_E7C6
 		move.l	#Map_SpikesAng,obj.Map(a6)
-		move.w	#$2BBF,obj.VRAM(a6)
+		move.w	#make_art_tile(ArtTile_Spikes_Horizontal,1,TRUE,FALSE,FALSE),obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$C,$22(a6)
 		move.b	#$C,$23(a6)
@@ -16606,7 +16606,7 @@ Spikes_Diagonal_Up_Left:
 		bclr	d0,$28(a6)
 		beq.s	loc_E86E
 		move.l	#Map_SpikesAng,obj.Map(a6)
-		move.w	#$23BF,obj.VRAM(a6)
+		move.w	#make_art_tile(ArtTile_Spikes_Horizontal,1,FALSE,FALSE,FALSE),obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$C,$22(a6)
 		move.b	#$C,$23(a6)
@@ -16667,7 +16667,7 @@ Spikes_Diagonal_Down_Right:
 		bclr	d0,$28(a6)
 		beq.s	loc_E916
 		move.l	#Map_SpikesAng,obj.Map(a6)
-		move.w	#$3BBF,obj.VRAM(a6)
+		move.w	#make_art_tile(ArtTile_Spikes_Horizontal,1,TRUE,TRUE,FALSE),obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$C,$22(a6)
 		move.b	#$C,$23(a6)
@@ -16728,7 +16728,7 @@ Spikes_Diagonal_Down_Left:
 		bclr	d0,$28(a6)
 		beq.s	loc_E9BE
 		move.l	#Map_SpikesAng,obj.Map(a6)
-		move.w	#$33BF,obj.VRAM(a6)
+		move.w	#make_art_tile(ArtTile_Spikes_Horizontal,1,FALSE,TRUE,FALSE),obj.VRAM(a6)
 		move.w	#$8080,4(a6)
 		move.b	#$C,$22(a6)
 		move.b	#$C,$23(a6)
@@ -17017,7 +17017,7 @@ locret_EBAA:
 
 ; ---------------------------------------------------------------------------
 
-Obj10:
+Obj04:
 		rts
 
 ; =============== S U B	R O U T	I N E =======================================
@@ -17732,7 +17732,7 @@ HUD_Elements_End:
 loc_F0DE:
 		disable_ints
 		move.l	#ArtUnc_HUD,d0
-		move.w	#$500*tile_size,d1
+		move.w	#ArtTile_HUD*tile_size,d1
 		move.w	#$1000/2,d2
 		jsr	(DMA_WriteData).w
 		writeVRAM $7F8*tile_size
@@ -18009,7 +18009,7 @@ loc_F320:
 
 sub_F328:
 		moveq	#0,d1
-		move.w	#$20,d1
+		move.w	#tile_size,d1
 		movea.l	#ARTUNC_TitleCardBGAndPause,a0
 		move.w	(a0),d2
 		lsr.w	#1,d2
@@ -18045,7 +18045,7 @@ sub_F374:
 loc_F37C:
 		cmpi.b	#8,(unk_FDC1).w
 		bge.s	locret_F3B4
-		move.b	#$11,(byte_DA75).w
+		move.b	#17,(byte_DA75).w
 		addq.b	#2,(unk_FDC1).w
 		bra.s	loc_F3AA
 ; End of function sub_F374
@@ -19526,7 +19526,7 @@ PAL_RainbowField:
 		even
 ARTCRA_RainbowField8x8:
 		dc.w	1
-		dc.w	$2000
+		dc.w	ArtTile_Rainbow_Field*tile_size
 		dc.w	$406/2
 		binclude	"Art/Crackers Compression/Fields/Rainbow Field.cra"	; 8x8 tiles for Rainbow Field
 		even
@@ -19575,7 +19575,7 @@ PAL_ElectricField:
 		even
 ARTCRA_ElectricField8x8:
 		dc.w	1
-		dc.w	$900
+		dc.w	ArtTile_Electric_Field*tile_size
 		dc.w	$4E6/2
 		binclude	"Art/Crackers Compression/Fields/Electric Field.cra"	; 8x8 tiles for Electric Field
 		even
