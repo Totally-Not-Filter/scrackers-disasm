@@ -919,9 +919,13 @@ DoPanAnimation:
 loc_312:
 		dec	(ix+zTrack.PanAni6)
 		ret	nz
+	if OptimiseDriver
+		exx
+	else
 		push	bc
 		push	de
 		push	hl
+	endif
 		ld	a, (ix+zTrack.PanAni5)
 		ld	(ix+zTrack.PanAni6), a
 		ld	a, (ix+zTrack.PanAni2)
@@ -944,9 +948,13 @@ loc_341:
 		add	hl, de
 		ex	de, hl
 		call	cfE0_Pan
+	if OptimiseDriver
+		exx
+	else
 		pop	hl
 		pop	de
 		pop	bc
+	endif
 		ret
 ; ---------------------------------------------------------------------------
 
@@ -971,7 +979,8 @@ ExecPanAnim:
 ; End of function ExecPanAnim
 
 ; ---------------------------------------------------------------------------
-PanAniPtrList:	dw byte_360, byte_361, byte_362, byte_363
+PanAniPtrList:
+		dw byte_360, byte_361, byte_362, byte_363
 byte_360:	db 0C0h
 byte_361:	db  80h
 byte_362:	db 0C0h
