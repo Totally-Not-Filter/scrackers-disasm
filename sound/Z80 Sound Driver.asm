@@ -680,10 +680,12 @@ loc_20B:
 		inc	de
 		cp	0E0h
 		jp	nc, cfHandler
+
 		ex	af, af'
 		call	DoNoteOff
 		call	DoPanAnimation
 		ex	af, af'
+
 		bit	Alternate_freq, (ix+zTrack.PlaybackControl)
 		jp	nz, DoRawFreqMode
 		or	a
@@ -772,6 +774,7 @@ loc_270:
 DoRawFreqMode:
 		ld	h, a
 		ld	a, (de)
+
 		inc	de
 		ld	l, a
 		or	h
@@ -796,6 +799,7 @@ loc_288:
 loc_28A:
 		ld	(ix+zTrack.FreqLow), l
 		ld	(ix+zTrack.FreqHigh), h
+
 		bit	Pitch_slide, (ix+zTrack.PlaybackControl)
 		jr	z, loc_29B
 		ld	a, (de)
@@ -810,11 +814,13 @@ loc_29C:
 
 SetDuration:
 		call	TickMultiplier
+
 		ld	(ix+zTrack.SavedDuration), a
 
 loc_2A3:
 		ld	(ix+zTrack.DataPointerLow),	e
-		ld	(ix+zTrack.DataPointerHigh),	d
+		ld	(ix+zTrack.DataPointerHigh), d
+
 		ld	a, (ix+zTrack.SavedDuration)
 		ld	(ix+zTrack.DurationTimeout), a
 		bit	Do_not_attack, (ix+zTrack.PlaybackControl)
@@ -823,6 +829,7 @@ loc_2A3:
 		ld	(ix+zTrack.ModEnvIndex), a
 		ld	(ix+zTrack.ModEnvSens), a
 		ld	(ix+zTrack.VolEnv), a
+
 		ld	a, (ix+zTrack.NoteFillMaster)
 		ld	(ix+zTrack.NoteFillTimeout), a
 		ret
@@ -1000,10 +1007,12 @@ DoFMVolEnv:
 		or	a
 		ret	z
 		ret	m
+
 		dec	a
 		ld	hl, VolEnvPtrs
 		rst	ReadPtrTable
 		call	DoPSGVolEnv
+
 		ld	h, (ix+zTrack.TLPtrHigh)
 		ld	l, (ix+zTrack.TLPtrLow)
 		ld	de, zFMInstrumentTLTable
@@ -1029,6 +1038,7 @@ loc_38E:
 		inc	hl
 		pop	af
 		djnz	loc_382
+
 		ret
 ; End of function DoFMVolEnv
 
@@ -1049,6 +1059,7 @@ PrepareModulat:
 		ld	c, zTrack.ModulationWait
 		add	hl, bc
 		ex	de, hl
+
 		ldi
 		ldi
 		ldi
@@ -1069,6 +1080,7 @@ DoModulation:
 		ld	a, (ix+zTrack.ModulationCtrl)
 		or	a
 		ret	z
+
 		cp	80h
 		jr	nz, DoModEnv
 		dec	(ix+zTrack.ModulationWait)
@@ -2087,7 +2099,7 @@ loc_8E0:
 	endif
 		sub	bgm_Last-1
 		jp	c, loc_90B
-		sub	1Ah
+		sub	sfx_First-(bgm_Last-1)
 		ld	hl, SndPriorities
 		add	a, l
 		ld	l, a
