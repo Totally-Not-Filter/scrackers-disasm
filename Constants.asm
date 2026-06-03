@@ -3,6 +3,13 @@
 ; Sound driver approximate size guess
 Size_of_Snd_driver_guess:	equ $1216
 
+; Clocks
+Master_Clock:    equ 53693175
+M68000_Clock:    equ Master_Clock/7
+Z80_Clock:       equ Master_Clock/15
+FM_Sample_Rate:  equ M68000_Clock/(6*6*4)
+PSG_Sample_Rate: equ Z80_Clock/16
+
 ; Universal VRAM addresses
 vram_window:	equ $B000
 vram_fg:	equ $C000

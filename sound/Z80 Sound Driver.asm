@@ -190,6 +190,11 @@ zYM2612_D1	=	4003h
 zBankRegister	=	6000h
 zPSG		=	7F11h
 zROMWindow	=	8000h
+
+zMakeFMFrequency function frequency,roundFloatToInteger(frequency*1024*1024*2/FM_Sample_Rate)
+
+zFMFreqC0	=	zMakeFMFrequency(16.35)
+zFMFreqC1	=	zFMFreqC0*2
 ; ---------------------------------------------------------------------------
 
 ; ===========================================================================
@@ -1221,7 +1226,7 @@ loc_470:
 		ld	hl, 283h
 		sbc	hl, bc
 		jr	c, loc_492
-		ld	hl, -57Bh
+		ld	hl, zFMFreqC1-(zFMFreqC0-1)-800h
 		add	hl, de
 	if OptimiseDriver=2
 		jp	loc_4A0
@@ -1232,10 +1237,10 @@ loc_470:
 
 loc_492:
 		or	a
-		ld	hl, 508h
+		ld	hl, zFMFreqC1
 		sbc	hl, bc
 		jr	nc, loc_49F
-		ld	hl, 57Ch
+		ld	hl, 800h-zFMFreqC1+zFMFreqC0
 		add	hl, de
 		ex	de, hl
 
@@ -2149,14 +2154,42 @@ loc_932:
 ; End of function SendAllFMOps
 
 ; ---------------------------------------------------------------------------
-PSGFreqs:	dw  3FFh, 3FFh,	3FFh, 3FFh, 3FFh, 3FFh,	3FFh, 3FFh, 3FFh, 3F7h,	3BEh, 388h
-		dw  356h, 326h,	2F9h, 2CEh, 2A5h, 280h,	25Ch, 23Ah, 21Ah, 1FBh,	1DFh, 1C4h
-		dw  1ABh, 193h,	17Dh, 167h, 153h, 140h,	12Eh, 11Dh, 10Dh, 0FEh,	0EFh, 0E2h
-		dw  0D6h, 0C9h,	0BEh, 0B4h, 0A9h, 0A0h,	 97h,  8Fh,  87h,  7Fh,	 78h,  71h
-		dw   6Bh,  65h,	 5Fh,  5Ah,  55h,  50h,	 4Bh,  47h,  43h,  40h,	 3Ch,  39h
-		dw   36h,  33h,	 30h,  2Dh,  2Bh,  28h,	 26h,  24h,  22h,  20h,	 1Fh,  1Dh
-		dw   1Bh,  1Ah,	 18h,  17h,  16h,  15h,	 13h,  12h,  11h,  10h,	   0,	 0
-FMFreqs:	dw  284h, 2ABh,	2D3h, 2FEh, 32Dh, 35Ch,	38Fh, 3C5h, 3FFh, 43Ch,	47Ch, 4C0h
+zMakePSGFrequency function frequency,min(3FFh,roundFloatToInteger(PSG_Sample_Rate/(frequency*2)))
+zMakePSGFrequencies macro
+		irp op,ALLARGS
+			dw zMakePSGFrequency(op)
+		endm
+	endm
+
+PSGFreqs:
+		; 7 octaves, each one begins with C and ends with B.
+		; This table differs from the one in Sonic 1 and 2's drivers by
+		; having an extra octave at the start and two extra notes at
+		; the end, allowing it to span 7 octaves.
+		; The first octave contains duplicate frequencies due to the
+		; PSG's frequency counter being limited to 3FFh.
+		; The last octave's final two notes are set to the PSG's maximum
+		; frequency. These are typically used by the noise channel to
+		; create a sound that is similar to a hi-hat.
+		zMakePSGFrequencies  109.34,    109.34,    109.34,    109.34,    109.34,    109.34,    109.34,    109.34,    109.34,    110.20,    116.76,    123.73
+		zMakePSGFrequencies  130.98,    138.78,    146.99,    155.79,    165.22,    174.78,    185.19,    196.24,    207.91,    220.63,    233.52,    247.47
+		zMakePSGFrequencies  261.96,    277.56,    293.59,    311.58,    329.97,    349.56,    370.39,    392.49,    415.83,    440.39,    468.03,    494.95
+		zMakePSGFrequencies  522.71,    556.51,    588.73,    621.44,    661.89,    699.12,    740.79,    782.24,    828.59,    880.79,    932.17,    989.91
+		zMakePSGFrequencies 1045.42,   1107.52,   1177.47,   1242.89,   1316.00,   1398.25,   1491.47,   1575.50,   1669.55,   1747.82,   1864.34,   1962.46
+		zMakePSGFrequencies 2071.49,   2193.34,   2330.42,   2485.78,   2601.40,   2796.51,   2943.69,   3107.23,   3290.01,   3495.64,   3608.40,   3857.25
+		zMakePSGFrequencies 4142.98,   4302.32,   4660.85,   4863.50,   5084.56,   5326.69,   5887.39,   6214.47,   6580.02,   6991.28, 223721.56, 223721.56
+; ---------------------------------------------------------------------------
+zMakeFMFrequencies macro
+		irp op,ALLARGS
+			dw zMakeFMFrequency(op)
+		endm
+	endm
+
+FMFreqs:
+		; This table spans only a single octave, as the octave frequency
+		; is calculated at run-time unlike in Sonic 1 and 2's drivers.
+		; The first frequency is C, the last frequency is B.
+		zMakeFMFrequencies 16.35, 17.34, 18.36, 19.45, 20.64, 21.84, 23.13, 24.51, 25.98, 27.53, 29.15, 30.88
 
 ; =============== S U B	R O U T	I N E =======================================
 

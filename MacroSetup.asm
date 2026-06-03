@@ -208,6 +208,10 @@ _tst	macro
 
 	endif
 
+roundFloatToInteger function float,INT(float+0.5)
+min function a,b,b!((a!b)&(-(a<b)))
+max function a,b,a!((a!b)&(-(a<b)))
+signedToString function number,substr("-",0,-sgn(number))+"$\{abs(number)}"
 bit function nBits,1<<(nBits-1)
 signmask function val,nBits,-((-(val&bit(nBits)))&bit(nBits))
 signextend function val,nBits,(val+signmask(val,nBits))!signmask(val,nBits)
