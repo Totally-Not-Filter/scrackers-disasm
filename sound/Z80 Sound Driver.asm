@@ -61,12 +61,12 @@ zTrack STRUCT DOTS
 	FreqHigh:			ds.b 1	; For FM/PSG channels
 	VoiceSongID:		ds.b 1	; For using voices from a different song
 	Detune:				ds.b 1
-	PanAni1:			ds.b 1
-	PanAni2:			ds.b 1
-	PanAni3:			ds.b 1
-	PanAni4:			ds.b 1
-	PanAni5: 			ds.b 1
-	PanAni6:			ds.b 1
+	PanNumber:			ds.b 1
+	PanTableNumber:		ds.b 1
+	PanCtrlData:		ds.b 1
+	PanCounter0:		ds.b 1
+	PanCounter1: 		ds.b 1
+	PanCounter2:		ds.b 1
 	VolEnv:				ds.b 1	; Used for dynamic volume adjustments
 	FMVolEnv:
 	HaveSSGEGFlag:		ds.b 1	; For FM channels, if track has SSG-EG data
@@ -120,11 +120,11 @@ zHaltFlag:			ds.b 1
 zFM3Settings:		ds.b 1
 zTempoAccumulator:	ds.b 1
 zCurrentTempo:		ds.b 1
-zUnk_1C15:			ds.b 1
+zEndFlag:			ds.b 1	; referred to as "endfl" in source code
 zCommunicationByte:	ds.b 1
-zUnk_1C17:			ds.b 1
-zUnk_1C18:			ds.b 1
-zUpdateSound:		ds.b 1
+zRRegisterData:		ds.b 1	; referred to as "r_data" in source code
+zPriorityFlag:		ds.b 1	; referred to as "sdfl" in source code
+zSFXFlag:			ds.b 1
 zSpecSFXMode:		ds.l 2
 zSFXMode:			ds.l 2
 zMusicMode:			ds.l 2
@@ -478,7 +478,7 @@ UpdateAll:
 		call	PlaySoundID
 		call	UpdateSFXTracks
 		xor	a
-		ld	(zUpdateSound), a		; 00 - Music Mode
+		ld	(zSFXFlag), a		; 00 - Music Mode
 		bankswitchToMusic
 		ld	ix, zSongDAC
 		bit	Track_playing, (ix+zTrack.PlaybackControl)
@@ -498,13 +498,13 @@ UpdateAll:
 
 UpdateSFXTracks:
 		ld	a, 1
-		ld	(zUpdateSound), a		; 01 - SFX Mode
+		ld	(zSFXFlag), a		; 01 - SFX Mode
 		bankswitchToSFX
 		ld	ix, zTracksSFXStart
 		ld	b, (zTracksSFXEnd-zTracksSFXStart)/zTrack.len
 		call	TrkUpdateLoop
 		ld	a, 80h
-		ld	(zUpdateSound), a		; 80 - Special SFX Mode
+		ld	(zSFXFlag), a		; 80 - Special SFX Mode
 		ld	b, (zTracksSpecSFXEnd-zTracksSpecSFXStart)/zTrack.len
 		ld	ix, zTracksSpecSFXStart
 ; End of function UpdateSFXTracks
@@ -649,7 +649,7 @@ zSpecialFreqCommands_End
 
 GetFM3FreqPtr:
 		ld	de, zMusicMode
-		ld	a, (zUpdateSound)
+		ld	a, (zSFXFlag)
 		or	a
 		ret	z				; Music	Mode (00) - 1C2A
 		ld	de, zSpecSFXMode
@@ -909,7 +909,7 @@ FMNoteOff:
 
 
 DoPanAnimation:
-		ld	a, (ix+zTrack.PanAni1)
+		ld	a, (ix+zTrack.PanNumber)
 		dec	a
 		ret	m
 		jr	nz, loc_34C
@@ -917,7 +917,7 @@ DoPanAnimation:
 		ret	nz
 
 loc_312:
-		dec	(ix+zTrack.PanAni6)
+		dec	(ix+zTrack.PanCounter2)
 		ret	nz
 	if OptimiseDriver
 		exx
@@ -926,22 +926,22 @@ loc_312:
 		push	de
 		push	hl
 	endif
-		ld	a, (ix+zTrack.PanAni5)
-		ld	(ix+zTrack.PanAni6), a
-		ld	a, (ix+zTrack.PanAni2)
+		ld	a, (ix+zTrack.PanCounter1)
+		ld	(ix+zTrack.PanCounter2), a
+		ld	a, (ix+zTrack.PanTableNumber)
 		ld	hl, PanAniPtrList
 		rst	ReadPtrTable
-		ld	e, (ix+zTrack.PanAni3)
-		inc	(ix+zTrack.PanAni3)
-		ld	a, (ix+zTrack.PanAni4)
+		ld	e, (ix+zTrack.PanCtrlData)
+		inc	(ix+zTrack.PanCtrlData)
+		ld	a, (ix+zTrack.PanCounter0)
 		dec	a
 		cp	e
 		jr	nz, loc_341
-		dec	(ix+zTrack.PanAni3)
-		ld	a, (ix+zTrack.PanAni1)
+		dec	(ix+zTrack.PanCtrlData)
+		ld	a, (ix+zTrack.PanNumber)
 		cp	2
 		jr	z, loc_341
-		ld	(ix+zTrack.PanAni3), 0
+		ld	(ix+zTrack.PanCtrlData), 0
 
 loc_341:
 		ld	d, 0
@@ -960,7 +960,7 @@ loc_341:
 
 loc_34C:
 		xor	a
-		ld	(ix+zTrack.PanAni3), a
+		ld	(ix+zTrack.PanCtrlData), a
 ; End of function DoPanAnimation
 
 
@@ -968,7 +968,7 @@ loc_34C:
 
 
 ExecPanAnim:
-		ld	a, (ix+zTrack.PanAni1)
+		ld	a, (ix+zTrack.PanNumber)
 		sub	2
 		ret	m
 	if OptimiseDriver=2
@@ -981,10 +981,16 @@ ExecPanAnim:
 ; ---------------------------------------------------------------------------
 PanAniPtrList:
 		dw byte_360, byte_361, byte_362, byte_363
-byte_360:	db 0C0h
-byte_361:	db  80h
-byte_362:	db 0C0h
-byte_363:	db  40h,0C0h, 80h
+byte_360:
+		db 0C0h
+byte_361:
+		db 80h
+byte_362:
+		db 0C0h
+byte_363:
+		db 40h
+		db 0C0h
+		db 80h
 
 ; =============== S U B	R O U T	I N E =======================================
 
@@ -1099,14 +1105,11 @@ loc_3FC:
 		add	hl, bc
 		dec	(ix+zTrack.ModulationSteps)
 		ret	nz
+
 		ld	a, (iy+3)
 		ld	(ix+zTrack.ModulationSteps), a
-
-loc_408:
 		ld	a, (ix+zTrack.ModulationDelta)
 		neg
-
-loc_40D:
 		ld	(ix+zTrack.ModulationDelta), a
 		ret
 ; ---------------------------------------------------------------------------
@@ -1270,7 +1273,7 @@ loc_4A0:
 
 GetFMInsPtr:
 		ld	hl, (zVoiceTblPtr)
-		ld	a, (zUpdateSound)
+		ld	a, (zSFXFlag)
 		or	a
 		jr	z, JumpToInsData		; Mode	00 (Music Mode)	- jump
 		ld	l, (ix+zTrack.VoicesLow)	; load SFX track Instrument Pointer (Trk+2A/2B)
@@ -1415,7 +1418,7 @@ PlaySoundID:
 		ld	hl, CmdPtrTable
 		rst	ReadPtrTable
 		xor	a
-		ld	(zUnk_1C18), a
+		ld	(zPriorityFlag), a
 		jp	(hl)
 ; ---------------------------------------------------------------------------
 CmdPtrTable:
@@ -1435,7 +1438,7 @@ FadeInMusic:
 		ld	b, (zTracksSpecSFXEnd+zTrack.len-zTracksSpecSFXStart)/zTrack.len
 	endif
 		ld	a, 80h
-		ld	(zUpdateSound), a
+		ld	(zSFXFlag), a
 
 loc_541:
 		push	bc
@@ -1580,7 +1583,7 @@ PlaySFX:
 		ld	hl, SoundIndex
 
 loc_652:
-		ld	(zUpdateSound), a
+		ld	(zSFXFlag), a
 		ex	af, af'
 		rst	ReadPtrTable
 		push	hl
@@ -1591,7 +1594,7 @@ loc_652:
 		ld	(zSFXVoiceTblPtr), hl
 	if OptimiseDriver=0
 		xor	a
-		ld	(zUnk_1C15), a
+		ld	(zEndFlag), a
 	endif
 		pop	hl
 		push	hl
@@ -1610,7 +1613,7 @@ loc_674:
 		call	GetSFXChnPtrs
 		set	2, (hl)
 		push	ix
-		ld	a, (zUpdateSound)
+		ld	a, (zSFXFlag)
 		or	a
 		jr	z, loc_688
 		pop	hl
@@ -1642,7 +1645,7 @@ loc_688:
 loc_6B6:
 		push	hl
 		ld	hl, (zSFXVoiceTblPtr)
-		ld	a, (zUpdateSound)
+		ld	a, (zSFXFlag)
 		or	a
 		jr	z, loc_6C4
 		push	iy
@@ -2067,7 +2070,7 @@ loc_8D1:
 DoSoundQueue:
 	if OptimiseDriver=0
 		ld	a, r
-		ld	(zUnk_1C17), a
+		ld	(zRRegisterData), a
 	endif
 		ld	de, zSoundQueue0
 		ld	b, zSoundQueueEnd-zSoundQueueStart
@@ -2091,7 +2094,7 @@ loc_8E0:
 		adc	a, h
 		sub	l
 		ld	h, a
-		ld	a, (zUnk_1C18)
+		ld	a, (zPriorityFlag)
 		cp	(hl)
 		jr	z, loc_8FD
 		jr	nc, loc_905
@@ -2100,7 +2103,7 @@ loc_8FD:
 		ld	a, c
 		ld	(zNextSound), a
 		ld	a, (hl)
-		ld	(zUnk_1C18), a
+		ld	(zPriorityFlag), a
 
 loc_905:
 		xor	a
@@ -2114,7 +2117,7 @@ loc_90B:
 		ld	a, c
 		ld	(zNextSound), a
 		xor	a
-		ld	(zUnk_1C18), a
+		ld	(zPriorityFlag), a
 		ld	de, zSoundQueue0
 		ld	(de), a
 		inc	de
@@ -2405,10 +2408,10 @@ cfE3_SilenceTrk:
 cfE4_PanAnim:
 		push	ix
 		pop	hl
-		ld	bc, zTrack.PanAni1
+		ld	bc, zTrack.PanNumber
 		add	hl, bc
 		ex	de, hl
-		ld	bc, zTrack.PanAni6-zTrack.PanAni1
+		ld	bc, zTrack.PanCounter2-zTrack.PanNumber
 		ldir
 		ld	a, 1
 		ld	(de), a
@@ -2636,17 +2639,17 @@ cfF2_StopTrk:
 		res	Track_playing, (ix+zTrack.PlaybackControl)
 	if OptimiseDriver=0
 		ld	a, 1Fh
-		ld	(zUnk_1C15), a
+		ld	(zEndFlag), a
 	endif
 		call	DoNoteOff
 		ld	c, (ix+zTrack.VoiceControl)
 		push	ix
 		call	GetSFXChnPtrs
-		ld	a, (zUpdateSound)
+		ld	a, (zSFXFlag)
 		or	a
 		jp	z, loc_C94
 		xor	a
-		ld	(zUnk_1C18), a
+		ld	(zPriorityFlag), a
 		bit	7, (iy+0)
 		jr	z, loc_C1E
 		ld	a, (ix+zTrack.VoiceControl)
