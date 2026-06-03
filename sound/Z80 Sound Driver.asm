@@ -1247,7 +1247,7 @@ loc_470:
 		ld	b, a
 		ld	c, e
 		or	a
-		ld	hl, 283h
+		ld	hl, zFMFreqC0-1
 		sbc	hl, bc
 		jr	c, loc_492
 		ld	hl, zFMFreqC1-(zFMFreqC0-1)-800h
@@ -2168,12 +2168,12 @@ SetMaxRelRate:
 SendAllFMOps:
 		ld	b, 4
 
-loc_932:
+.loop:
 		push	af
 		rst	WriteFMIorII
 		pop	af
 		add	a, 4
-		djnz	loc_932
+		djnz	.loop
 		ret
 ; End of function SendAllFMOps
 
