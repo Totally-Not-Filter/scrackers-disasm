@@ -1297,9 +1297,9 @@ JumpToInsData:
 		ret	z
 		ld	de, 25
 
-loc_4C1:
+.loop:
 		add	hl, de
-		djnz	loc_4C1
+		djnz	.loop
 		ret
 ; End of function JumpToInsData
 
@@ -1359,9 +1359,9 @@ SendFMIns:
 		ld	(ix+zTrack.FeedbackAlgo), a
 		ld	b, zFMInstrumentOperatorTable_End-zFMInstrumentOperatorTable
 
-loc_4F3:
+.loop:
 		call	WriteInsReg
-		djnz	loc_4F3
+		djnz	.loop
 		ld	(ix+zTrack.TLPtrLow), l
 		ld	(ix+zTrack.TLPtrHigh), h
 		jp	zSendTL
@@ -1564,10 +1564,13 @@ FMInitBytes:
 		db  80h,   4
 		db  80h,   5
 		db  80h,   6
+FMInitBytes_End
+
 PSGInitBytes:
 		db  80h, 80h
 		db  80h,0A0h
 		db  80h,0C0h
+PSGInitBytes_End
 ; ---------------------------------------------------------------------------
 
 PlaySpcSFX:
