@@ -124,7 +124,9 @@ zEndFlag:			ds.b 1	; referred to as "endfl" in source code
 zCommunicationByte:	ds.b 1
 zRRegisterData:		ds.b 1	; referred to as "r_data" in source code
 zPriorityFlag:		ds.b 1	; referred to as "sdfl" in source code
-zSFXFlag:			ds.b 1
+zSFXFlag:			ds.b 1	; 0 = Music
+							; 1 = SFX
+							; $80 = Special SFX
 zSpecSFXMode:		ds.l 2
 zSFXMode:			ds.l 2
 zMusicMode:			ds.l 2
@@ -3357,18 +3359,18 @@ DecTable:
 VolEnvPtrs:
 		dw PSG1,PSG2,PSG3,PSG4,PSG5,PSG6
 		dw PSG7,PSG8,PSG9,PSGA,PSGB,PSGC
-PSG1:		binclude "PSG/PSG 1.bin"
-PSG2:		binclude "PSG/PSG 2.bin"
-PSG3:		binclude "PSG/PSG 3.bin"
-PSG4:		binclude "PSG/PSG 4.bin"
-PSG5:		binclude "PSG/PSG 5.bin"
-PSG6:		binclude "PSG/PSG 6.bin"
-PSG7:		binclude "PSG/PSG 7.bin"
-PSG8:		binclude "PSG/PSG 8.bin"
-PSG9:		binclude "PSG/PSG 9.bin"
-PSGA:		binclude "PSG/PSG A.bin"
-PSGB:		binclude "PSG/PSG B.bin"
-PSGC:		binclude "PSG/PSG C.bin"
+PSG1:	db 2, 83h
+PSG2:	db 0, 2, 4, 6, 8, 10h, 83h
+PSG3:	db 2, 1, 0, 0, 1, 1, 2, 81h
+PSG4:	db 4, 3, 2, 1, 0, 0, 1, 1, 2, 2, 2, 81h
+PSG5:	db 3, 0, 1, 1, 1, 2, 3, 4, 4, 5, 81h
+PSG6:	db 0, 0, 1, 1, 2, 3, 4, 5, 5, 6, 8, 7, 7, 6, 81h
+PSG7:	db 1, 0Ch, 3, 0Fh, 2, 7, 3, 0Fh, 80h
+PSG8:	db 0, 0, 0, 2, 3, 3, 4, 5, 6, 7, 8, 9, 0Ah, 0Bh, 0Eh, 0Fh, 83h
+PSG9:	db 3, 2, 1, 1, 0, 0, 1, 2, 3, 4, 81h
+PSGA:	db 1, 0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 81h
+PSGB:	db 10h, 20h, 30h, 40h, 30h, 20h, 10h, 0, -10h, 80h
+PSGC:	db 0, 0, 1, 1, 3, 3, 4, 5, 83h
 
 ModEnvPtrs:
 		dw byte_1024, byte_1030, byte_103D, byte_1049, byte_108B
