@@ -193,6 +193,10 @@ zBankRegister	=	6000h
 zPSG		=	7F11h
 zROMWindow	=	8000h
 
+z68kBankLimit_Bits	=	6
+
+z68kBankLimit	=	(1>>z68kBankLimit_Bits)-1
+
 zMakeFMFrequency function frequency,roundFloatToInteger(frequency*1024*1024*2/FM_Sample_Rate)
 
 zFMFreqC0	=	zMakeFMFrequency(16.35)
@@ -207,19 +211,19 @@ bankswitch macro
 		; Hardcoded to only support 6-bit bank values.
 		ld	hl, zBankRegister
 		ld	(hl), a
-		rept 5
+		rept z68kBankLimit_Bits-1
 			rra
 			ld	(hl), a
-		endm
+		endr
 	if OptimiseDriver
-		rept 3
-		ld	(hl), h
-		endm
+		rept 8-z68kBankLimit_Bits+1
+			ld	(hl), h
+		endr
 	else
 		xor	a
-		rept 3
-		ld	(hl), a
-		endm
+		rept 8-z68kBankLimit_Bits+1
+			ld	(hl), a
+		endr
 	endif
 	endm
 
@@ -251,7 +255,7 @@ bankswitchToSFX macro
 			; this is either ld (hl),h or ld (hl),l
 			db 74h|(((SoundBank)&(1<<(15+.cnt)))<>0)
 .cnt		:= .cnt+1
-		endm
+		endr
 	else
 		ld	hl,zBankRegister
 		xor	a	; a = 0
@@ -261,7 +265,7 @@ bankswitchToSFX macro
 			; this is either ld (hl),a or ld (hl),e
 			db 73h|((((SoundBank)&(1<<(15+.cnt)))=0)<<2)
 .cnt		:= .cnt+1
-		endm
+		endr
 	endif
 	endm
 
@@ -285,7 +289,7 @@ zmake68kPtr function addr,zROMWindow+(addr&7FFFh)
 
 ; function to turn a 68k address into a bank byte
 ; hardcoded to 6-bit
-zmake68kBank function addr,(((addr&3F8000h)/zROMWindow))&3Fh
+zmake68kBank function addr,(((addr&3F8000h)/zROMWindow))&z68kBankLimit
 
 ; Segment type:	Regular
 
@@ -997,9 +1001,7 @@ byte_361:
 byte_362:
 		db 0C0h
 byte_363:
-		db 40h
-		db 0C0h
-		db 80h
+		db 40h, 0C0h, 80h
 
 ; =============== S U B	R O U T	I N E =======================================
 
@@ -1095,10 +1097,10 @@ DoModulation:
 		ld	d, (ix+zTrack.ModulationPtrHigh)
 		push	de
 		pop	iy
-		dec	(ix+zTrack.ModEnvIndex)
+		dec	(ix+zTrack.ModulationSpeed)
 		jr	nz, loc_3FC
 		ld	a, (iy+1)
-		ld	(ix+zTrack.ModEnvIndex), a
+		ld	(ix+zTrack.ModulationSpeed), a
 		ld	a, (ix+zTrack.ModulationDelta)
 		ld	c, a
 	if OptimiseDriver
