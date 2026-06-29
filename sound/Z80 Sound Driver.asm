@@ -182,8 +182,6 @@ Z80_SoundDriver:
 		cpu z80
 		listing purecode
 ; ---------------------------------------------------------------------------
-zDAC_Status	=	1FFDh
-zDAC_Sample	=	1FFFh
 zStack		=	2000h
 zYM2612_A0	=	4000h
 zYM2612_D0	=	4001h
