@@ -470,7 +470,7 @@ smpsPSGform macro form
 
 ; Turn off Modulation
 smpsModOff macro
-	fatal "smpsModOff doesn't exist in Sonic Crackers!"
+	smpsModSet	0,0,0,0
 	endm
 
 ; F5xx - PSG voice to xx
