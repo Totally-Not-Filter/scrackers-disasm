@@ -10,8 +10,8 @@ z80_SoundDriverStart:
 FixDriverBugs = FixBugs
 
 ; If 0, no optimisations are made, resulting in a driver size of exactly 1216 bytes.
-; If 1, size optimisations are made, resulting in a driver size of approximately 119E bytes.
-; If 2, speed optimisations are made, resulting in a driver size of approximately 11B3 bytes.
+; If 1, size optimisations are made, resulting in a driver size of approximately 1198 bytes.
+; If 2, speed optimisations are made, resulting in a driver size of approximately 11AF bytes.
 OptimiseDriver = 0
 
 ; ===========================================================================
@@ -2400,7 +2400,7 @@ cfE9_SetLFO:
 	endif
 		inc	de
 		ld	c, 0C0h
-	if OptimiseDriver
+	if OptimiseDriver=2
 		jp	loc_AC1
 	else
 		jr	loc_AC1
@@ -2593,7 +2593,7 @@ cfEF_SetIns:
 SetInsFromSong:
 		push	de
 		ld	a, (ix+zTrack.VoiceSongID)
-		sub	81h
+		sub	bgm_First
 		ld	hl, MusicIndex
 		rst	ReadPtrTable
 		ld	a, (hl)
@@ -3208,7 +3208,7 @@ VolEnv_Off:
 
 VolEnv_Reset:
 		xor	a
-	if OptimiseDriver
+	if OptimiseDriver=2
 		jp	loc_E92
 	else
 		jr	loc_E92
