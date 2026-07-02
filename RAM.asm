@@ -310,7 +310,7 @@ word_FDCE:	ds.w 1
 init_flag:	ds.l 1
 sega_vint_counter:	ds.w 1
 			ds.b 3
-lagger:		ds.b 1
+vint_sync:		ds.b 1
 			ds.b $36
 ram_end:
 	dephase

@@ -155,6 +155,18 @@ disable_display:	macro controlport=(vdp_control_port).l
 		move.w	(vdp81_ctrl).w,controlport
 		endm
 
+
+; ---------------------------------------------------------------------------
+; Wait for vertical interrupt macro (seems to have been always inlined)
+; ---------------------------------------------------------------------------
+wait_vint:	macro
+		bclr	#7,(vint_sync).w		; reset the sync variable
+
+.wait:
+		tst.b	(vint_sync).w
+		bpl.s	.wait				; wait until vertical blank sets sync again
+		endm
+
 ; function to make a little-endian 16-bit pointer for the Z80 sound driver
 z80_ptr function x,(x)<<8&$FF00|(x)>>8&$7F|$80
 

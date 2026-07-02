@@ -4303,11 +4303,7 @@ loc_64AA:
 
 SegaScreen_Loop:
 		pea	(SegaScreen_Loop).l
-		bclr	#7,(lagger).w
-
-.wait:
-		tst.b	(lagger).w
-		bpl.s	.wait
+		wait_vint
 		move.w	(subgamemode).w,d0		; load sub mode to d0
 		jmp	SegaSubArray(pc,d0.w)		; jump to correct sub mode routine
 ; ===========================================================================
@@ -5365,7 +5361,7 @@ loc_6EB4:
 		add.w	(sega_vint_counter).w,d0	; add the counter to the multiplied result
 		addq.w	#1,d0				; add 1 to the counter
 		move.w	d0,(sega_vint_counter).w
-		ori.b	#$80,(lagger).w
+		ori.b	#$80,(vint_sync).w
 		addq.w	#1,(word_F000).w
 		movem.l	(sp)+,d0-a6
 		rte
@@ -5531,11 +5527,7 @@ PAL_MainMenus:	binclude	"Palettes/PalMainMenus.bin"
 ; ===========================================================================
 
 TitleStart:
-		bclr	#7,(lagger).w
-
-.wait:
-		tst.b	(lagger).w
-		bpl.s	.wait
+		wait_vint
 		move.w	(ctrl_p1.var_E).w,d0
 		add.w	(titleselect).w,d0
 		bpl.s	loc_74F4
@@ -5608,7 +5600,7 @@ loc_7576:
 		move.w	d1,(ctrl_p1.var_C).w
 		move.w	d2,(ctrl_p1.var_E).w
 		jsr	(DMAToCRAM).w
-		ori.b	#$80,(lagger).w
+		ori.b	#$80,(vint_sync).w
 		movem.l	(sp)+,d0-a6
 		rte
 
@@ -5704,11 +5696,7 @@ Fields_VDPSettings:
 
 Fields_MainLoop:
 		pea	(Fields_MainLoop).l
-		bclr	#7,(lagger).w
-
-.wait:
-		tst.b	(lagger).w			; I think these act like a lagger, removing them...
-		bpl.s	.wait				; ...causes the fields to run extremely fast
+		wait_vint
 		bsr.w	sub_F390
 		jsr	(Field_ReadController).l
 		jsr	(Field_PauseGame).l
@@ -5827,7 +5815,7 @@ Vint_Fields:
 		move.w	(word_D81A).w,d1
 		move.w	#(spritetablebuffer_end-spritetablebuffer)&$FFFF/2,d2
 		jsr	(DMA_WriteData).w
-		ori.b	#$80,(lagger).w
+		ori.b	#$80,(vint_sync).w
 		addq.w	#1,(word_F000).w
 		movem.l	(sp)+,d0-a6
 		rte
@@ -5853,11 +5841,7 @@ loc_8086:
 		movem.l	d0-a6,-(sp)
 
 loc_808A:
-		bclr	#7,(lagger).w
-
-.wait:
-		tst.b	(lagger).w
-		bpl.s	.wait
+		wait_vint
 		jsr	(Field_ReadController).l
 		move.b	(byte_D89E).w,d0
 		andi.b	#btnABC,d0
@@ -5950,9 +5934,9 @@ locret_8194:
 
 ; =============== S U B	R O U T	I N E =======================================
 
+; sub_8196:
+; Load_Sonic:
 Load_Field_Players:
-Load_Sonic:
-sub_8196:
 		move.w	#0,(sonic).w
 		move.w	#4,(tails).w
 		moveq	#4,d0
@@ -5964,9 +5948,8 @@ sub_8196:
 		move.w	#$70,obj.Ypos(a0)		; Set starting Y position
 		move.w	#make_art_tile($000,0,FALSE,FALSE,TRUE),obj.VRAM(a0)
 		move.w	a0,(word_D862).w
-
+; loc_81CC:
 Load_Tails:
-loc_81CC: 
 		moveq	#4,d0
 		jsr	(ProcessObject).w
 		bmi.s	locret_81F6
@@ -6660,11 +6643,7 @@ Level_VDPSettings:
 
 Level_MainLoop:
 		pea	(Level_MainLoop).l
-		bclr	#7,(lagger).w
-
-.wait:
-		tst.b	(lagger).w
-		bpl.s	.wait
+		wait_vint
 		bsr.w	sub_F390
 		jsr	(Level_ReadController).l
 		jsr	(Level_PauseGame).l
@@ -6792,7 +6771,7 @@ loc_8B1C:
 		lea	(unk_0C86&$FFFFFF).l,a4
 		lea	(word_CA1E).w,a5
 		jsr	(sub_14E4).w
-		ori.b	#$80,(lagger).w
+		ori.b	#$80,(vint_sync).w
 		addq.w	#1,(word_F000).w
 		movem.l	(sp)+,d0-a6
 		rte
@@ -6818,11 +6797,7 @@ loc_8BA0:
 		movem.l	d0-a6,-(sp)
 
 loc_8BA4:
-		bclr	#7,(lagger).w
-
-.wait:
-		tst.b	(lagger).w
-		bpl.s	.wait
+		wait_vint
 		jsr	(Level_ReadController).l
 		move.w	(word_D8A4).w,d0
 		move.w	(word_D8A6).w,d1
@@ -7042,11 +7017,7 @@ LevelSelect_Init:
 ; ---------------------------------------------------------------------------
 
 LevelSelect_Main:
-		bclr	#7,(lagger).w
-
-.wait:
-		tst.b	(lagger).w
-		bpl.s	.wait
+		wait_vint
 		move.w	(ctrl_p1.var_C).w,d0
 		add.w	(worldnum).w,d0
 		bpl.s	loc_8ED8
@@ -7209,7 +7180,7 @@ loc_903C:
 		move.w	d1,(ctrl_p1.var_C).w
 		move.w	d2,(ctrl_p1.var_E).w
 		jsr	(DMAToCRAM).w
-		ori.b	#$80,(lagger).w
+		ori.b	#$80,(vint_sync).w
 		movem.l	(sp)+,d0-a6
 		rte
 
@@ -7304,11 +7275,7 @@ OptionText_End:
 ; ---------------------------------------------------------------------------
 
 OptionSoundTest_Exit:
-		bclr	#7,(lagger).w
-
-.wait:
-		tst.b	(lagger).w
-		bpl.s	.wait
+		wait_vint
 		move.w	(ctrl_p1.var_C).w,d0
 		add.b	d0,(menu_soundid+1).w
 		move.w	(ctrl_p1.var_E).w,d0
@@ -7354,7 +7321,7 @@ loc_94B4:
 		bsr.s	sub_94F6
 		move.w	d1,(ctrl_p1.var_C).w
 		move.w	d2,(ctrl_p1.var_E).w
-		ori.b	#$80,(lagger).w
+		ori.b	#$80,(vint_sync).w
 		movem.l	(sp)+,d0-a6
 		rte
 
@@ -17087,11 +17054,7 @@ GameOver:
 		move.w	#$300,d0			; this basically performs a spinlock for 12 seconds
 
 .loop:
-		bclr	#7,(lagger).w
-
-.wait:
-		tst.b	(lagger).w
-		bpl.s	.wait
+		wait_vint
 		dbf	d0,.loop
 
 		clr.w	(subgamemode).w
@@ -18222,11 +18185,7 @@ sub_F4E4:
 
 
 sub_F4FE:
-		bclr	#7,(lagger).w
-
-.wait:
-		tst.b	(lagger).w
-		bpl.s	.wait
+		wait_vint
 		move.w	(word_FDC4).w,d0
 		cmpi.w	#$14,d0
 		bge.s	locret_F536
@@ -18259,11 +18218,7 @@ locret_F536:
 
 
 sub_F538:
-		bclr	#7,(lagger).w
-
-.wait:
-		tst.b	(lagger).w
-		bpl.s	.wait
+		wait_vint
 		jsr	(ReadCtrlInput).w
 		jsr	(BuildSprites).w
 		tst.b	(byte_FDC2).w
