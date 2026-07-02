@@ -1088,12 +1088,12 @@ loc_9B0:
 		subq.w	#1,d0
 
 loc_9B2:
-		move.b	#$F,ctrl.type(a1)
-		clr.b	1(a1)
-		clr.w	2(a1)
-		clr.l	4(a1)
-		clr.l	8(a1)
-		clr.l	$C(a1)
+		move.b	#$F,ctrl.type(a1)	; set controller type as invalid
+		clr.b	ctrl.type+1(a1)
+		clr.w	ctrl.type+2(a1)	; clear hold_6
+		clr.l	ctrl.hold_3(a1)	; clear hold_3, press_3, press_6, and angle
+		clr.l	ctrl.var_8(a1)	; clear var_8, var_9, var_A, and var_B
+		clr.l	ctrl.var_C(a1)	; clear var_C and var_E
 		lea	ctrl.len(a1),a1
 		dbf	d0,loc_9B2
 
@@ -1133,7 +1133,7 @@ ReadCtrlPorts:
 
 GetCtrlPeripheral:
 		stopZ80
-		move.b	#$40,6(a0)
+		move.b	#$40,port_1_control-port_1_data(a0)
 		move.b	#$40,(a0)
 		moveq	#0,d0
 		moveq	#0,d1
@@ -1167,7 +1167,7 @@ ReadMouse:
 		_move.b	#2,ctrl.type(a1)
 		move.w	#$FF,d7
 		stopZ80
-		move.b	#$60,6(a0)
+		move.b	#$60,port_1_control-port_1_data(a0)
 		move.b	#$20,(a0)
 		btst	#4,(a0)
 		beq.s	loc_AAC
@@ -1228,7 +1228,7 @@ sub_ACA:
 
 ReadCtrlPad:
 		stopZ80
-		move.b	#$40,6(a0)
+		move.b	#$40,port_1_control-port_1_data(a0)
 		moveq	#2,d3
 
 loc_B40:
@@ -1277,18 +1277,18 @@ loc_B6E:
 		rts
 
 InvalidCtrl:
-		_move.b	#$F,ctrl.type(a1)
-		clr.b	1(a1)
-		clr.w	2(a1)
-		clr.l	4(a1)
-		clr.l	8(a1)
-		clr.l	$C(a1)
+		_move.b	#$F,ctrl.type(a1)	; set controller type as invalid
+		clr.b	ctrl.type+1(a1)
+		clr.w	ctrl.type+2(a1)	; clear hold_6
+		clr.l	ctrl.hold_3(a1)	; clear hold_3, press_3, press_6, and angle
+		clr.l	ctrl.var_8(a1)	; clear var_8, var_9, var_A, and var_B
+		clr.l	ctrl.var_C(a1)	; clear var_C and var_E
 		lea	ctrl.len(a1),a1
 		rts
 
 loc_BDA:
 		_clr.b	ctrl.type(a1)
-		move.b	#$40,6(a0)
+		move.b	#$40,port_1_control-port_1_data(a0)
 		move.w	d1,d0
 		swap	d1
 		move.b	#$40,(a0)
@@ -1357,7 +1357,7 @@ loc_C62:
 ReadMultiTap:
 		stopZ80
 		move.b	#$20,(a0)
-		move.b	#$60,6(a0)
+		move.b	#$60,port_1_control-port_1_data(a0)
 		move.w	#$FF,d7
 		btst	#4,(a0)
 		beq.w	loc_D10
@@ -1424,7 +1424,7 @@ loc_D24:
 sub_D3A:
 		moveq	#0,d0
 		move.b	ctrl.type(a1),d0
-		cmpi.b	#2,d0		; is controller type 2?
+		cmpi.b	#2,d0		; is controller type 2 (mouse)?
 		bhi.s	loc_D58		; branch if higher than
 		add.w	d0,d0
 		add.w	d0,d0
@@ -1437,11 +1437,11 @@ loc_D4C:
 ; ===========================================================================
 
 loc_D58:
-		clr.b	1(a1)
-		clr.w	2(a1)
-		clr.l	4(a1)
-		clr.l	8(a1)
-		clr.l	$C(a1)
+		clr.b	ctrl.type+1(a1)
+		clr.w	ctrl.type+2(a1)	; clear hold_6
+		clr.l	ctrl.hold_3(a1)	; clear hold_3, press_3, press_6, and angle
+		clr.l	ctrl.var_8(a1)	; clear var_8, var_9, var_A, and var_B
+		clr.l	ctrl.var_C(a1)	; clear var_C and var_E
 		lea	ctrl.len(a1),a1
 		rts
 ; ===========================================================================
@@ -4339,7 +4339,7 @@ MultiReturn:
 ; ---------------------------------------------------------------------------
 
 loc_6526:
-		tst.b	(ctrl_p1+ctrl.hold_3).w	; is start button held?
+		tst.b	(ctrl_p1.hold_3).w	; is start button held?
 		bpl.s	Sega_ChooseAnimation	; if not, branch
 		move.w	#$14,(subgamemode).w	; go to title
 
@@ -4356,7 +4356,7 @@ Sega_AnimationTable:
 ; ---------------------------------------------------------------------------
 
 SegaPaletteStart:
-		tst.b	(ctrl_p1+ctrl.hold_3).w
+		tst.b	(ctrl_p1.hold_3).w
 		bpl.s	.cycling
 		move.w	#$14,(subgamemode).w
 
@@ -4384,7 +4384,7 @@ SegaPaletteStart:
 ; ---------------------------------------------------------------------------
 
 SegaPaletteCycle:
-		tst.b	(ctrl_p1+ctrl.hold_3).w
+		tst.b	(ctrl_p1.hold_3).w
 		bpl.s	loc_6594
 		move.w	#$14,(subgamemode).w
 
@@ -4408,7 +4408,7 @@ loc_6594:
 ; ---------------------------------------------------------------------------
 
 loc_65C6:
-		tst.b	(ctrl_p1+ctrl.hold_3).w	; is the start button held?
+		tst.b	(ctrl_p1.hold_3).w	; is the start button held?
 		bpl.s	loc_65D2	; if not, branch
 		move.w	#$14,(subgamemode).w
 
@@ -5536,7 +5536,7 @@ TitleStart:
 .wait:
 		tst.b	(lagger).w
 		bpl.s	.wait
-		move.w	(ctrl_p1+ctrl.var_E).w,d0
+		move.w	(ctrl_p1.var_E).w,d0
 		add.w	(titleselect).w,d0
 		bpl.s	loc_74F4
 		moveq	#0,d0
@@ -5551,7 +5551,7 @@ loc_74FC:
 		lsl.w	#4,d0
 		addi.w	#$120,d0	; position on screen
 		move.w	d0,(word_D832).w
-		tst.b	(ctrl_p1+ctrl.press_3).w	; is start pressed on 3 button controller?
+		tst.b	(ctrl_p1.press_3).w	; is start pressed on 3 button controller?
 		bmi.s	TitleStartMenu	; if so, branch
 		rts
 ; ---------------------------------------------------------------------------
@@ -5599,14 +5599,14 @@ loc_7576:
 		writeVRAM	vram_sprtbl_title
 		move.w	(word_D832).w,(vdp_data_port).l
 		jsr	(ReadCtrlInput).w
-		move.b	(ctrl_p1+ctrl.hold_3).w,d0
+		move.b	(ctrl_p1.hold_3).w,d0
 		bsr.s	sub_75BC
-		move.w	d1,(ctrl_p1+ctrl.var_8).w
-		move.w	d2,(ctrl_p1+ctrl.var_A).w
-		move.b	(ctrl_p1+ctrl.press_3).w,d0
+		move.w	d1,(ctrl_p1.var_8).w
+		move.w	d2,(ctrl_p1.var_A).w
+		move.b	(ctrl_p1.press_3).w,d0
 		bsr.s	sub_75BC
-		move.w	d1,(ctrl_p1+ctrl.var_C).w
-		move.w	d2,(ctrl_p1+ctrl.var_E).w
+		move.w	d1,(ctrl_p1.var_C).w
+		move.w	d2,(ctrl_p1.var_E).w
 		jsr	(DMAToCRAM).w
 		ori.b	#$80,(lagger).w
 		movem.l	(sp)+,d0-a6
@@ -5838,7 +5838,7 @@ Vint_Fields:
 Field_PauseGame:
 		tst.b	(byte_D89F).w
 		bpl.w	locret_8194
-		move.b	(ctrl_p1+ctrl.hold_3).w,d0
+		move.b	(ctrl_p1.hold_3).w,d0
 		andi.b	#btnABC,d0
 		cmpi.b	#btnABC,d0
 		bne.s	loc_8086
@@ -5939,7 +5939,7 @@ loc_814C:
 		jsr	(sub_82B2).l
 		jsr	(BuildSprites).w
 		bsr.w	sub_F374
-		tst.b	(ctrl_p1+ctrl.press_3).w	; is start pressed?
+		tst.b	(ctrl_p1.press_3).w	; is start pressed?
 		bpl.w	loc_808A	; if not, branch
 		movem.l	(sp)+,d0-a6
 
@@ -6689,9 +6689,9 @@ Level_ReadController:
 		moveq	#0,d1
 		move.b	(byte_D89C).w,d1
 		moveq	#7,d0
-		and.b	3(a3,d1.w),d0
+		and.b	ctrl.hold_6(a3,d1.w),d0
 		sne.b	d2
-		move.b	4(a3,d1.w),d0
+		move.b	ctrl.hold_3(a3,d1.w),d0
 		move.b	d0,d1
 		andi.b	#$70,d1
 		sne.b	d1
@@ -6713,9 +6713,9 @@ Level_ReadController:
 		move.b	(byte_D8AC).w,d1
 		bmi.s	loc_8AB4
 		moveq	#7,d0
-		and.b	3(a3,d1.w),d0
+		and.b	ctrl.hold_6(a3,d1.w),d0
 		sne.b	d2
-		move.b	4(a3,d1.w),d0
+		move.b	ctrl.hold_3(a3,d1.w),d0
 		move.b	d0,d1
 		andi.b	#$70,d1
 		sne.b	d1
@@ -6803,7 +6803,7 @@ loc_8B1C:
 Level_PauseGame:
 		tst.b	(byte_D89F).w
 		bpl.w	locret_8BFC
-		move.b	(ctrl_p1+ctrl.hold_3).w,d0
+		move.b	(ctrl_p1.hold_3).w,d0
 		andi.b	#btnABC,d0
 		cmpi.b	#btnABC,d0
 		bne.s	loc_8BA0
@@ -6840,7 +6840,7 @@ loc_8BA4:
 		jsr	(sub_9514).l
 		jsr	(BuildSprites).w
 		bsr.w	sub_F374
-		tst.b	(ctrl_p1+ctrl.press_3).w
+		tst.b	(ctrl_p1.press_3).w
 		bpl.s	loc_8BA4
 		movem.l	(sp)+,d0-a6
 
@@ -7047,7 +7047,7 @@ LevelSelect_Main:
 .wait:
 		tst.b	(lagger).w
 		bpl.s	.wait
-		move.w	(ctrl_p1+ctrl.var_C).w,d0
+		move.w	(ctrl_p1.var_C).w,d0
 		add.w	(worldnum).w,d0
 		bpl.s	loc_8ED8
 		moveq	#0,d0
@@ -7145,7 +7145,7 @@ loc_8FCA:
 		move.w	(worldnum).w,d1
 		add.w	d1,d1
 		move.w	word_8FB6(pc,d1.w),d1
-		move.w	(ctrl_p1+ctrl.var_E).w,d0
+		move.w	(ctrl_p1.var_E).w,d0
 		neg.w	d0
 		add.w	(word_D836).w,d0
 		bpl.s	loc_8FE2
@@ -7162,7 +7162,7 @@ loc_8FE8:
 		neg.w	d0
 		addi.w	#$130,d0
 		move.w	d0,(word_D832).w
-		tst.b	(ctrl_p1+ctrl.press_3).w
+		tst.b	(ctrl_p1.press_3).w
 		bmi.s	LevelSelect_PlaySpecial
 		rts
 ; ---------------------------------------------------------------------------
@@ -7200,14 +7200,14 @@ loc_903C:
 		writeVRAM vram_sprtbl_title
 		move.w	(word_D832).w,(vdp_data_port).l
 		jsr	(ReadCtrlInput).w
-		move.b	(ctrl_p1+ctrl.hold_3).w,d0
+		move.b	(ctrl_p1.hold_3).w,d0
 		bsr.s	sub_9098
-		move.w	d1,(ctrl_p1+ctrl.var_8).w
-		move.w	d2,(ctrl_p1+ctrl.var_A).w
-		move.b	(ctrl_p1+ctrl.press_3).w,d0
+		move.w	d1,(ctrl_p1.var_8).w
+		move.w	d2,(ctrl_p1.var_A).w
+		move.b	(ctrl_p1.press_3).w,d0
 		bsr.s	sub_9098
-		move.w	d1,(ctrl_p1+ctrl.var_C).w
-		move.w	d2,(ctrl_p1+ctrl.var_E).w
+		move.w	d1,(ctrl_p1.var_C).w
+		move.w	d2,(ctrl_p1.var_E).w
 		jsr	(DMAToCRAM).w
 		ori.b	#$80,(lagger).w
 		movem.l	(sp)+,d0-a6
@@ -7309,9 +7309,9 @@ OptionSoundTest_Exit:
 .wait:
 		tst.b	(lagger).w
 		bpl.s	.wait
-		move.w	(ctrl_p1+ctrl.var_C).w,d0
+		move.w	(ctrl_p1.var_C).w,d0
 		add.b	d0,(menu_soundid+1).w
-		move.w	(ctrl_p1+ctrl.var_E).w,d0
+		move.w	(ctrl_p1.var_E).w,d0
 		lsl.w	#4,d0
 		add.b	d0,(menu_soundid+1).w
 		disable_ints
@@ -7320,7 +7320,7 @@ OptionSoundTest_Exit:
 		addi.w	#$820,d1	; position on screen
 		jsr	(sub_5090).l
 		enable_ints
-		move.b	(ctrl_p1+ctrl.press_3).w,d0
+		move.b	(ctrl_p1.press_3).w,d0
 		bpl.s	loc_94A0
 		move.b	#flg_FadeOut,d0
 		jsr	(QueueSound).l
@@ -7346,14 +7346,14 @@ loc_94B4:
 		writeVRAM vram_sprtbl_title
 		move.w	(word_D832).w,(vdp_data_port).l
 		jsr	(ReadCtrlInput).w
-		move.b	(ctrl_p1+ctrl.hold_3).w,d0
+		move.b	(ctrl_p1.hold_3).w,d0
 		bsr.s	sub_94F6
-		move.w	d1,(ctrl_p1+ctrl.var_8).w
-		move.w	d2,(ctrl_p1+ctrl.var_A).w
-		move.b	(ctrl_p1+ctrl.press_3).w,d0
+		move.w	d1,(ctrl_p1.var_8).w
+		move.w	d2,(ctrl_p1.var_A).w
+		move.b	(ctrl_p1.press_3).w,d0
 		bsr.s	sub_94F6
-		move.w	d1,(ctrl_p1+ctrl.var_C).w
-		move.w	d2,(ctrl_p1+ctrl.var_E).w
+		move.w	d1,(ctrl_p1.var_C).w
+		move.w	d2,(ctrl_p1.var_E).w
 		ori.b	#$80,(lagger).w
 		movem.l	(sp)+,d0-a6
 		rte
@@ -18268,7 +18268,7 @@ sub_F538:
 		jsr	(BuildSprites).w
 		tst.b	(byte_FDC2).w
 		beq.s	loc_F562
-		btst	#bitStart,(ctrl_p1+ctrl.press_3).w
+		btst	#bitStart,(ctrl_p1.press_3).w
 		beq.s	sub_F538
 		clr.b	(byte_FDC2).w
 		clr.w	(word_FDC4).w

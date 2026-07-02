@@ -6,14 +6,14 @@ systemstack:
 col_primary:	ds.b $400
 col_primary_end:
 
-unk_0200:	= col_primary
-unk_0400:	= col_primary+$200
+unk_0200:	equ col_primary
+unk_0400:	equ col_primary+$200
 
 col_secondary:	ds.b $400
 col_secondary_end:
 
-unk_0600:	= col_secondary
-unk_0800:	= col_secondary+$200
+unk_0600:	equ col_secondary
+unk_0800:	equ col_secondary+$200
 
 unk_0A00:	ds.b $102
 unk_0B02:	ds.b $82
@@ -29,7 +29,7 @@ lvldatalayout:
 			ds.b $600	; layouts
 lvldatabuffer_end:
 
-unk_2A00:	= lvldata128x128+$2F8
+unk_2A00:	equ lvldata128x128+$2F8
 
 unk_AD08:	ds.b $1AF8
 
@@ -47,37 +47,37 @@ int_list:
 lineA_jmp:
 			jmp	(RTE_code).l
 
-lineA_addr: =	lineA_jmp+2
+lineA_addr: equ	lineA_jmp+2
 
 lineF_jmp:
 			jmp	(RTE_code).l
 
-lineF_addr: =	lineF_jmp+2
+lineF_addr: equ	lineF_jmp+2
 
 trace_jmp:
 			jmp	(RTE_code).l
 
-trace_addr: =	trace_jmp+2
+trace_addr: equ	trace_jmp+2
 
 spurious_jmp:
 			jmp	(RTE_code).l
 
-spurious_addr: =	spurious_jmp+2
+spurious_addr: equ	spurious_jmp+2
 
 ext_int_jmp:
 			jmp	(RTE_code).l
 
-ext_int_addr: =	ext_int_jmp+2
+ext_int_addr: equ	ext_int_jmp+2
 
 v_int_jmp:
 			jmp	(RTE_code).l
 
-v_int_addr: =	v_int_jmp+2
+v_int_addr: equ	v_int_jmp+2
 
 h_int_jmp:
 			jmp	(RTE_code).l
 
-h_int_addr: =	h_int_jmp+2
+h_int_addr: equ	h_int_jmp+2
 
 int_list_end:
 
@@ -128,13 +128,13 @@ word_CA5E_end:
 
 word_CDDE:	ds.w 1
 word_CDE0:	ds.w 1
-byte_CDE1:	= word_CDE0+1
+byte_CDE1:	equ word_CDE0+1
 			ds.b $382
 
 spritetablebuffer:	ds.b $280
 spritetablebuffer_end:
 
-pal:		ds.b $80	; ($80 bytes)
+pal:		ds.b $80
 pal_end:
 
 unk_pal:	ds.b $80
@@ -156,9 +156,9 @@ lword_D4F4:	ds.l 1
 
 dmaqueueindex:	ds.b 2+$A0
 
-ngfx_buffer:	ds.b $200	; ($200 bytes)
+ngfx_buffer:	ds.b $200
 
-plc_buffer:	ds.b 6*16	; (6*16 bytes)
+plc_buffer:	ds.b 6*16
 plc_buffer_end:
 plc_ptrnemcode:	ds.l 1
 plc_repeatcount:	ds.l 1
