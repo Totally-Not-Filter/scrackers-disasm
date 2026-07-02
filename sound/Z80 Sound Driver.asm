@@ -20,7 +20,7 @@ Noise_channel:		equ	0
 FM3_special:		equ	0
 Do_not_attack:		equ	1
 SFX_overriding:		equ	2
-Alternate_freq:		equ 3
+Alternate_freq:		equ	3
 Track_resting:		equ	4
 Pitch_slide:		equ	5
 Sustain_freq:		equ	6
@@ -50,16 +50,16 @@ zTrack STRUCT DOTS
 	DataPointerHigh:	ds.b 1
 	Transpose:			ds.b 1
 	Volume:				ds.b 1
-	ModulationCtrl:		ds.b 1	; Modulation is on if nonzero. If only bit 7 is set, then it is normal modulation; otherwise, this-1 is index on modulation envelope pointer table
-	VoiceIndex:			ds.b 1	; FM instrument/PSG voice
-	StackPointer:		ds.b 1	; For call subroutine coordination flag
+	ModulationCtrl:		ds.b 1			; Modulation is on if nonzero. If only bit 7 is set, then it is normal modulation; otherwise, this-1 is index on modulation envelope pointer table
+	VoiceIndex:			ds.b 1		; FM instrument/PSG voice
+	StackPointer:		ds.b 1			; For call subroutine coordination flag
 	AMSFMSPan:			ds.b 1
 	DurationTimeout:	ds.b 1
-	SavedDuration:		ds.b 1	; Already multiplied by timing divisor
-	SavedDAC:	; For DAC channel
-	FreqLow:			ds.b 1	; For FM/PSG channels
-	FreqHigh:			ds.b 1	; For FM/PSG channels
-	VoiceSongID:		ds.b 1	; For using voices from a different song
+	SavedDuration:		ds.b 1			; Already multiplied by timing divisor
+	SavedDAC:					; For DAC channel
+	FreqLow:			ds.b 1		; For FM/PSG channels
+	FreqHigh:			ds.b 1		; For FM/PSG channels
+	VoiceSongID:		ds.b 1			; For using voices from a different song
 	Detune:				ds.b 1
 	PanNumber:			ds.b 1
 	PanTableNumber:		ds.b 1
@@ -67,13 +67,13 @@ zTrack STRUCT DOTS
 	PanCounter0:		ds.b 1
 	PanCounter1: 		ds.b 1
 	PanCounter2:		ds.b 1
-	VolEnv:				ds.b 1	; Used for dynamic volume adjustments
+	VolEnv:				ds.b 1		; Used for dynamic volume adjustments
 	FMVolEnv:
-	HaveSSGEGFlag:		ds.b 1	; For FM channels, if track has SSG-EG data
+	HaveSSGEGFlag:		ds.b 1			; For FM channels, if track has SSG-EG data
 	FMVolEnvMask:
-	SSGEGPointerLow:	ds.b 1	; For FM channels, custom SSG-EG data pointer
+	SSGEGPointerLow:	ds.b 1			; For FM channels, custom SSG-EG data pointer
 	PSGNoise:
-	SSGEGPointerHigh:	ds.b 1	; For FM channels, custom SSG-EG data pointer
+	SSGEGPointerHigh:	ds.b 1			; For FM channels, custom SSG-EG data pointer
 	FeedbackAlgo:		ds.b 1
 	TLPtrLow:			ds.b 1
 	TLPtrHigh:			ds.b 1
@@ -89,19 +89,19 @@ zTrack STRUCT DOTS
 	ModEnvIndex:		ds.b 1
 	ModulationDelta:	ds.b 1
 	ModulationSteps:	ds.b 1
-	LoopCounters:		ds.b 2	; Might overflow into the following data
-	VoicesLow:			ds.b 1	; Low byte of pointer to track's voices, used only if zUpdatingSFX is set
-	VoicesHigh:			ds.b 1	; High byte of pointer to track's voices, used only if zUpdatingSFX is set
-	Stack_top:			ds.b 4	; Track stack; can be used by LoopCounters
+	LoopCounters:		ds.b 2			; Might overflow into the following data
+	VoicesLow:			ds.b 1		; Low byte of pointer to track's voices, used only if zUpdatingSFX is set
+	VoicesHigh:			ds.b 1		; High byte of pointer to track's voices, used only if zUpdatingSFX is set
+	Stack_top:			ds.b 4		; Track stack; can be used by LoopCounters
 zTrack ENDSTRUCT
 
 		phase $1C00
 zDataStart:
-		ds.b 4	; unused
+		ds.b 4					; unused
 zMusicBank:			ds.b 1
 zDACBank:			ds.b 1
-zFadeCounter:		ds.b 1	; fade volume counter
-		ds.b 2	; unused
+zFadeCounter:		ds.b 1				; fade volume counter
+		ds.b 2					; unused
 
 zTempVariablesStart:
 
@@ -120,11 +120,11 @@ zHaltFlag:			ds.b 1
 zFM3Settings:		ds.b 1
 zTempoAccumulator:	ds.b 1
 zCurrentTempo:		ds.b 1
-zEndFlag:			ds.b 1	; referred to as "endfl" in source code
+zEndFlag:			ds.b 1			; referred to as "endfl" in source code
 zCommunicationByte:	ds.b 1
-zRRegisterData:		ds.b 1	; referred to as "r_data" in source code
-zPriorityFlag:		ds.b 1	; referred to as "sdfl" in source code
-zSFXFlag:			ds.b 1	; 0 = Music
+zRRegisterData:		ds.b 1				; referred to as "r_data" in source code
+zPriorityFlag:		ds.b 1				; referred to as "sdfl" in source code
+zSFXFlag:			ds.b 1			; 0 = Music
 							; 1 = SFX
 							; $80 = Special SFX
 zSpecSFXMode:		ds.l 2
@@ -137,7 +137,7 @@ zVoiceTblPtr:		ds.w 1
 zSFXVoiceTblPtr:	ds.w 1
 zSFXTempoDivider:	ds.b 1
 zDACIndex:			ds.b 1
-		ds.b 3	; unused
+		ds.b 3					; unused
 
 ; Now starts song and SFX z80 RAM
 ; Max number of music channels: 6 FM + 3 PSG or 1 DAC + 5 FM + 3 PSG
@@ -178,7 +178,7 @@ Z80_SoundDriver:
 		org Z80_SoundDriver+Size_of_Snd_driver_guess
 
 		save
-		!org 0	; z80 Align, handled by the build process
+		!org 0					; z80 Align, handled by the build process
 		cpu z80
 		listing purecode
 ; ---------------------------------------------------------------------------
@@ -250,17 +250,17 @@ bankswitchToSFX macro
 		ld	hl,zBankRegister+1
 .cnt	:= 0
 		rept 9
-			; this is either ld (hl),h or ld (hl),l
+							; this is either ld (hl),h or ld (hl),l
 			db 74h|(((SoundBank)&(1<<(15+.cnt)))<>0)
 .cnt		:= .cnt+1
 		endr
 	else
 		ld	hl,zBankRegister
-		xor	a	; a = 0
-		ld	e,1	; e = 1
+		xor	a				; a = 0
+		ld	e,1				; e = 1
 .cnt	:= 0
 		rept 9
-			; this is either ld (hl),a or ld (hl),e
+							; this is either ld (hl),a or ld (hl),e
 			db 73h|((((SoundBank)&(1<<(15+.cnt)))=0)<<2)
 .cnt		:= .cnt+1
 		endr
@@ -454,9 +454,9 @@ InitDriver:
 
 		call	StopAllSound
 		ld	a, zmake68kBank(MusicBank)	; get initial music bank
-		ld	(zMusicBank), a	; store it in memory
+		ld	(zMusicBank), a			; store it in memory
 		ld	a, zmake68kBank(DACBank)	; get initial DAC bank
-		ld	(zDACBank), a	; store it in memory
+		ld	(zDACBank), a			; store it in memory
 
 	if FixDriverBugs
 		ld	de, 0				; set DAC length to nothing
@@ -482,7 +482,7 @@ UpdateAll:
 		call	PlaySoundID
 		call	UpdateSFXTracks
 		xor	a
-		ld	(zSFXFlag), a		; 00 - Music Mode
+		ld	(zSFXFlag), a			; 00 - Music Mode
 		bankswitchToMusic
 		ld	ix, zSongDAC
 		bit	Track_playing, (ix+zTrack.PlaybackControl)
@@ -502,13 +502,13 @@ UpdateAll:
 
 UpdateSFXTracks:
 		ld	a, 1
-		ld	(zSFXFlag), a		; 01 - SFX Mode
+		ld	(zSFXFlag), a			; 01 - SFX Mode
 		bankswitchToSFX
 		ld	ix, zTracksSFXStart
 		ld	b, (zTracksSFXEnd-zTracksSFXStart)/zTrack.len
 		call	TrkUpdateLoop
 		ld	a, 80h
-		ld	(zSFXFlag), a		; 80 - Special SFX Mode
+		ld	(zSFXFlag), a			; 80 - Special SFX Mode
 		ld	b, (zTracksSpecSFXEnd-zTracksSpecSFXStart)/zTrack.len
 		ld	ix, zTracksSpecSFXStart
 ; End of function UpdateSFXTracks
@@ -3289,41 +3289,41 @@ zPlayDigitalAudio:
 		rlca					; 4
 		rlca					; 4
 		rlca					; 4
-		and	0Fh					; 7
-		ld	(.sample1_index+2), a	; 13
+		and	0Fh				; 7
+		ld	(.sample1_index+2), a		; 13
 		ld	a, c				; 4
 
 .sample1_index:
 		add	a, (iy+0)			; 19
 		ld	c, a				; 4
 		ld	a, 2Ah				; 7
-		di						; 4
-		ld	(zYM2612_A0), a		; 13
+		di					; 4
+		ld	(zYM2612_A0), a			; 13
 		ld	a, c				; 4
-		ld	(zYM2612_D0), a		; 13
-		ei						; 4
+		ld	(zYM2612_D0), a			; 13
+		ei					; 4
 
 .sample2_rate:
 		ld	b, 0Ah				; 7
 		djnz	$				; 8
 		ld	a, (hl)				; 7+3
-		and	0Fh					; 7
-		ld	(.sample2_index+2), a	; 13
+		and	0Fh				; 7
+		ld	(.sample2_index+2), a		; 13
 		ld	a, c				; 4
 
 .sample2_index:
 		add	a, (iy+0)			; 19
 		ld	c, a				; 4
 		ld	a, 2Ah				; 7
-		di						; 4
-		ld	(zYM2612_A0), a		; 13
+		di					; 4
+		ld	(zYM2612_A0), a			; 13
 		ld	a, c				; 4
-		ld	(zYM2612_D0), a		; 13
-		ei						; 4
-		inc	hl					; 6
+		ld	(zYM2612_D0), a			; 13
+		ei					; 4
+		inc	hl				; 6
 		ld	a, h				; 4
-		or	l					; 4
-		jp	nz, .loc_F52		; 10
+		or	l				; 4
+		jp	nz, .loc_F52			; 10
 
 		ld	hl, zROMWindow
 		di
@@ -3341,11 +3341,11 @@ zPlayDigitalAudio:
 		ei
 
 .loc_F52:
-		dec	de					; 6
+		dec	de				; 6
 		ld	a, d				; 4
-		or	e					; 4
-		jp	nz, .dac_playback_loop	; 10
-								; 298 cycles in total
+		or	e				; 4
+		jp	nz, .dac_playback_loop		; 10
+							; 298 cycles in total
 		ld	hl, zSongDAC.PlaybackControl
 		res	SFX_overriding, (hl)
 		xor	a
@@ -3507,12 +3507,12 @@ ptr_sndD2:	zmake68kPtrs SoundA3+4000h
 ptr_specend:
 
 SFXPriorities:
-		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh	; $A0 - $AF
-		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh	; $B0 - $BF
-		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh	; $C0 - $CF
-		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh	; $D0 - $DF
-		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh	; $E0 - $EF
-		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh										; $F0 - $F8
+		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh ; $A0 - $AF
+		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh ; $B0 - $BF
+		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh ; $C0 - $CF
+		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh ; $D0 - $DF
+		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh ; $E0 - $EF
+		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh ; $F0 - $F8
 
 DAC_Metadata:	macro loc,rate
 		db dpcmLoopCounter(rate)
@@ -3540,4 +3540,4 @@ DAC_Index:
 
 		restore
 		padding off
-		!org Z80_SoundDriver+Size_of_Snd_driver_guess	; The assembler still thinks we're in Z80 memory, so use an 'org' to switch back to the cartridge
+		!org Z80_SoundDriver+Size_of_Snd_driver_guess ; The assembler still thinks we're in Z80 memory, so use an 'org' to switch back to the cartridge

@@ -41,22 +41,22 @@ PLCSon_Wait2:	dc.w $F000
 			dc.w $69C*tile_size,$FFFF
 PLCSon_BlncIn1:	dc.w $1001
 			dc.l ($97)<<24+ARTUNC_Sonic/2+$5E0
-			dc.w $69C*tile_size,$FFFF ; Balance in 1
+			dc.w $69C*tile_size,$FFFF	; Balance in 1
 PLCSon_BlncIn2:	dc.w $2001
 			dc.l ($97)<<24+ARTUNC_Sonic/2+$6F0
-			dc.w $69C*tile_size,$FFFF ; Balance in 2
+			dc.w $69C*tile_size,$FFFF	; Balance in 2
 PLCSon_BlncIn3:	dc.w $2001
 			dc.l ($97)<<24+ARTUNC_Sonic/2+$810
-			dc.w $69C*tile_size,$FFFF ; Balance in 3
+			dc.w $69C*tile_size,$FFFF	; Balance in 3
 PLCSon_BlncOut1:	dc.w $2001
 			dc.l ($97)<<24+ARTUNC_Sonic/2+$930
-			dc.w $69C*tile_size,$FFFF ; Balance out 1
+			dc.w $69C*tile_size,$FFFF	; Balance out 1
 PLCSon_BlncOut2:	dc.w $1001
 			dc.l ($97)<<24+ARTUNC_Sonic/2+$A50
-			dc.w $69C*tile_size,$FFFF ; Balance out 2
+			dc.w $69C*tile_size,$FFFF	; Balance out 2
 PLCSon_BlncOut3:	dc.w $F000
 			dc.l ($97)<<24+ARTUNC_Sonic/2+$B60
-			dc.w $69C*tile_size,$FFFF ; Balance out 3
+			dc.w $69C*tile_size,$FFFF	; Balance out 3
 ; ---------------------------------------------------------------------------
 ; Walking (Angle: 000* 180* degrees)
 PLCSon_Walk5_000:	dc.w $6001

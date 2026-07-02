@@ -115,7 +115,7 @@ enable_ints:	macro
 ; ---------------------------------------------------------------------------
 
 enable_dma:	macro controlport=(vdp_control_port).l
-		ori.w	#$8114,(vdp81_ctrl).w	; set bit 4 (DMA)
+		ori.w	#$8114,(vdp81_ctrl).w		; set bit 4 (DMA)
 		move.w	(vdp81_ctrl).w,controlport
 		endm
 
@@ -124,7 +124,7 @@ enable_dma:	macro controlport=(vdp_control_port).l
 ; ---------------------------------------------------------------------------
 
 disable_dma:	macro controlport=(vdp_control_port).l
-		andi.w	#$FFEF,(vdp81_ctrl).w	; clear bit 4 (DMA)
+		andi.w	#$FFEF,(vdp81_ctrl).w		; clear bit 4 (DMA)
 		move.w	(vdp81_ctrl).w,controlport
 		endm
 
@@ -133,7 +133,7 @@ disable_dma:	macro controlport=(vdp_control_port).l
 ; ---------------------------------------------------------------------------
 
 enable_vints:	macro controlport=(vdp_control_port).l
-		ori.w	#$8124,(vdp81_ctrl).w	; set bit 5 (vint)
+		ori.w	#$8124,(vdp81_ctrl).w		; set bit 5 (vint)
 		move.w	(vdp81_ctrl).w,controlport
 		endm
 
@@ -142,7 +142,7 @@ enable_vints:	macro controlport=(vdp_control_port).l
 ; ---------------------------------------------------------------------------
 
 enable_display:	macro controlport=(vdp_control_port).l
-		ori.w	#$8144,(vdp81_ctrl).w	; set bit 6 (display)
+		ori.w	#$8144,(vdp81_ctrl).w		; set bit 6 (display)
 		move.w	(vdp81_ctrl).w,controlport
 		endm
 
@@ -151,7 +151,7 @@ enable_display:	macro controlport=(vdp_control_port).l
 ; ---------------------------------------------------------------------------
 
 disable_display:	macro controlport=(vdp_control_port).l
-		andi.w	#$81BC,(vdp81_ctrl).w	; clear bit 6 (display)
+		andi.w	#$81BC,(vdp81_ctrl).w		; clear bit 6 (display)
 		move.w	(vdp81_ctrl).w,controlport
 		endm
 

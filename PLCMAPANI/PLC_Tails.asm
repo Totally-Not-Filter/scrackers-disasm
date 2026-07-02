@@ -30,22 +30,22 @@ PLCTal_LookUp:	dc.w $C000
 PLCTal_LookDown:	dc.w $9000
 			dc.l ($97)<<24+ARTUNC_Tails/2+$180
 			dc.w $69C*tile_size,$FFFF
-PLCTal_WaitBlink2:	dc.w $C000 ; Blink (eyes half closed)
+PLCTal_WaitBlink2:	dc.w $C000			; Blink (eyes half closed)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$210
 			dc.w $69C*tile_size,$FFFF
-PLCTal_WaitBlink1:	dc.w $C000 ; Blink (eyes closed)
+PLCTal_WaitBlink1:	dc.w $C000			; Blink (eyes closed)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$2D0
 			dc.w $69C*tile_size,$FFFF
-PLCTal_WaitStare:	dc.w $C000 ; Waiting (Looking at player)
+PLCTal_WaitStare:	dc.w $C000			; Waiting (Looking at player)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$390
 			dc.w $69C*tile_size,$FFFF
-PLCTal_WaitYawn1:	dc.w $C000 ; Yawn (eyes half closed)
+PLCTal_WaitYawn1:	dc.w $C000			; Yawn (eyes half closed)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$450
 			dc.w $69C*tile_size,$FFFF
-PLCTal_WaitYawn2:	dc.w $C000 ; Yawn (Hand wave away)
+PLCTal_WaitYawn2:	dc.w $C000			; Yawn (Hand wave away)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$510
 			dc.w $69C*tile_size,$FFFF
-PLCTal_WaitYawn3:	dc.w $C000 ; Yawn (Hand wave close)
+PLCTal_WaitYawn3:	dc.w $C000			; Yawn (Hand wave close)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$5D0
 			dc.w $69C*tile_size,$FFFF
 ; ---------------------------------------------------------------------------
@@ -248,89 +248,89 @@ PLCTal_Spindsh3:	dc.w $0001
 PLCTal_Hurt:	dc.w $0001
 			dc.l ($97)<<24+ARTUNC_Tails/2+$3270
 			dc.w $69C*tile_size,$FFFF
-PLCTal_Fly:	dc.w $0001 ; Tails Flying (Unused)
+PLCTal_Fly:	dc.w $0001				; Tails Flying (Unused)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$3370
 			dc.w $69C*tile_size,$FFFF
-PLCTal_FlyTired1:	dc.w $0001 ; Tails Flying When Tired 1 (Unused)
+PLCTal_FlyTired1:	dc.w $0001			; Tails Flying When Tired 1 (Unused)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$3470
 			dc.w $69C*tile_size,$FFFF
-PLCTal_FlyTired2:	dc.w $0001 ; Tails Flying When Tired 2 (Unused)
+PLCTal_FlyTired2:	dc.w $0001			; Tails Flying When Tired 2 (Unused)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$3570
 			dc.w $69C*tile_size,$FFFF
-PLCTal_FlyHeliTails:	dc.w $4000 ; Tails' "Tails" (Flying Helicopter Tails) (Unused)
+PLCTal_FlyHeliTails:	dc.w $4000			; Tails' "Tails" (Flying Helicopter Tails) (Unused)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$3670
 			dc.w $69C*tile_size,$FFFF
-PLCTal_Skid1:	dc.w $E000 ; Skidding 1
+PLCTal_Skid1:	dc.w $E000				; Skidding 1
 			dc.l ($97)<<24+ARTUNC_Tails/2+$36B0
 			dc.w $69C*tile_size,$FFFF
-PLCTal_Skid2:	dc.w $E000 ; Skidding 2
+PLCTal_Skid2:	dc.w $E000				; Skidding 2
 			dc.l ($97)<<24+ARTUNC_Tails/2+$3790
 			dc.w $69C*tile_size,$FFFF
-PLCTal_Skid3:	dc.w $C000 ; Skidding 3 (Turn Direction)
+PLCTal_Skid3:	dc.w $C000				; Skidding 3 (Turn Direction)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$3870
 			dc.w $69C*tile_size,$FFFF
-PLCTal_UnkSkid1:	dc.w $C000 ; Unused Hulting 1
+PLCTal_UnkSkid1:	dc.w $C000			; Unused Hulting 1
 			dc.l ($97)<<24+ARTUNC_Tails/2+$3930
 			dc.w $69C*tile_size,$FFFF
-PLCTal_UnkSkid2:	dc.w $E000 ; Unused Hulting 2
+PLCTal_UnkSkid2:	dc.w $E000			; Unused Hulting 2
 			dc.l ($97)<<24+ARTUNC_Tails/2+$39F0
 			dc.w $69C*tile_size,$FFFF
-PLCTal_BlncOut1:	dc.w $0001 ; Balancing 1 (Facing outwards)
+PLCTal_BlncOut1:	dc.w $0001			; Balancing 1 (Facing outwards)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$3AD0
 			dc.w $69C*tile_size,$FFFF
-PLCTal_BlncOut2:	dc.w $E000 ; Balancing 2 (Facing outwards)
+PLCTal_BlncOut2:	dc.w $E000			; Balancing 2 (Facing outwards)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$3BD0
 			dc.w $69C*tile_size,$FFFF
-PLCTal_BlncOut3:	dc.w $C000 ; Balancing 3 (Facing outwards)
+PLCTal_BlncOut3:	dc.w $C000			; Balancing 3 (Facing outwards)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$3CB0
 			dc.w $69C*tile_size,$FFFF
-PLCTal_BlncIn1:	dc.w $A000 ; Balancing 1 (Facing inwards)
+PLCTal_BlncIn1:	dc.w $A000				; Balancing 1 (Facing inwards)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$3D70
 			dc.w $69C*tile_size,$FFFF
-PLCTal_BlncIn2:	dc.w $C000 ; Balancing 2 (Facing inwards)
+PLCTal_BlncIn2:	dc.w $C000				; Balancing 2 (Facing inwards)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$3E10
 			dc.w $69C*tile_size,$FFFF
-PLCTal_BlncIn3:	dc.w $E000 ; Balancing 3 (Facing inwards)
+PLCTal_BlncIn3:	dc.w $E000				; Balancing 3 (Facing inwards)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$3ED0
 			dc.w $69C*tile_size,$FFFF
 ; ---------------------------------------------------------------------------
-PLCTal_Throw1:	dc.w $1001 ; Throwing 1 (Unused)
+PLCTal_Throw1:	dc.w $1001				; Throwing 1 (Unused)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$3FB0
 			dc.w $69C*tile_size,$FFFF
-PLCTal_Throw2:	dc.w $D000 ; Throwing 2 (Unused)
+PLCTal_Throw2:	dc.w $D000				; Throwing 2 (Unused)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$40C0
 			dc.w $69C*tile_size,$FFFF
-PLCTal_Throw3:	dc.w $D000 ; Throwing 3 (Unused)
+PLCTal_Throw3:	dc.w $D000				; Throwing 3 (Unused)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$4190
 			dc.w $69C*tile_size,$FFFF
-PLCTal_Throw4:	dc.w $C000 ; Throwing 4/Hanging 1? (Unused)
+PLCTal_Throw4:	dc.w $C000				; Throwing 4/Hanging 1? (Unused)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$4260
 			dc.w $69C*tile_size,$FFFF
-PLCTal_Hang2:	dc.w $C000 ; Hanging 2 (Unused)
+PLCTal_Hang2:	dc.w $C000				; Hanging 2 (Unused)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$4320
 			dc.w $69C*tile_size,$FFFF
-PLCTal_Dizzy1:	dc.w $C000 ; Spinning Dizzy 1
+PLCTal_Dizzy1:	dc.w $C000				; Spinning Dizzy 1
 			dc.l ($97)<<24+ARTUNC_Tails/2+$43E0
 			dc.w $69C*tile_size,$FFFF
-PLCTal_Dizzy2:	dc.w $C000 ; Spinning Dizzy 2
+PLCTal_Dizzy2:	dc.w $C000				; Spinning Dizzy 2
 			dc.l ($97)<<24+ARTUNC_Tails/2+$44A0
 			dc.w $69C*tile_size,$FFFF
-PLCTal_Dizzy3:	dc.w $C000 ; Spinning Dizzy 3
+PLCTal_Dizzy3:	dc.w $C000				; Spinning Dizzy 3
 			dc.l ($97)<<24+ARTUNC_Tails/2+$4560
 			dc.w $69C*tile_size,$FFFF
-PLCTal_Dizzy4:	dc.w $C000 ; Spinning Dizzy 4
+PLCTal_Dizzy4:	dc.w $C000				; Spinning Dizzy 4
 			dc.l ($97)<<24+ARTUNC_Tails/2+$4620
 			dc.w $69C*tile_size,$FFFF
-PLCTal_Dizzy5:	dc.w $C000 ; Spinning Dizzy 5
+PLCTal_Dizzy5:	dc.w $C000				; Spinning Dizzy 5
 			dc.l ($97)<<24+ARTUNC_Tails/2+$46E0
 			dc.w $69C*tile_size,$FFFF
-PLCTal_Dizzy6:	dc.w $E000 ; Spinning Dizzy 6
+PLCTal_Dizzy6:	dc.w $E000				; Spinning Dizzy 6
 			dc.l ($97)<<24+ARTUNC_Tails/2+$47A0
 			dc.w $69C*tile_size,$FFFF
-PLCTal_Dizzy7:	dc.w $E000 ; Spinning Dizzy 7
+PLCTal_Dizzy7:	dc.w $E000				; Spinning Dizzy 7
 			dc.l ($97)<<24+ARTUNC_Tails/2+$4880
 			dc.w $69C*tile_size,$FFFF
-PLCTal_Dizzy8:	dc.w $C000 ; Spinning Dizzy 8
+PLCTal_Dizzy8:	dc.w $C000				; Spinning Dizzy 8
 			dc.l ($97)<<24+ARTUNC_Tails/2+$4960
 			dc.w $69C*tile_size,$FFFF
 ; ---------------------------------------------------------------------------
@@ -395,68 +395,68 @@ PLCTal_TalJmp04_135:	dc.w $6000
 			dc.w $6AE*tile_size,$FFFF
 ; ---------------------------------------------------------------------------
 ; Running Normal and Fast (Angle: 000* 180* degrees)
-PLCTal_RunNorm01_000:	dc.w $8000 ; RUN normal 1 000 (Unused)
+PLCTal_RunNorm01_000:	dc.w $8000			; RUN normal 1 000 (Unused)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$5020
 			dc.w $6AC*tile_size,$FFFF
-PLCTal_RunNorm02_000:	dc.w $4000 ; RUN normal 2 000 (Unused)
+PLCTal_RunNorm02_000:	dc.w $4000			; RUN normal 2 000 (Unused)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$50A0
 			dc.w $6AC*tile_size,$FFFF
-PLCTal_RunFast01_000:	dc.w $2000 ; RUN fast 1 000
+PLCTal_RunFast01_000:	dc.w $2000			; RUN fast 1 000
 			dc.l ($97)<<24+ARTUNC_Tails/2+$50E0
 			dc.w $6AC*tile_size,$FFFF
-PLCTal_RunFast02_000:	dc.w $8000 ; RUN fast 2 000
+PLCTal_RunFast02_000:	dc.w $8000			; RUN fast 2 000
 			dc.l ($97)<<24+ARTUNC_Tails/2+$5100
 			dc.w $6AC*tile_size,$FFFF
 ; ---------------------------------------------------------------------------
 ; Running Normal and Fast (Angle: 045* 225* degrees)
-PLCTal_RunNorm01_045:	dc.w $8000 ; RUN normal 1 045 (Unused)
+PLCTal_RunNorm01_045:	dc.w $8000			; RUN normal 1 045 (Unused)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$5180
 			dc.w $6AC*tile_size,$FFFF
-PLCTal_RunNorm02_045:	dc.w $4000 ; RUN normal 2 045 (Unused)
+PLCTal_RunNorm02_045:	dc.w $4000			; RUN normal 2 045 (Unused)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$5200
 			dc.w $6AC*tile_size,$FFFF
-PLCTal_RunFast01_045:	dc.w $4000 ; RUN fast 1 045 (Unused)
+PLCTal_RunFast01_045:	dc.w $4000			; RUN fast 1 045 (Unused)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$5240
 			dc.w $6AC*tile_size,$FFFF
-PLCTal_RunFast02_045:	dc.w $8000 ; RUN fast 2 045 (Unused)
+PLCTal_RunFast02_045:	dc.w $8000			; RUN fast 2 045 (Unused)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$5280
 			dc.w $6AC*tile_size,$FFFF
 ; ---------------------------------------------------------------------------
 ; Running Normal and Fast (Angle: 090* 270* degrees)
-PLCTal_RunNorm01_090:	dc.w $4000 ; RUN normal 1 090 (Unused)
+PLCTal_RunNorm01_090:	dc.w $4000			; RUN normal 1 090 (Unused)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$5300
 			dc.w $6AC*tile_size,$FFFF
-PLCTal_RunNorm02_090:	dc.w $8000 ; RUN normal 2 090 (Unused)
+PLCTal_RunNorm02_090:	dc.w $8000			; RUN normal 2 090 (Unused)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$5340
 			dc.w $6AC*tile_size,$FFFF
-PLCTal_RunFast01_090:	dc.w $4000 ; RUN fast 1 090 (Unused)
+PLCTal_RunFast01_090:	dc.w $4000			; RUN fast 1 090 (Unused)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$53C0
 			dc.w $6AC*tile_size,$FFFF
-PLCTal_RunFast02_090:	dc.w $2000 ; RUN fast 2 090 (Unused)
+PLCTal_RunFast02_090:	dc.w $2000			; RUN fast 2 090 (Unused)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$5400
 			dc.w $6AC*tile_size,$FFFF
 ; ---------------------------------------------------------------------------
 ; Running Normal and Fast (Angle: 135* 315* degrees)
-PLCTal_RunNorm01_135:	dc.w $8000 ; RUN normal 1 135 (Unused)
+PLCTal_RunNorm01_135:	dc.w $8000			; RUN normal 1 135 (Unused)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$5420
 			dc.w $6AC*tile_size,$FFFF
-PLCTal_RunNorm02_135:	dc.w $7000 ; RUN normal 2 135 (Unused)
+PLCTal_RunNorm02_135:	dc.w $7000			; RUN normal 2 135 (Unused)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$54A0
 			dc.w $6AC*tile_size,$FFFF
-PLCTal_RunFast01_135:	dc.w $4000 ; RUN fast 1 135 (Unused)
+PLCTal_RunFast01_135:	dc.w $4000			; RUN fast 1 135 (Unused)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$5510
 			dc.w $6AC*tile_size,$FFFF
-PLCTal_RunFast02_135:	dc.w $4000 ; RUN fast 2 135 (Unused)
+PLCTal_RunFast02_135:	dc.w $4000			; RUN fast 2 135 (Unused)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$5550
 			dc.w $6AC*tile_size,$FFFF
 ; ---------------------------------------------------------------------------
-PLCTal_UnkTails1:	dc.w $8000 ; Unknown frames (looks like the tails are flipping or snapping, or something on them lines)
+PLCTal_UnkTails1:	dc.w $8000			; Unknown frames (looks like the tails are flipping or snapping, or something on them lines)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$5590
 			dc.w $6AC*tile_size,$FFFF
 PLCTal_UnkTails2:	dc.w $4000
 			dc.l ($97)<<24+ARTUNC_Tails/2+$5610
 			dc.w $6AC*tile_size,$FFFF
-PLCTal_Wait01:	dc.w $6000 ; waiting, Looking up, looking down (Tails' Idle tails)
+PLCTal_Wait01:	dc.w $6000				; waiting, Looking up, looking down (Tails' Idle tails)
 			dc.l ($97)<<24+ARTUNC_Tails/2+$5650
 			dc.w $6AC*tile_size,$FFFF
 PLCTal_Wait02:	dc.w $9000

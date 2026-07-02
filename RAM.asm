@@ -22,11 +22,11 @@ unk_0C86:	ds.b $82
 
 lvldatabuffer:
 lvldata16x16:
-			ds.b $340*8	; blocks
+			ds.b $340*8			; blocks
 lvldata128x128:
-			ds.b $100*128	; chunks
+			ds.b $100*128			; chunks
 lvldatalayout:
-			ds.b $600	; layouts
+			ds.b $600			; layouts
 lvldatabuffer_end:
 
 unk_2A00:	equ lvldata128x128+$2F8
@@ -176,7 +176,7 @@ word_D81C:	ds.w 1
 word_D81E:	ds.w 1
 word_D820:	ds.w 1
 
-gamemode:	ds.w 1	; (2 bytes)
+gamemode:	ds.w 1					; (2 bytes)
 subgamemode:	ds.w 1
 
 titleselect:	ds.w 1

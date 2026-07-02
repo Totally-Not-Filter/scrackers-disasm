@@ -48,7 +48,7 @@ vdp_control_port:	equ $C00004
 
 ; Z80 addresses
 z80_ram:		equ $A00000			; start of Z80 RAM
-z80_ram_end:	equ $A02000			; end of non-reserved Z80 RAM
+z80_ram_end:	equ $A02000				; end of non-reserved Z80 RAM
 region_version:	equ $A10001
 port_1_data:	equ $A10003
 port_2_data:	equ	$A10005
@@ -69,26 +69,26 @@ id_LevelSelect:	equ ptr_GM_LevelSelect-GameModeArray
 id_Options:	equ ptr_GM_Options-GameModeArray
 
 ; Colours
-cBlack:		equ $000		; colour black
-cWhite:		equ $EEE		; colour white
-cBlue:		equ $E00		; colour blue
-cGreen:		equ $0E0		; colour green
-cRed:		equ $00E		; colour red
-cYellow:	equ cGreen+cRed		; colour yellow
-cAqua:		equ cGreen+cBlue	; colour aqua
-cMagenta:	equ cBlue+cRed		; colour magenta
+cBlack:		equ $000				; colour black
+cWhite:		equ $EEE				; colour white
+cBlue:		equ $E00				; colour blue
+cGreen:		equ $0E0				; colour green
+cRed:		equ $00E				; colour red
+cYellow:	equ cGreen+cRed				; colour yellow
+cAqua:		equ cGreen+cBlue			; colour aqua
+cMagenta:	equ cBlue+cRed				; colour magenta
 
 ; Joypad input
-btnStart:	equ %10000000 ; Start button	($80)
-btnA:		equ %01000000 ; A		($40)
-btnC:		equ %00100000 ; C		($20)
-btnB:		equ %00010000 ; B		($10)
-btnR:		equ %00001000 ; Right		($08)
-btnL:		equ %00000100 ; Left		($04)
-btnDn:		equ %00000010 ; Down		($02)
-btnUp:		equ %00000001 ; Up		($01)
-btnDir:		equ %00001111 ; Any direction	($0F)
-btnABC:		equ %01110000 ; A, B or C	($70)
+btnStart:	equ %10000000				; Start button	($80)
+btnA:		equ %01000000				; A		($40)
+btnC:		equ %00100000				; C		($20)
+btnB:		equ %00010000				; B		($10)
+btnR:		equ %00001000				; Right		($08)
+btnL:		equ %00000100				; Left		($04)
+btnDn:		equ %00000010				; Down		($02)
+btnUp:		equ %00000001				; Up		($01)
+btnDir:		equ %00001111				; Any direction	($0F)
+btnABC:		equ %01110000				; A, B or C	($70)
 bitStart:	equ 7
 bitA:		equ 6
 bitC:		equ 5
@@ -107,18 +107,18 @@ bitUp:		equ 0
 ; bit 15 - priority
 
 obj	struct DOTS
-ID:			ds.w 1		; object ID (2 bytes)
-Unk2:		ds.b 2		; unknown (2 bytes)
-Unk4:		ds.w 1		; unknown (2 bytes)
-Pointer:	ds.w 1		; object pointer (2 bytes)
-Xpos:		ds.l 1		; x position (4 bytes)
-Ypos:		ds.l 1		; y position (4 bytes)
-Map:		ds.l 1		; mappings address (4 bytes)
-ScreenX:	ds.w 1		; fixed x position (2 bytes)
-ScreenY:	ds.w 1		; fixed y position (2 bytes)
-VelX:		ds.l 1		; x velocity (4 bytes)
-VelY:		ds.l 1		; y velocity (4 bytes)
-VRAM:		ds.w 1		; object VRAM location (2 bytes)
+ID:			ds.w 1				; object ID (2 bytes)
+Unk2:		ds.b 2					; unknown (2 bytes)
+Unk4:		ds.w 1					; unknown (2 bytes)
+Pointer:	ds.w 1					; object pointer (2 bytes)
+Xpos:		ds.l 1					; x position (4 bytes)
+Ypos:		ds.l 1					; y position (4 bytes)
+Map:		ds.l 1					; mappings address (4 bytes)
+ScreenX:	ds.w 1					; fixed x position (2 bytes)
+ScreenY:	ds.w 1					; fixed y position (2 bytes)
+VelX:		ds.l 1					; x velocity (4 bytes)
+VelY:		ds.l 1					; y velocity (4 bytes)
+VRAM:		ds.w 1					; object VRAM location (2 bytes)
 			ds.b 2
 
 HUDTime:
