@@ -10,8 +10,8 @@ z80_SoundDriverStart:
 FixDriverBugs = FixBugs
 
 ; If 0, no optimisations are made, resulting in a driver size of exactly 1216 bytes.
-; If 1, size optimisations are made, resulting in a driver size of approximately 1198 bytes.
-; If 2, speed optimisations are made, resulting in a driver size of approximately 11AF bytes.
+; If 1, size optimisations are made, resulting in a driver size of approximately 1197 bytes.
+; If 2, speed optimisations are made, resulting in a driver size of approximately 11AE bytes.
 OptimiseDriver = 0
 
 ; ===========================================================================
@@ -206,13 +206,13 @@ zFMFreqC1	=	zFMFreqC0*2
 ; ===========================================================================
 
 bankswitch macro
-		; Hardcoded to only support 6-bit bank values.
-		ld	hl, zBankRegister
+	; Hardcoded to only support 6-bit bank values.
+	ld	hl, zBankRegister
+	ld	(hl), a
+	rept z68kBankLimit_Bits-1
+		rra
 		ld	(hl), a
-		rept z68kBankLimit_Bits-1
-			rra
-			ld	(hl), a
-		endr
+	endr
 	if OptimiseDriver
 		rept 8-z68kBankLimit_Bits+1
 			ld	(hl), h
@@ -646,7 +646,7 @@ zSpecialFreqCommands:
 		db 0AEh					; Operator 3 frequency MSB
 		db 0ACh					; Operator 2 frequency MSB
 		db 0A6h					; Operator 1 frequency MSB
-zSpecialFreqCommands_End
+zSpecialFreqCommands_End:
 
 ; =============== S U B	R O U T	I N E =======================================
 
@@ -713,8 +713,12 @@ GetNote:
 		bit	7, (ix+zTrack.VoiceControl)
 		jr	nz, loc_257
 		push	de
+	if OptimiseDriver
+		ld	de, 8<<8+12
+	else
 		ld	d, 8
 		ld	e, 12
+	endif
 		ex	af, af'
 		xor	a
 
@@ -842,7 +846,6 @@ loc_2A3:
 
 ; =============== S U B	R O U T	I N E =======================================
 
-
 TickMultiplier:
 		ld	b, (ix+zTrack.TempoDivider)
 		dec	b
@@ -856,7 +859,6 @@ loc_2CB:
 ; End of function TickMultiplier
 
 	if OptimiseDriver=0
-
 ; =============== S U B	R O U T	I N E =======================================
 
 TrackTimeout:
@@ -2105,7 +2107,7 @@ loc_8E0:
 		sub	bgm_Last-1
 		jp	c, loc_90B
 		sub	sfx_First-(bgm_Last-1)
-		ld	hl, SndPriorities
+		ld	hl, SFXPriorities
 		add	a, l
 		ld	l, a
 		adc	a, h
@@ -2948,7 +2950,8 @@ SpcFM3_skip:
 		inc	de
 		ret
 ; ---------------------------------------------------------------------------
-FM3_FreqVals:	dw 0, 132h, 18Eh, 1E4h,	234h, 27Eh, 2C2h, 2F0h
+FM3_FreqVals:
+		dw 0, 132h, 18Eh, 1E4h,	234h, 27Eh, 2C2h, 2F0h
 ; ---------------------------------------------------------------------------
 
 cfMetaCoordFlag:
@@ -3445,7 +3448,7 @@ ptr_mus83:	zmake68kPtrs Music83
 ptr_mus84:	zmake68kPtrs Music84
 ptr_mus85:	zmake68kPtrs Music85
 ptr_mus86:	zmake68kPtrs Music86
-ptr_musend
+ptr_musend:
 
 SoundIndex:
 	if FixDriverBugs
@@ -3486,7 +3489,7 @@ ptr_sndAD:	zmake68kPtrs SoundAD+4000h
 ptr_sndAE:	zmake68kPtrs SoundAE+4000h
 ptr_sndAF:	zmake68kPtrs SoundAF+4000h
 	endif
-ptr_sndend
+ptr_sndend:
 
 SpecSoundIndex:
 	if FixDriverBugs
@@ -3501,15 +3504,15 @@ ptr_sndD0:	zmake68kPtrs SoundA0+4000h
 ptr_sndD1:	zmake68kPtrs SoundA1+4000h
 ptr_sndD2:	zmake68kPtrs SoundA3+4000h
 	endif
-ptr_specend
+ptr_specend:
 
-SndPriorities:
-		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh		; $81 - $8F
-		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh	; $90 - $9F
+SFXPriorities:
 		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh	; $A0 - $AF
 		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh	; $B0 - $BF
 		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh	; $C0 - $CF
-		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh									; $D0 - $D9
+		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh	; $D0 - $DF
+		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh	; $E0 - $EF
+		db 7Fh,	7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh, 7Fh										; $F0 - $F8
 
 DAC_Metadata:	macro loc,rate
 		db dpcmLoopCounter(rate)

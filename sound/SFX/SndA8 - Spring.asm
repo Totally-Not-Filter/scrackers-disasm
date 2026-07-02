@@ -20,8 +20,7 @@ Snd08_FM5:
 	dc.b	nRst, $01
 	smpsModSet          $03, $01, $5D, $0F
 	dc.b	nB3, $0A
-	; This could also be smpsModOff
-	smpsModSet          $00, $00, $00, $00
+	smpsModOff
 	smpsSetvoice        $01
 
 Snd08_Loop00:
