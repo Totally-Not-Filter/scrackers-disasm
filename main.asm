@@ -4294,15 +4294,15 @@ loc_64AA:
 		move.l	d1,(a0)
 		clr.w	(sega_colour_number).w
 		move.w	#1,(word_FAC6).w
-		move.w	(word_FFC4).w,d0
+		move.w	(sega_vint_counter).w,d0
 		andi.w	#4,d0
-		move.w	d0,(word_FAC8).w
+		move.w	d0,(sega_animation_index).w
 		enable_vints
 		enable_display
 		addq.w	#4,(subgamemode).w		; increase sega screen mode
 
-loc_64F2:
-		pea	(loc_64F2).l
+SegaScreen_Loop:
+		pea	(SegaScreen_Loop).l
 		bclr	#7,(lagger).w
 
 .wait:
@@ -4317,13 +4317,13 @@ loc_64F2:
 SegaSubArray:
 		bra.w	SegaScreen			; $00
 ; ---------------------------------------------------------------------------
-		bra.w	loc_6526			; $04
+		bra.w	Sega_InitializeAnimation			; $04
 ; ---------------------------------------------------------------------------
 		bra.w	SegaPaletteStart	; $08
 ; ---------------------------------------------------------------------------
 		bra.w	SegaPaletteCycle	; $0C
 ; ---------------------------------------------------------------------------
-		bra.w	loc_65C6			; $10
+		bra.w	Sega_Shine			; $10
 ; ---------------------------------------------------------------------------
 		bra.w	Sega_GotoTitle		; $14
 ; ===========================================================================
@@ -4338,18 +4338,18 @@ MultiReturn:
 ;
 ; ---------------------------------------------------------------------------
 
-loc_6526:
+Sega_InitializeAnimation:
 		tst.b	(ctrl_p1.hold_3).w	; is start button held?
 		bpl.s	Sega_ChooseAnimation	; if not, branch
 		move.w	#$14,(subgamemode).w	; go to title
 
 Sega_ChooseAnimation:
-		move.w	(word_FAC8).w,d0
+		move.w	(sega_animation_index).w,d0
 		jmp	Sega_AnimationTable(pc,d0.w)
 
 Sega_AnimationTable:
-		bra.w	Sega_MainAnimation
-		bra.w	Sega_AltAnimation
+		bra.w	Sega_MainAnimation	; $00
+		bra.w	Sega_AltAnimation	; $04
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Sega Screen palette cycling startup routine
@@ -4385,10 +4385,10 @@ SegaPaletteStart:
 
 SegaPaletteCycle:
 		tst.b	(ctrl_p1.hold_3).w
-		bpl.s	loc_6594
+		bpl.s	.do_cycle
 		move.w	#$14,(subgamemode).w
 
-loc_6594:
+.do_cycle:
 		lea	(pal+4).w,a0		; load palette address to a0
 		move.w	(sega_colour_number).w,d0		; load current colour number to d0
 		add.w	d0,d0				; double it
@@ -4407,12 +4407,12 @@ loc_6594:
 ;
 ; ---------------------------------------------------------------------------
 
-loc_65C6:
+Sega_Shine:
 		tst.b	(ctrl_p1.hold_3).w	; is the start button held?
-		bpl.s	loc_65D2	; if not, branch
+		bpl.s	.do_shine	; if not, branch
 		move.w	#$14,(subgamemode).w
 
-loc_65D2:
+.do_shine:
 		subq.w	#1,(sega_colour_number).w		; minus 1 from colour number
 		bpl.w	MultiReturn			; if still positive, branch
 		moveq	#1,d0
@@ -5359,12 +5359,12 @@ loc_6EB4:
 		move.l	(word_CA5E).w,(vdp_data_port).l
 		writeVSRAM
 		move.l	(word_CDDE).w,(vdp_data_port).l
-		move.w	(word_FFC4).w,d0
+		move.w	(sega_vint_counter).w,d0
+		add.w	d0,d0				; multiply the counter by 4
 		add.w	d0,d0
-		add.w	d0,d0
-		add.w	(word_FFC4).w,d0
-		addq.w	#1,d0
-		move.w	d0,(word_FFC4).w
+		add.w	(sega_vint_counter).w,d0	; add the counter to the multiplied result
+		addq.w	#1,d0				; add 1 to the counter
+		move.w	d0,(sega_vint_counter).w
 		ori.b	#$80,(lagger).w
 		addq.w	#1,(word_F000).w
 		movem.l	(sp)+,d0-a6

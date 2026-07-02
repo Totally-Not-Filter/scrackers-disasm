@@ -274,7 +274,7 @@ word_FAC0:	ds.w 1
 word_FAC2:	ds.w 1
 sega_colour_number:	ds.w 1
 word_FAC6:	ds.w 1
-word_FAC8:	ds.w 1
+sega_animation_index:	ds.w 1
 lword_FACA:	ds.l 1
 			ds.b $12
 word_FAE0:	ds.w 1
@@ -308,7 +308,7 @@ word_FDCC:	ds.w 1
 word_FDCE:	ds.w 1
 			ds.b $1F0
 init_flag:	ds.l 1
-word_FFC4:	ds.w 1
+sega_vint_counter:	ds.w 1
 			ds.b 3
 lagger:		ds.b 1
 			ds.b $36
