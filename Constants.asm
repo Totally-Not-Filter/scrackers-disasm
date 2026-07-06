@@ -107,7 +107,7 @@ bitUp:		equ 0
 ; bit 15 - priority
 
 obj	struct DOTS
-ID:			ds.w 1				; object ID (2 bytes)
+ID:		ds.w 1					; object ID (2 bytes)
 Unk2:		ds.b 2					; unknown (2 bytes)
 Unk4:		ds.w 1					; unknown (2 bytes)
 Pointer:	ds.w 1					; object pointer (2 bytes)
@@ -119,14 +119,14 @@ ScreenY:	ds.w 1					; fixed y position (2 bytes)
 VelX:		ds.l 1					; x velocity (4 bytes)
 VelY:		ds.l 1					; y velocity (4 bytes)
 VRAM:		ds.w 1					; object VRAM location (2 bytes)
-			ds.b 2
+	ds.b 2
 
 HUDTime:
-			ds.b 2
-			ds.b 2
-			ds.b 2
+	ds.b 2
+	ds.b 2
+	ds.b 2
 Angle:		ds.b 1
-			ds.b 1
+		ds.b 1
 Inertia:	ds.w 1
 	endstruct
 
@@ -143,7 +143,7 @@ Inertia:	ds.w 1
 
 ctrl struct DOTS
 type		ds.b 1
-			ds.b 2
+	ds.b 2
 hold_6		ds.b 1
 hold_3		ds.b 1
 press_3		ds.b 1
@@ -158,14 +158,14 @@ var_E		ds.w 1
 	endstruct
 
 mouse struct DOTS
-			ds.b 1
+	ds.b 1
 orientation	ds.b 1
 buttons		ds.b 1
 x_high		ds.b 1
 x_low		ds.b 1
 y_high		ds.b 1
 y_low		ds.b 1
-			ds.b 9
+	ds.b 9
 	endstruct
 
 ; Background music
