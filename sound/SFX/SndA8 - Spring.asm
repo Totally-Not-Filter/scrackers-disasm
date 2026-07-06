@@ -1,6 +1,6 @@
 Snd08_Header:
 	smpsHeaderStartSong 3
-	if FixBugs
+	if FixMusicAndSFXDataBugs
 	smpsHeaderVoice     Snd08_Voices
 	else
 	smpsHeaderVoice     Snd08_Voices+$4000
@@ -8,11 +8,7 @@ Snd08_Header:
 	smpsHeaderTempoSFX  $01
 	smpsHeaderChanSFX   $01
 
-	if FixBugs
 	smpsHeaderSFXChannel cFM5, Snd08_FM5,	$00, $02
-	else
-	smpsHeaderSFXChannel cFM5, Snd08_FM5+$4000,	$00, $02
-	endif
 
 ; FM5 Data
 Snd08_FM5:
@@ -27,7 +23,7 @@ Snd08_Loop00:
 	dc.b	nC5, $02
 	smpsFMAlterVol      $01
 	dc.b	smpsNoAttack
-	if FixBugs
+	if FixMusicAndSFXDataBugs
 	smpsLoop            $00, $19, Snd08_Loop00
 	else
 	smpsLoop            $00, $19, Snd08_Loop00+$4000

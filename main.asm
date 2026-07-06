@@ -8281,7 +8281,7 @@ DecEniMapLocs:
 		move.l	a1,$24(a0)			; move destination into $24 of a0
 		move.l	a0,-(sp)			; move a0 into stack pointer
 		movea.l	(a2)+,a0			; move 128x128 chunks into a0
-		moveq	#0,d0				; clear d0
+		moveq	#0,d0				; clear art tile
 		move.l	a2,-(sp)			; move a2 into the stack pointer
 		jsr	(EniDec).w			; decompress 128x128 chunks
 		movea.l	(sp)+,a2			; restore a2 from the stack pointer
@@ -8289,7 +8289,7 @@ DecEniMapLocs:
 		move.l	a1,$20(a0)			; move destination into $20 of a0
 		move.l	a0,-(sp)			; move a0 into stack pointer
 		movea.l	(a2)+,a0			; move level layout into a0
-		moveq	#0,d0				; clear d0
+		moveq	#0,d0				; clear art tile
 		move.l	a2,-(sp)			; move a2 into the stack pointer
 		jsr	(EniDec).w			; decompress level layout
 		movea.l	(sp)+,a2			; restore a2 from the stack pointer

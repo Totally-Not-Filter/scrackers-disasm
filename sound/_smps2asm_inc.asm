@@ -273,7 +273,11 @@ smpsHeaderSFXChannel macro chanid,loc,pitch,vol
 		fatal "Using channel ID of FM6 ($06) in Sonic 1 or Sonic 2 drivers is unsupported. Change it to another channel."
 	endif
 	dc.b	$80,chanid
+	if FixMusicAndSFXDataBugs
 	CheckedChannelPointer loc
+	else
+	CheckedChannelPointer loc+$4000
+	endif
 	if (chanid&$80)<>0
 		PSGPitchConvert pitch
 	else
