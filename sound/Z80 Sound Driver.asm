@@ -2719,7 +2719,7 @@ cfF2_StopTrk:
 		jp	z,loc_C94
 		xor	a
 		ld	(zPriorityFlag),a
-		bit	7,(iy+zTrack.PlaybackControl)
+		bit	Track_playing,(iy+zTrack.PlaybackControl)
 		jr	z,loc_C1E
 		ld	a,(ix+zTrack.VoiceControl)
 		cp	(iy+zTrack.VoiceControl)
